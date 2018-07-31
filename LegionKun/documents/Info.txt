@@ -1,0 +1,8 @@
+﻿builder.AddInlineField("titl", "value").AddInlineField("titl1", "value1");
+/* идут подрят два столбца*/
+builder.WithUrl("https://media.discordapp.net/attachments/461616566681862144/461984391455965195/unknown.png?width=887&height=473");
+/* встраивают ссыль в сообщение только на заголовок*/
+builder.WithThumbnailUrl("https://s18955.pcdn.co/wp-content/uploads/2017/04/time.png");
+/*большая картинка*/
+builder.WithThumbnailUrl("https://media.discordapp.net/attachments/462236317926031370/464149984934100992/time.png?width=473&height=473");
+/*маленькая картинка*/

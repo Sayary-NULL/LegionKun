@@ -1,0 +1,271 @@
+﻿[27 Июль 2018  0:4:10] произведен сброс!
+[27 Июль 2018  0:4:43] Запуск программы
+[27 Июль 2018  0:4:44] произведен сброс!
+[27 Июль 2018  0:12:32] Запуск программы
+[27 Июль 2018  0:12:32] произведен сброс!
+[27 Июль 2018  0:14:40] Запуск программы
+[27 Июль 2018  0:14:40] произведен сброс!
+[27 Июль 2018  0:18:15] Запуск программы
+[27 Июль 2018  0:18:15] произведен сброс!
+[27 Июль 2018  0:44:32] Запуск программы
+[27 Июль 2018  0:44:32] произведен сброс!
+[27 Июль 2018  1:3:17] Запуск программы
+[27 Июль 2018  1:17:10] Запуск программы
+[27 Июль 2018  1:30:18] Запуск программы
+[27 Июль 2018  2:1:23] Запуск программы
+[27 Июль 2018  2:20:30] Запуск программы
+[27 Июль 2018  2:28:45] Запуск программы
+[27 Июль 2018  2:33:56] Запуск программы
+[27 Июль 2018  16:4:31] Запуск программы
+[27 Июль 2018  16:4:35] Discord.Net v2.0.0-beta2-00975 (API v6)
+[27 Июль 2018  16:4:47] Connecting
+[27 Июль 2018  16:4:49] Connected
+[27 Июль 2018  16:4:50] Ready
+[27 Июль 2018  16:5:16] is errors 'UnknownCommand' is param Unknown command. is channel 'лаборатория-sayary' is user 'Sayary#2523' is context 'sh!hellp'
+[27 Июль 2018  16:5:17] is Guid Disboard is command 'help' is user 'Sayary' is channel 'лаборатория-sayary' is IsRole True 
+[27 Июль 2018  16:5:24] is Guid Disboard is command 'hello' is user 'Sayary' is channel 'лаборатория-sayary' is socetuser false
+[27 Июль 2018  16:6:1] is errors 'Exception' is param Данный ключ отсутствует в словаре. is channel 'лаборатория-sayary' is user 'Sayary#2523' is context 'sh!crosszero satus'
+[27 Июль 2018  16:6:34] is errors 'Exception' is param Данный ключ отсутствует в словаре. is channel 'лаборатория-sayary' is user 'Sayary#2523' is context 'sh!crosszero satus'
+[27 Июль 2018  16:6:43] is errors 'Exception' is param Данный ключ отсутствует в словаре. is channel 'лаборатория-sayary' is user 'Sayary#2523' is context 'sh!crosszero satus'
+[27 Июль 2018  16:7:35] is errors 'Exception' is param Данный ключ отсутствует в словаре. is channel 'лаборатория-sayary' is user 'Sayary#2523' is context 'sh!crosszero satus'
+[27 Июль 2018  16:9:14] Запуск программы
+[27 Июль 2018  16:9:14] Discord.Net v2.0.0-beta2-00975 (API v6)
+[27 Июль 2018  16:9:16] Connecting
+[27 Июль 2018  16:9:18] Connected
+[27 Июль 2018  16:9:19] Ready
+[27 Июль 2018  16:9:51] A MessageReceived handler is blocking the gateway task.
+[27 Июль 2018  16:11:29] Запуск программы
+[27 Июль 2018  16:11:29] Discord.Net v2.0.0-beta2-00975 (API v6)
+[27 Июль 2018  16:11:31] Connecting
+[27 Июль 2018  16:11:34] Connected
+[27 Июль 2018  16:11:34] Ready
+[27 Июль 2018  16:11:58] A MessageReceived handler is blocking the gateway task.
+[27 Июль 2018  16:12:19] is errors 'Exception' is param Данный ключ отсутствует в словаре. is channel 'лаборатория-sayary' is user 'Sayary#2523' is context 'sh!crosszero satus'
+[27 Июль 2018  16:14:17] Запуск программы
+[27 Июль 2018  16:14:17] Discord.Net v2.0.0-beta2-00975 (API v6)
+[27 Июль 2018  16:14:19] Connecting
+[27 Июль 2018  16:14:20] Connected
+[27 Июль 2018  16:14:21] Ready
+[27 Июль 2018  16:15:23] A MessageReceived handler is blocking the gateway task.
+[27 Июль 2018  16:15:28] 
+[27 Июль 2018  16:15:28] Disconnecting
+[27 Июль 2018  16:15:28] Disconnected
+[27 Июль 2018  16:15:29] Connecting
+[27 Июль 2018  16:15:30] Connected
+[27 Июль 2018  16:15:30] Resumed previous session
+[27 Июль 2018  16:15:50] A MessageReceived handler is blocking the gateway task.
+[27 Июль 2018  16:16:46] Запуск программы
+[27 Июль 2018  16:16:47] Discord.Net v2.0.0-beta2-00975 (API v6)
+[27 Июль 2018  16:16:48] Connecting
+[27 Июль 2018  16:16:50] Connected
+[27 Июль 2018  16:16:50] Ready
+[27 Июль 2018  16:17:8] A MessageReceived handler is blocking the gateway task.
+[30 Июль 2018  12:28:59] Запуск программы
+[30 Июль 2018  12:29:1] Discord.Net v2.0.0-beta2-00975 (API v6)
+[30 Июль 2018  12:29:35] Connecting
+[30 Июль 2018  12:29:46] Connected
+[30 Июль 2018  12:29:47] Ready
+[30 Июль 2018  12:32:8] A MessageReceived handler is blocking the gateway task.
+[30 Июль 2018  12:38:20] Запуск программы
+[30 Июль 2018  12:38:20] Discord.Net v2.0.0-beta2-00975 (API v6)
+[30 Июль 2018  12:38:33] Connecting
+[30 Июль 2018  12:38:43] Connected
+[30 Июль 2018  12:38:44] Ready
+[30 Июль 2018  12:39:7] A MessageReceived handler is blocking the gateway task.
+[30 Июль 2018  12:40:8] Запуск программы
+[30 Июль 2018  12:40:8] Discord.Net v2.0.0-beta2-00975 (API v6)
+[30 Июль 2018  12:40:17] Connecting
+[30 Июль 2018  12:40:26] Connected
+[30 Июль 2018  12:40:27] Ready
+[30 Июль 2018  12:40:45] A MessageReceived handler is blocking the gateway task.
+[30 Июль 2018  12:42:10] Запуск программы
+[30 Июль 2018  12:42:10] Discord.Net v2.0.0-beta2-00975 (API v6)
+[30 Июль 2018  12:42:18] Connecting
+[30 Июль 2018  12:42:27] Connected
+[30 Июль 2018  12:42:27] Ready
+[30 Июль 2018  12:42:41] A MessageReceived handler is blocking the gateway task.
+[30 Июль 2018  12:58:17] Запуск программы
+[30 Июль 2018  12:58:17] Discord.Net v2.0.0-beta2-00975 (API v6)
+[30 Июль 2018  12:58:32] Connecting
+[30 Июль 2018  12:58:41] Connected
+[30 Июль 2018  12:58:41] Ready
+[30 Июль 2018  12:59:8] A MessageReceived handler is blocking the gateway task.
+[30 Июль 2018  13:0:34] Запуск программы
+[30 Июль 2018  13:0:35] Discord.Net v2.0.0-beta2-00975 (API v6)
+[30 Июль 2018  13:0:44] Connecting
+[30 Июль 2018  13:0:51] Connected
+[30 Июль 2018  13:0:52] Ready
+[30 Июль 2018  13:1:4] A MessageReceived handler is blocking the gateway task.
+[30 Июль 2018  13:38:4] Запуск программы
+[30 Июль 2018  13:39:59] Запуск программы
+[30 Июль 2018  13:40:0] Discord.Net v2.0.0-beta2-00975 (API v6)
+[30 Июль 2018  13:40:12] Connecting
+[30 Июль 2018  13:41:38] Запуск программы
+[30 Июль 2018  13:41:39] Discord.Net v2.0.0-beta2-00975 (API v6)
+[30 Июль 2018  13:41:47] Connecting
+[30 Июль 2018  13:43:9] Запуск программы
+[30 Июль 2018  13:43:9] Discord.Net v2.0.0-beta2-00975 (API v6)
+[30 Июль 2018  13:43:20] Connecting
+[30 Июль 2018  13:43:27] Connected
+[30 Июль 2018  13:43:27] Ready
+[30 Июль 2018  13:47:6] Запуск программы
+[30 Июль 2018  13:47:6] Discord.Net v2.0.0-beta2-00975 (API v6)
+[30 Июль 2018  13:47:15] Connecting
+[30 Июль 2018  13:47:24] Connected
+[30 Июль 2018  13:47:25] Ready
+[30 Июль 2018  14:15:45] Запуск программы
+[30 Июль 2018  14:15:46] Discord.Net v2.0.0-beta2-00975 (API v6)
+[30 Июль 2018  14:16:0] Connecting
+[30 Июль 2018  14:16:9] Connected
+[30 Июль 2018  14:16:9] Ready
+[30 Июль 2018  14:18:11] 
+[30 Июль 2018  14:18:11] Disconnecting
+[30 Июль 2018  14:18:11] Disconnected
+[30 Июль 2018  14:18:13] Connecting
+[30 Июль 2018  14:18:17] Connected
+[30 Июль 2018  14:18:17] Resumed previous session
+[30 Июль 2018  14:19:3] Запуск программы
+[30 Июль 2018  14:19:3] Discord.Net v2.0.0-beta2-00975 (API v6)
+[30 Июль 2018  14:19:9] Connecting
+[30 Июль 2018  14:19:13] Connected
+[30 Июль 2018  14:19:14] Ready
+[30 Июль 2018  14:41:57] Запуск программы
+[30 Июль 2018  14:41:58] Discord.Net v2.0.0-beta2-00975 (API v6)
+[30 Июль 2018  14:42:21] Connecting
+[30 Июль 2018  14:42:30] Connected
+[30 Июль 2018  14:42:30] Ready
+[30 Июль 2018  14:42:50]Написал генерал! is Guid Disboard is channel лаборатория-sayary is user Sayary#2523
+[30 Июль 2018  14:42:50] A MessageReceived handler is blocking the gateway task.
+[30 Июль 2018  14:42:52] Сработал тригер: ахаха! is Guid Disboard is channel лаборатория-sayary is user Sayary#2523
+[30 Июль 2018  14:44:23] Запуск программы
+[30 Июль 2018  14:44:23] Discord.Net v2.0.0-beta2-00975 (API v6)
+[30 Июль 2018  14:44:32] Connecting
+[30 Июль 2018  14:44:43] Connected
+[30 Июль 2018  14:44:43] Ready
+[30 Июль 2018  14:45:53]Написал генерал! is Guid Disboard is channel лаборатория-sayary is user Sayary#2523
+[30 Июль 2018  14:45:53] A MessageReceived handler is blocking the gateway task.
+[30 Июль 2018  14:45:55] Сработал тригер: ахаха! is Guid Disboard is channel лаборатория-sayary is user Sayary#2523
+[30 Июль 2018  14:47:51] A MessageReceived handler is blocking the gateway task.
+[30 Июль 2018  14:47:54] Сработал тригер: уруру! is Guid Disboard is channel лаборатория-sayary is user Sayary#2523
+[30 Июль 2018  14:49:13] Сработал тригер: я спать! is Guid Disboard is channel лаборатория-sayary is user Sayary#2523
+[30 Июль 2018  14:49:14] A MessageReceived handler is blocking the gateway task.
+[30 Июль 2018  14:49:15] Сработал тригер: я спать! is Guid Disboard is channel лаборатория-sayary is user Sayary#2523
+[30 Июль 2018  14:49:35] Сработал тригер: ахаха! is Guid Disboard is channel лаборатория-sayary is user Sayary#2523
+[30 Июль 2018  14:50:1] A MessageReceived handler is blocking the gateway task.
+[30 Июль 2018  14:50:1] Сработал тригер: канти! is Guid Disboard is channel лаборатория-sayary is user Sayary#2523
+[30 Июль 2018  14:50:4] Сработал тригер: канти! is Guid Disboard is channel лаборатория-sayary is user Sayary#2523
+[30 Июль 2018  14:52:26] Запуск программы
+[30 Июль 2018  14:52:26] Discord.Net v2.0.0-beta2-00975 (API v6)
+[30 Июль 2018  14:52:34] Connecting
+[30 Июль 2018  14:52:44] Connected
+[30 Июль 2018  14:52:45] Ready
+[30 Июль 2018  14:52:58]Написал генерал! is Guid Disboard is channel лаборатория-sayary is user Sayary#2523
+[30 Июль 2018  14:52:58] A MessageReceived handler is blocking the gateway task.
+[30 Июль 2018  14:53:0] Сработал тригер: канти! is Guid Disboard is channel лаборатория-sayary is user Sayary#2523
+[30 Июль 2018  14:53:14] Сработал тригер: я спать! is Guid Disboard is channel лаборатория-sayary is user Sayary#2523
+[30 Июль 2018  15:23:12] Запуск программы
+[30 Июль 2018  15:23:13] Discord.Net v2.0.0-beta2-00975 (API v6)
+[30 Июль 2018  15:23:27] Connecting
+[30 Июль 2018  15:23:38] Connected
+[30 Июль 2018  15:23:38] Ready
+[30 Июль 2018  15:31:49] Запуск программы
+[30 Июль 2018  15:31:49] Discord.Net v2.0.0-beta2-00975 (API v6)
+[30 Июль 2018  15:32:2] Connecting
+[30 Июль 2018  15:32:13] Connected
+[30 Июль 2018  15:32:14] Ready
+[30 Июль 2018  15:32:38] A MessageReceived handler is blocking the gateway task.
+[30 Июль 2018  15:34:41] Запуск программы
+[30 Июль 2018  15:34:42] Discord.Net v2.0.0-beta2-00975 (API v6)
+[30 Июль 2018  15:34:52] Connecting
+[30 Июль 2018  15:35:1] Connected
+[30 Июль 2018  15:35:2] Ready
+[30 Июль 2018  15:35:12] A MessageReceived handler is blocking the gateway task.
+[30 Июль 2018  15:42:45] Запуск программы
+[30 Июль 2018  15:42:46] Discord.Net v2.0.0-beta2-00975 (API v6)
+[30 Июль 2018  15:42:54] Connecting
+[30 Июль 2018  15:43:3] Connected
+[30 Июль 2018  15:43:4] Ready
+[30 Июль 2018  15:45:41] Запуск программы
+[30 Июль 2018  15:45:41] Discord.Net v2.0.0-beta2-00975 (API v6)
+[30 Июль 2018  15:45:51] Connecting
+[30 Июль 2018  15:45:58] Connected
+[30 Июль 2018  15:45:59] Ready
+[30 Июль 2018  15:48:13] Запуск программы
+[30 Июль 2018  15:48:14] Discord.Net v2.0.0-beta2-00975 (API v6)
+[30 Июль 2018  15:48:21] Connecting
+[30 Июль 2018  15:48:31] Connected
+[30 Июль 2018  15:48:32] Ready
+[30 Июль 2018  15:50:37] A MessageReceived handler is blocking the gateway task.
+[30 Июль 2018  15:54:5] Запуск программы
+[30 Июль 2018  15:54:6] Discord.Net v2.0.0-beta2-00975 (API v6)
+[30 Июль 2018  15:54:14] Connecting
+[30 Июль 2018  15:54:24] Connected
+[30 Июль 2018  15:54:24] Ready
+[30 Июль 2018  15:54:41] A MessageReceived handler is blocking the gateway task.
+[30 Июль 2018  16:18:4] Запуск программы
+[30 Июль 2018  16:18:5] Discord.Net v2.0.0-beta2-00975 (API v6)
+[30 Июль 2018  16:18:20] Connecting
+[30 Июль 2018  16:18:29] Connected
+[30 Июль 2018  16:18:30] Ready
+[30 Июль 2018  16:18:46] A MessageReceived handler is blocking the gateway task.
+[30 Июль 2018  16:29:58] Запуск программы
+[30 Июль 2018  16:29:59] Discord.Net v2.0.0-beta2-00975 (API v6)
+[30 Июль 2018  16:30:11] Connecting
+[30 Июль 2018  16:30:23] Connected
+[30 Июль 2018  16:30:24] Ready
+[30 Июль 2018  16:33:52] Запуск программы
+[30 Июль 2018  16:33:52] Discord.Net v2.0.0-beta2-00975 (API v6)
+[30 Июль 2018  16:34:1] Connecting
+[30 Июль 2018  16:34:9] Connected
+[30 Июль 2018  16:34:9] Ready
+[30 Июль 2018  23:13:53] Запуск программы
+[30 Июль 2018  23:13:54] Discord.Net v2.0.0-beta2-00975 (API v6)
+[30 Июль 2018  23:15:25] Запуск программы
+[30 Июль 2018  23:15:25] Discord.Net v2.0.0-beta2-00975 (API v6)
+[30 Июль 2018  23:15:34] Connecting
+[30 Июль 2018  23:15:36] Connected
+[30 Июль 2018  23:15:36] Ready
+[30 Июль 2018  23:18:54] Запуск программы
+[30 Июль 2018  23:19:55] Запуск программы
+[30 Июль 2018  23:19:55] Discord.Net v2.0.0-beta2-00975 (API v6)
+[30 Июль 2018  23:20:7] Connecting
+[30 Июль 2018  23:20:13] Connected
+[30 Июль 2018  23:20:14] Ready
+[30 Июль 2018  23:22:5] Запуск программы
+[30 Июль 2018  23:22:5] Discord.Net v2.0.0-beta2-00975 (API v6)
+[30 Июль 2018  23:22:9] Connecting
+[30 Июль 2018  23:22:12] Connected
+[30 Июль 2018  23:22:12] Ready
+[30 Июль 2018  23:24:21] Запуск программы
+[30 Июль 2018  23:24:22] Discord.Net v2.0.0-beta2-00975 (API v6)
+[30 Июль 2018  23:24:28] Connecting
+[30 Июль 2018  23:24:30] Connected
+[30 Июль 2018  23:24:30] Ready
+[30 Июль 2018  23:42:58] Запуск программы
+[30 Июль 2018  23:43:0] Discord.Net v2.0.0-beta2-00975 (API v6)
+[30 Июль 2018  23:43:23] Connecting
+[30 Июль 2018  23:43:26] Connected
+[30 Июль 2018  23:43:27] Ready
+[30 Июль 2018  23:52:12] Запуск программы
+[30 Июль 2018  23:52:14] Discord.Net v2.0.0-beta2-00975 (API v6)
+[30 Июль 2018  23:52:39] Connecting
+[30 Июль 2018  23:52:50] Connected
+[30 Июль 2018  23:52:51] Ready
+[30 Июль 2018  23:58:41] Запуск программы
+[30 Июль 2018  23:58:43] Discord.Net v2.0.0-beta2-00975 (API v6)
+[30 Июль 2018  23:58:58] Connecting
+[30 Июль 2018  23:59:4] Connected
+[30 Июль 2018  23:59:5] Ready
+[31 Июль 2018  12:31:27] Запуск программы
+[31 Июль 2018  12:31:28] Discord.Net v2.0.0-beta2-00975 (API v6)
+[31 Июль 2018  12:31:51] Connecting
+[31 Июль 2018  12:31:53] Connected
+[31 Июль 2018  12:31:54] Ready
+[31 Июль 2018  12:32:39] Сработал тригер: уруру! is Guid Disboard is channel лаборатория-sayary is user Sayary#2523
+[31 Июль 2018  12:54:1] Запуск программы
+[31 Июль 2018  12:54:2] Discord.Net v2.0.0-beta2-00975 (API v6)
+[31 Июль 2018  12:55:23] Запуск программы
+[31 Июль 2018  12:55:23] Discord.Net v2.0.0-beta2-00975 (API v6)
+[31 Июль 2018  12:55:31] Connecting
+[31 Июль 2018  12:55:32] Connected
+[31 Июль 2018  12:55:32] Ready

@@ -103,7 +103,7 @@ namespace LegionKun.Module
             new Commands( "roleinfo" , "RoleInfo", true),
             new Commands( "ctinfo" , "CTInfo", true),
             new Commands( "cvinfo" , "CVInfo", true),
-            new Commands( "news" , "news [news]", false),
+            new Commands( "news" , "news [news]", true),
             new Commands( "status" , "status", true),
         };
 

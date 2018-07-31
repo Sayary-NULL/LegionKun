@@ -337,6 +337,59 @@ namespace LegionKun.Module
             Module.ConstVariables.Log?.Invoke($" is Guid '{Context.Guild.Name}' is command 'help' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is Content '{video}'");
         }
 
+        [Command("perevorot")]
+        public async Task PerevorotAsync()
+        {
+            if ((Context.User.Id == 252459542057713665) || (Context.User.Id == 329653972728020994))//Костя
+            {
+                DateTimeOffset time = Context.Message.CreatedAt;
+
+                Random ran = new Random();
+
+                int year = time.Year;
+
+                int month = time.Month + ran.Next(1, 13);
+
+                int day = time.Day + ran.Next(1, 31);
+
+                if (month > 12)
+                {
+                    month %= 12;
+                    year++;
+                }
+
+                if (month % 2 == 1)
+                {
+                    day %= 31;
+                }
+                else
+                {
+                    if (month == 2)
+                    {
+                        if(year % 4 == 2)
+                        {
+                            day %= 28;
+                        }
+                        else
+                        {
+                            day %= 29;
+                        }
+                    }
+                    else
+                    {
+                        day %= 30;
+                    }
+                }
+
+                await Context.Channel.SendMessageAsync($"{Context.User.Mention}, переворот назначен на {day}.{month}.{year}");
+            }
+            else if (Context.User.Id == 380057037532561429)//Хидери
+            {
+                await Context.Channel.SendMessageAsync($"{Context.User.Mention}, тебе ли делать переворот. . .");
+            }
+
+        }
+
         [Command("help")]
         public async Task HelpAsync()
         {

@@ -200,7 +200,7 @@
     </Compile>
     <Compile Include="Game\CrossZero\CrossZeroGame.cs" />
     <Compile Include="Game\CrossZero\CrossZeroModule.cs" />
-    <Compile Include="Game\CrossZero\CrossZeroService.cs" />
+    <Compile Include="Game\CrossZero\CrossZeroBase.cs" />
     <Compile Include="Module\ConstVariables.cs" />
     <Compile Include="Module\MainClass.cs" />
     <Compile Include="Module\ThreadClass.cs" />

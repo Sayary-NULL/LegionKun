@@ -412,13 +412,22 @@ namespace LegionKun.Module
                         continue;
                     }
 
-                    Module.ConstVariables.CDiscord guild = server.Value;
+                    if((Context.User.Id == 329653972728020994) && (!Module.ConstVariables.ThisTest))
+                    {
+                        Module.ConstVariables.CDiscord guild = server.Value;
 
-                    /*SocketGuild socketGuild = Module.ConstVariables._Client.GetGuild(server.Key);
+                        await guild.GetDefaultNewsChannel().SendMessageAsync("", false, builder.Build());
+                    }
+                    else
+                    {
+                        if (Context.Guild.Id == server.Value.GuildId)
+                        {
+                            Module.ConstVariables.CDiscord guild = server.Value;
 
-                    SocketTextChannel socketText = socketGuild.GetTextChannel(guild.DefaultChannelNewsId);*/
-
-                    await guild.GetDefaultNewsChannel().SendMessageAsync("", false, builder.Build());
+                            await guild.GetDefaultNewsChannel().SendMessageAsync("", false, builder.Build());
+                            break;
+                        }
+                    }
                 }
 
                 Module.ConstVariables.Log?.Invoke($" is group 'Automatic' is command 'news' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");

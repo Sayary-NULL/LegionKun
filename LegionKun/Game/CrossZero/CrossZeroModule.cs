@@ -28,7 +28,9 @@ namespace LegionKun.Game.CrossZero
                     User1 = Context.User,
                     User2 = User2,
                     Channelsgame = Context.Channel,
-                    Guild = Context.Guild,                    
+                    Guild = Context.Guild,
+                    Message = null,
+                    GameStat = StatGame.Create
                 };
                 DataDictionary.Add(Context.Channel, DBase);
                 await Context.Channel.SendMessageAsync("Создано");
@@ -45,6 +47,7 @@ namespace LegionKun.Game.CrossZero
                 return;
             }
 
+
             await Context.Channel.SendMessageAsync("start");
         }
 
@@ -56,9 +59,9 @@ namespace LegionKun.Game.CrossZero
                 await Context.Channel.SendMessageAsync("В разработке!");
                 return;
             }
-            StatusGame(Context.Channel);
-            DataType Base = DataDictionary[Context.Channel];
-            await Context.Channel.SendMessageAsync($"User1:{Base.User1.Mention};\r\nUser2:{Base.User2.Mention}");
+
+            Embed embed = StatusGame(Context.Channel);
+            await Context.Channel.SendMessageAsync("", false, embed);
         }
     }
 }

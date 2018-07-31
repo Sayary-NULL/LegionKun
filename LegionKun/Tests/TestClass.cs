@@ -117,5 +117,11 @@ namespace LegionKun.Tests
 
 
         }
+
+        [Command("Task")]
+        public async Task TaskAsync()
+        {
+            await Context.Channel.SendMessageAsync("Уверены?");
+        }
     }
 }

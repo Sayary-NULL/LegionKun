@@ -34,7 +34,6 @@ namespace LegionKun.Tests
     {
         [Command("test")]/*Произведено исправление[10]*/
         [Alias("tem")]
-        [LegionKunAtribute("Name")]
         public async Task TestAsync(SocketUser text = null)
         {
 

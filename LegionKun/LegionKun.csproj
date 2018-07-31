@@ -213,7 +213,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Tests\LegionKunAtribute.cs" />
     <Compile Include="Tests\TestClass.cs" />
   </ItemGroup>
   <ItemGroup>

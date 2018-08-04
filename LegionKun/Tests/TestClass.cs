@@ -1,39 +1,20 @@
 ﻿using System;
-using System.IO;
 using System.Threading.Tasks;
-using System.Net;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Net.Mime;
-using System.Threading;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
-using SixLabors.ImageSharp.Processing.Text;
-using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using Discord.Addons.SimplePermissions;
-using Google.Apis.Auth.OAuth2;
-using Google.Apis.Services;
-using Google.Apis.Upload;
-using Google.Apis.Util.Store;
-using Google.Apis.YouTube.v3;
-using Google.Apis.YouTube.v3.Data;
-using System.Reflection;
-using System.Collections.Generic;
-using Discord.Addons.MpGame;
-/*Игра в крестики нолики*/
+using System.Data.SqlClient;
+
 //UCDnNz_stjQqcikCvIF2NTAw - Kanade
 //UCScLnRAwAT2qyNcvaFSFvYA - Sharon
 //UCuF8ghQWaa7K-28llm-K3Zg - Anilibria.TV
 namespace LegionKun.Tests
 {
     [Group("tests")]
-    public class TestClass : ModuleBase<SocketCommandContext>
+    class TestClass : ModuleBase<SocketCommandContext>
     {
-        [Command("test")]/*Произведено исправление[10]*/
-        [Alias("tem")]
+        [Command("test")]/*Произведено исправление[100]*/
+        [Alias("задрал!")]
         public async Task TestAsync(SocketUser text = null)
         {
 
@@ -59,19 +40,9 @@ namespace LegionKun.Tests
             if (IsRole)
             {
                 var mess = await ReplyAsync($"{Context.User.Mention}, :grin:");
-                if (text == null)
+                /*if (text == null)
                     return;
-                /*EmbedBuilder builder = new EmbedBuilder();
-                builder.WithTitle("Test").WithColor(Color.Magenta).WithDescription("text").WithFooter("text", Context.Guild.IconUrl);
-
-                builder.WithAuthor(Context.User.Username, Context.User.GetAvatarUrl(), Context.User.GetAvatarUrl());
-
-                var mess = await Context.Channel.SendMessageAsync("", false, builder.Build());
-
-                builder.WithDescription("edit test");
-
-                await mess.ModifyAsync(msg => msg.Embed = builder.Build());*/
-
+                
                 var client = new WebClient();
                 var res = client.DownloadData(text.GetAvatarUrl());
 
@@ -95,26 +66,60 @@ namespace LegionKun.Tests
                     }
 
                     await Context.Channel.SendFileAsync(Module.ConstVariables.ToStream(img), $"{text.Username}.jpeg");
-                }
-                /*MemoryStream memory = new MemoryStream(res);
+                }*/
 
-                //var bmp = new Bitmap(500, 500);
-                var bmp = new Bitmap(memory);
+                /*using (Image<Rgba32> img = new Image<Rgba32>(500,500))
+                {
+                    var bmp = new Bitmap(Module.ConstVariables.Filed);
+                    MemoryStream memory = new MemoryStream();
+                    bmp.Save(memory, System.Drawing.Imaging.ImageFormat.Png);
+                    var todraw = SixLabors.ImageSharp.Image.Load(memory.ToArray());
 
-                var g = Graphics.FromImage(bmp);
-                g.DrawString(text.Username, new Font(FontFamily.Families[5], 10, FontStyle.Underline), new SolidBrush(System.Drawing.Color.Black), 0, 0);
-                bmp.Save("result.jpg", System.Drawing.Imaging.ImageFormat.Jpeg);
 
-                await Context.Channel.SendFileAsync(memory, $"{text.Username}.ipg");
-
-                g.Dispose();
-                bmp.Dispose();
-
-                await Context.Channel.SendFileAsync("result.jpg");*/
+                    img.Mutate(x => x.DrawImage(GraphicsOptions.Default, Module.ConstVariables.IFiled));
+                    img.Mutate(x => x.DrawImage(GraphicsOptions.Default, Module.ConstVariables.ICross, new SixLabors.Primitives.Point(0,0)));
+                    img.Mutate(x => x.DrawImage(GraphicsOptions.Default, Module.ConstVariables.IZero, new SixLabors.Primitives.Point(170, 0)));
+                    await Context.Channel.SendFileAsync(Module.ConstVariables.ToStream(img), "filed.png");
+                }*/
             }
             else await ReplyAsync($"{Context.User.Mention}, :sweat_smile:");
 
 
+
+        }
+
+        [Command("connect")]
+        public async Task ConnectAsync()
+        {
+            await Module.ConstVariables.SendMessageAsync(Context.Channel, "Заморожено!", deleteAfter: 5);
+            return;
+
+            string Ask = $"INSERT INTO Users (UserId, Name) VALUES (1, {Context.User.Id}, '{Context.User.Username}')";
+            //string Ask = $"UPDATE Users Set Name = '{Context.User.Username}', UserId = {Context.User.Id} WHERE id = 1";
+            //string Ask = "DELETE  FROM Users WHERE Name='Sayary'";
+
+            using (SqlConnection conect = new SqlConnection(Base.Resource1.ConnectionKey))
+            {
+                conect.Open();
+                Console.WriteLine("Подключено!");
+                try
+                {
+                    SqlCommand command = new SqlCommand(Ask, conect);
+                    int number = command.ExecuteNonQuery();
+                    await Context.Channel.SendMessageAsync(conect.Database);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                }
+            }
+
+            Console.WriteLine("Отключено!");
+        }
+
+        [Command("start", RunMode = RunMode.Async)]
+        public async Task Async()
+        {
 
         }
     }

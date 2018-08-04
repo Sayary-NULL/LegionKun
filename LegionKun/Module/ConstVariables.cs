@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Discord.Addons.Interactive;
 using Microsoft.Extensions.DependencyInjection;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp;
@@ -19,7 +18,9 @@ namespace LegionKun.Module
     {
         public static DiscordSocketClient _Client { get; set; }
         public static CommandService _Command { get; set; }
-        public static IServiceProvider _Service { get; set; }
+        public static CommandService _GameCommand { get; set; }
+        public static IServiceProvider _UserService { get; set; }
+        public static IServiceProvider _GameService { get; set; }
 
         /// <summary>
         /// Класс серверов где работает бот
@@ -39,6 +40,8 @@ namespace LegionKun.Module
             public int Restruction = 50;
             public int CountRes = 0;
             public string Name;
+            public bool Debug = false;
+            public bool IsOn = false;
             //мини-класс для random
             public class Rmessages
             {
@@ -121,7 +124,12 @@ namespace LegionKun.Module
             }
         }
 
-        public static Emoji EReturn = new Emoji("🔄");
+        public static class DEmoji
+        {
+            public static Emoji EReturn = new Emoji("🔄");
+
+            public static Emoji EDelete = new Emoji("❎");
+        }
 
         public static string WiteListGuild { get; private set; } = @"";
 
@@ -129,9 +137,23 @@ namespace LegionKun.Module
 
         public static string Basht { get; private set; } = @"";
 
+        public static string Filed { get; private set; } = @"";
+
+        public static string Cross { get; private set; } = @"";
+
+        public static string Zero { get; private set; } = @"";
+
         public static string UTHelp { get; private set; } = "";
 
         public static string ATHelp { get; private set; } = "";
+
+        public static string Angle { get; private set; } = "";
+
+        public static string Line { get; private set; } = "";
+
+        public static string Angle90 { get; private set; } = "";
+
+        public static string Line90 { get; private set; } = "";
 
         public static string Video1Id { get; set; } = "";
 
@@ -140,8 +162,6 @@ namespace LegionKun.Module
         public static bool ThisTest { get; private set; } = true;
         
         public static bool Sharon { get; set; } = false;
-
-        public static bool IsOn { get; set; } = false;
 
         public delegate void DLogger(string str);
 
@@ -161,6 +181,22 @@ namespace LegionKun.Module
             return imageStream;
         }
 
+        public static async Task<IUserMessage> SendMessageAsync(this IMessageChannel channel, string text, bool isTTS = false, Embed embed = null, uint deleteAfter = 0, RequestOptions options = null)
+        {
+            var message = await channel.SendMessageAsync(text, isTTS, embed, options);
+            if (deleteAfter > 0)
+            {
+                var _ = Task.Run(() => DeleteAfterAsync(message, deleteAfter));
+            }
+            return message;
+        }
+
+        private static async Task DeleteAfterAsync(IUserMessage message, uint deleteAfter)
+        {
+            await Task.Delay(TimeSpan.FromSeconds(deleteAfter));
+            await message.DeleteAsync();
+        }
+
         public static void InstallationLists()
         {
             if (ThisTest)
@@ -168,19 +204,37 @@ namespace LegionKun.Module
                 WiteListGuild = @"C:\Users\shlia\source\repos\LegionKun\LegionKun\Base\WiteListGuild.txt";
                 Logger = @"C:\Users\shlia\source\repos\LegionKun\LegionKun\Base\Logger.txt";
                 Basht = @"C:\Users\shlia\source\repos\LegionKun\LegionKun\Base\Bash.txt";
+                Filed = @"C:\Users\shlia\source\repos\LegionKun\LegionKun\Base\filed.jpg";
+                Cross = @"C:\Users\shlia\source\repos\LegionKun\LegionKun\Base\cross.png";
+                Zero = @"C:\Users\shlia\source\repos\LegionKun\LegionKun\Base\zero.png";
+                Angle = @"C:\Users\shlia\source\repos\LegionKun\LegionKun\Base\angle.png";
+                Line = @"C:\Users\shlia\source\repos\LegionKun\LegionKun\Base\line.png";
+                Angle90 = @"C:\Users\shlia\source\repos\LegionKun\LegionKun\Base\ahgle 90.png";
+                Line90 = @"C:\Users\shlia\source\repos\LegionKun\LegionKun\Base\line 90.png";
             }
             else
             {
                 WiteListGuild = @"Base\WiteListGuild.txt";
                 Logger = @"Base\Logger.txt";
                 Basht = @"Base\Bash.txt";
+                Filed = @"Base\filed.jpg";
+                Cross = @"Base\cross.png";
+                Zero = @"Base\zero.png";
+                Angle = @"Base\ch1.png";
+                Line = @"Base\ch2.png";
+                Angle = @"Base\angle 90.png";
+                Line = @"Base\line 90.png";
             }
 
             _Client = new DiscordSocketClient();
 
             _Command = new CommandService();
 
-            _Service = new ServiceCollection().AddSingleton(_Client).AddSingleton(_Command).BuildServiceProvider();
+            _GameCommand = new CommandService();
+
+            _UserService = new ServiceCollection().AddSingleton(_Client).AddSingleton(_Command).BuildServiceProvider();
+
+            _GameService = new ServiceCollection().AddSingleton(_Client).AddSingleton(_GameCommand).AddSingleton<InteractiveService>().BuildServiceProvider();
 
             int i = 1;
             foreach(var help in UserCommand)
@@ -207,7 +261,7 @@ namespace LegionKun.Module
             ATHelp += "2: CTInfo\r\n";
             ATHelp += "3: CVInfo\r\n";
             ATHelp += "4: news [message]\r\n";
-            ATHelp += "5: status\r\n";*/
+            ATHelp += "5: status\r\n";*/            
 
             bool result = GuildDowload();
             Mess($"GuildDowload: {result}");

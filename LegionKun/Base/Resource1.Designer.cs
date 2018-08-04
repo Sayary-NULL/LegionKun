@@ -61,6 +61,15 @@ namespace LegionKun.Base {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Data Source=KIRILL\SQL_LEGIONKUN;Initial Catalog=UserId;Integrated Security=True.
+        /// </summary>
+        internal static string ConnectionKey {
+            get {
+                return ResourceManager.GetString("ConnectionKey", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на 4.22.
         /// </summary>
         internal static string VersionBot {

@@ -117,6 +117,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ConnectionKey" xml:space="preserve">
+    <value>Data Source=KIRILL\SQL_LEGIONKUN;Initial Catalog=UserId;Integrated Security=True</value>
+    <comment>строка подключения к БД</comment>
+  </data>
   <data name="VersionBot" xml:space="preserve">
     <value>4.22</value>
     <comment>Версия бота</comment>

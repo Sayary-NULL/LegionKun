@@ -43,7 +43,8 @@ namespace LegionKun.Module
 
         private static void MainFunc(object obj)
         {
-
+            ConstVariables.Mess?.Invoke(" Запуск потока: MainFunc;");
+            ConstVariables.Log?.Invoke(" Запуск потока: MainFunc;");
             while (true)
             {
                 TimeSpan time = DateTime.Now.TimeOfDay;
@@ -57,7 +58,7 @@ namespace LegionKun.Module
                     }
                     Module.ConstVariables.Mess?.Invoke($"[{time.Hours}:{time.Minutes}:{time.Seconds}] произведен сброс!");
                     Module.ConstVariables.Log?.Invoke(" произведен сброс!");
-                }//else Messege($"Time: {time.Hours}");
+                }
 
                 Thread.Sleep(900000);
                 Thread.Sleep(900000);
@@ -69,15 +70,14 @@ namespace LegionKun.Module
         private static async void Youtube(object obj)
         {
             Thread.Sleep(60000);
-            Console.WriteLine("Start thread");
+            ConstVariables.Mess?.Invoke(" Запуск потока: YouTubeStream;");
+            ConstVariables.Log?.Invoke(" Запуск потока: YouTubeStream;");
 
             Module.ConstVariables.CDiscord guild = Module.ConstVariables.CServer[423154703354822668];
             SocketTextChannel channel = null;
 
             if (Module.ConstVariables.ThisTest)
             {
-                /*Console.WriteLine("Это тестовый бот! Поток не запущен!");
-                return;*/
                 guild = Module.ConstVariables.CServer[435485527156981770];
                 channel = guild.GetDefaultChannel();
             }
@@ -85,7 +85,7 @@ namespace LegionKun.Module
 
             EmbedBuilder builder = new EmbedBuilder();
             builder.WithFooter(guild.Name, guild.GetGuild().IconUrl);
-            builder.AddField("Новости", $"@here, у Генерала найден стрим!");
+            builder.AddField("Новости", "У Генерала найден стрим!");
             builder.WithColor(Discord.Color.Red);
 
             var youtubeService = new YouTubeService(new BaseClientService.Initializer()
@@ -135,24 +135,40 @@ namespace LegionKun.Module
 
                 if ((url != Module.ConstVariables.Video1Id) || (url2 != Module.ConstVariables.Video2Id))
                 {
-                    if ((url != "") || (url2 != ""))
+                    foreach(KeyValuePair<ulong, ConstVariables.CDiscord> key in ConstVariables.CServer)
                     {
-                        await channel.SendMessageAsync("", false, builder.Build());
+                        await key.Value.GetDefaultNewsChannel().SendMessageAsync();
+
+                        if ((url != "") || (url2 != ""))
+                        {
+                            await key.Value.GetDefaultNewsChannel().SendMessageAsync("@here", false, builder.Build());
+                        }
+
+                        if (url != "")
+                        {
+                            await key.Value.GetDefaultNewsChannel().SendMessageAsync("https://www.youtube.com/video/" + url);
+                            Module.ConstVariables.Video1Id = url;                            
+                            url = "";
+                        }
+
+                        if (url2 != "")
+                        {
+                            await key.Value.GetDefaultNewsChannel().SendMessageAsync("https://www.youtube.com/video/" + url2);
+                            Module.ConstVariables.Video2Id = url2;                            
+                            url2 = "";
+                        }
                     }
 
-                    if (url != "")
+                    if(url != "")
                     {
-                        await channel.SendMessageAsync("https://www.youtube.com/video/" + url);
-                        Module.ConstVariables.Video1Id = url;
-                         url = "";
+                        ConstVariables.Log?.Invoke(" Найдено соответствие с запростом url1: " + "https://www.youtube.com/video/" + url);
                     }
 
                     if (url2 != "")
                     {
-                        await channel.SendMessageAsync("https://www.youtube.com/video/" + url2);
-                        Module.ConstVariables.Video2Id = url2;
-                        url2 = "";
+                        ConstVariables.Log?.Invoke(" Найдено соответствие с запростом url1: " + "https://www.youtube.com/video/" + url2);
                     }
+
                 }
                 Thread.Sleep(60000);
             } while (true);

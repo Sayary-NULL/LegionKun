@@ -14,12 +14,12 @@ using Google.Apis.Services;
 
 namespace LegionKun.Module
 {
-    public class UserCommands : ModuleBase<SocketCommandContext>
+    class UserCommands : ModuleBase<SocketCommandContext>
     {
         [Command("hello")]
         public async Task HelloAsyng(SocketUser user = null)
         {
-            if (!Module.ConstVariables.IsOn)
+            if (!ConstVariables.CServer[Context.Guild.Id].IsOn)
             {
                 if (!Module.ConstVariables.ThisTest)
                     return;
@@ -59,7 +59,7 @@ namespace LegionKun.Module
         [Command("say")]
         public async Task SayMessAsync([Remainder] string mess)
         {
-            if (!Module.ConstVariables.IsOn)
+            if (!ConstVariables.CServer[Context.Guild.Id].IsOn)
             {
                 if (!Module.ConstVariables.ThisTest)
                     return;
@@ -84,7 +84,7 @@ namespace LegionKun.Module
         [Command("warn")]
         public async Task WarnAsync(SocketUser user, [Remainder] string coment = null)
         {
-            if (!Module.ConstVariables.IsOn)
+            if (!ConstVariables.CServer[Context.Guild.Id].IsOn)
             {
                 if (!Module.ConstVariables.ThisTest)
                     return;
@@ -156,9 +156,9 @@ namespace LegionKun.Module
         [Command("RoleInfo")]
         public async Task InfoRoleAsync([Remainder]string message)
         {
-            if (!Module.ConstVariables.IsOn)
+            if (!ConstVariables.CServer[Context.Guild.Id].IsOn)
             {
-                if(!Module.ConstVariables.ThisTest)
+                if (!Module.ConstVariables.ThisTest)
                     return;
             }
 
@@ -236,7 +236,7 @@ namespace LegionKun.Module
         [Command("time")]
         public async Task TimeAsync()
         {
-            if (!Module.ConstVariables.IsOn)
+            if (!ConstVariables.CServer[Context.Guild.Id].IsOn)
             {
                 if (!Module.ConstVariables.ThisTest)
                     return;
@@ -263,6 +263,12 @@ namespace LegionKun.Module
         [Command("random")]
         public async Task RandomAsync(int min, int max)
         {
+            if (!ConstVariables.CServer[Context.Guild.Id].IsOn)
+            {
+                if (!Module.ConstVariables.ThisTest)
+                    return;
+            }
+
             if (!Module.ConstVariables.UserCommand[5].IsOn)
             {
                 return;
@@ -286,7 +292,7 @@ namespace LegionKun.Module
 
             var mess = await Context.Channel.SendMessageAsync("", false, builder.Build());
             
-            await mess.AddReactionAsync(ConstVariables.EReturn);
+            await mess.AddReactionAsync(ConstVariables.DEmoji.EReturn);
 
             guild.RMessages.MaxValue = max;
             guild.RMessages.MinValue = min;
@@ -301,6 +307,12 @@ namespace LegionKun.Module
         [Command("search")]
         public async Task SearchAsync([Remainder]string video)
         {
+            if (!ConstVariables.CServer[Context.Guild.Id].IsOn)
+            {
+                if (!Module.ConstVariables.ThisTest)
+                    return;
+            }
+
             if (!Module.ConstVariables.UserCommand[6].IsOn)
             {
                 return;
@@ -340,6 +352,12 @@ namespace LegionKun.Module
         [Command("perevorot")]
         public async Task PerevorotAsync()
         {
+            if (!ConstVariables.CServer[Context.Guild.Id].IsOn)
+            {
+                if (!Module.ConstVariables.ThisTest)
+                    return;
+            }
+
             if ((Context.User.Id == 252459542057713665) || (Context.User.Id == 329653972728020994))//Костя
             {
                 DateTimeOffset time = Context.Message.CreatedAt;
@@ -393,7 +411,7 @@ namespace LegionKun.Module
         [Command("help")]
         public async Task HelpAsync()
         {
-            if (!Module.ConstVariables.IsOn)
+            if (!ConstVariables.CServer[Context.Guild.Id].IsOn)
             {
                 if (!Module.ConstVariables.ThisTest)
                     return;

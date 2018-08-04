@@ -1,6 +1,10 @@
 ﻿using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp.Processing.Drawing;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -31,12 +35,6 @@ namespace LegionKun.Module
 
         public async Task MessageRec(SocketMessage Messag)
         {
-            if (!Module.ConstVariables.IsOn)
-            {
-                if (!Module.ConstVariables.ThisTest)
-                    return;
-            }
-
             string mess = Messag.Content.ToLower();
 
             SocketUserMessage Messege = Messag as SocketUserMessage;
@@ -44,6 +42,12 @@ namespace LegionKun.Module
             SocketCommandContext Context = new SocketCommandContext(Module.ConstVariables._Client, Messege);
             
             ISocketMessageChannel channel = Context.Channel;
+
+            if (!ConstVariables.CServer[Context.Guild.Id].IsOn)
+            {
+                if (!Module.ConstVariables.ThisTest)
+                    return;
+            }           
 
             bool IsTrigger = false;
 
@@ -58,7 +62,7 @@ namespace LegionKun.Module
                     builder.WithAuthor(Context.User.Username, Context.User.GetAvatarUrl());
                     builder.WithDescription("Генерал, мы тебя ждали!");
                     await channel.SendMessageAsync("", false, builder.Build());
-                    Logger($"Написал генерал! is Guid {guild.GetGuild().Name} is channel {channel.Name} is user {Context.User.Username}#{Context.User.Discriminator}");
+                    Logger($"Написал генерал! is Guid '{guild.GetGuild().Name}' is channel '{channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}'");
                 }
             }
 
@@ -174,14 +178,15 @@ namespace LegionKun.Module
 
                 if (IsTrigger)
                 {
-                    Logger($" Сработал тригер: {mess}! is Guid {guild.GetGuild().Name} is channel {channel.Name} is user {Context.User.Username}#{Context.User.Discriminator}");
+                    Logger($" Сработал тригер: {mess}! is Guid {guild.GetGuild().Name} is channel {channel.Name} is user '{Context.User.Username}#{Context.User.Discriminator}'");
                 }
             }
         }
 
         public virtual void Messege(string str)
         {
-            Console.WriteLine(str);
+            TimeSpan time = DateTime.Now.TimeOfDay;
+            Console.WriteLine($"[{time.Hours}:{time.Minutes}:{time.Seconds}.{time.Milliseconds}] {str}");
         }
 
         public virtual void Logger(string mess)
@@ -212,9 +217,6 @@ namespace LegionKun.Module
                 }
 
                 writer.WriteLine($"[{day.Day} {month} {day.Year}  {time.Hours}:{time.Minutes}:{time.Seconds}]{mess}");
-
-                if (!Module.ConstVariables.ThisTest)
-                    Messege($"[{day.Day} {month} {day.Year}  {time.Hours}:{time.Minutes}:{time.Seconds}]{mess}");
             }
         }
     }

@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace LegionKun.Module
 {
-    [Group("Admin")]
-    public class AdminComands : ModuleBase<SocketCommandContext>
+    [Group("admin")]
+    class AdminComands : ModuleBase<SocketCommandContext>
     {
         [Command("RoleInfo")]/*Произведено исправление[2]*/
         public async Task IhfoAsync()
@@ -78,7 +78,7 @@ namespace LegionKun.Module
 
                 await Context.Channel.SendMessageAsync("", false, builder.Build());
             }
-            else Console.WriteLine("Bad Role!");
+            else await Module.ConstVariables.SendMessageAsync(Context.Channel, "Нет прав!", deleteAfter: 5);
         }
 
         [Command("CTInfo")]/*Произведено исправление[1]*/
@@ -149,7 +149,7 @@ namespace LegionKun.Module
                     await Context.Channel.SendMessageAsync("Ошибка получения информации");
                 }
             }
-            else Console.WriteLine("Bad Role");
+            else await Module.ConstVariables.SendMessageAsync(Context.Channel, "Нет прав!", deleteAfter: 5);
         }
 
         [Command("CVInfo")]/*Произведено исправление[2]*/
@@ -212,12 +212,13 @@ namespace LegionKun.Module
 
                 await Context.Channel.SendMessageAsync("", false, builder.Build());
             }
+            else await Module.ConstVariables.SendMessageAsync(Context.Channel, "Нет прав!", deleteAfter: 5);
         }
         
         [Command("off")]/*Произведено исправление[3]*/
-        public async Task OffBotAsync(bool ass = false)
+        public async Task OffBotAsync(byte level = 0)
         {
-            if(!Module.ConstVariables.IsOn)
+            if(!Module.ConstVariables.CServer[Context.Guild.Id].IsOn)
             {
                 return;
             }
@@ -228,21 +229,6 @@ namespace LegionKun.Module
             }
 
             await Module.ConstVariables._Client.SetStatusAsync(UserStatus.DoNotDisturb);
-
-            if (ass)
-            {
-                try
-                {
-                    await Context.Message.DeleteAsync();
-                }
-                catch
-                {
-                    Console.WriteLine("Ошибка доступа!");
-                }
-
-                Module.ConstVariables.IsOn = false;
-                return;
-            }
 
             var user = Context.Guild.GetUser(Context.User.Id);
 
@@ -268,17 +254,34 @@ namespace LegionKun.Module
                     Console.WriteLine("Ошибка доступа!");
                 }
 
+                switch (level)
+                {
+                    case 1:
+                        {
+                            Module.ConstVariables.CServer[Context.Guild.Id].IsOn = false;
+                            ConstVariables.Log?.Invoke($" is group 'Admin' is command 'on' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is level {level}");
+                            return;
+                        }
+                    case 2:
+                        {
+                            foreach (var key in Module.ConstVariables.CServer)
+                            {
+                                Module.ConstVariables.CServer[key.Key].IsOn = false;
+                            }
+
+                            ConstVariables.Log?.Invoke($" is group 'Admin' is command 'on' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is level {level}");
+                            return;
+                        }
+                    default: { break; }
+                }
+
                 EmbedBuilder builder = new EmbedBuilder();
 
                 builder.WithTitle("!!!Внимание!!!").WithDescription("бот будет выключен на обновление :stuck_out_tongue_winking_eye:").WithColor(Discord.Color.Magenta);
 
                 foreach (var server in Module.ConstVariables.CServer)
                 {
-                    Module.ConstVariables.CDiscord guild = server.Value;
-
-                    /*SocketGuild socketGuild = Module.ConstVariables._Client.GetGuild(server.Key);
-
-                    SocketTextChannel socketText = socketGuild.GetTextChannel(guild.DefaultChannelId);*/
+                    ConstVariables.CDiscord guild = server.Value;
 
                     var result = await guild.GetDefaultChannel().SendMessageAsync("", false, builder.Build());
 
@@ -288,15 +291,16 @@ namespace LegionKun.Module
                 }
 
                 Module.ConstVariables.Log?.Invoke($" is group 'Automatic' is command 'off' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
-                
-                Module.ConstVariables.IsOn = false;
+
+                Module.ConstVariables.CServer[Context.Guild.Id].IsOn = false;
             }
+            else await Module.ConstVariables.SendMessageAsync(Context.Channel, "Нет прав!", deleteAfter: 5);
         }
 
         [Command("on")]/*Произведено исправление[1]*/
-        public async Task OnBotAsync(bool ass = false)
+        public async Task OnBotAsync(byte level = 0)
         {
-            if (Module.ConstVariables.IsOn)
+            if (Module.ConstVariables.CServer[Context.Guild.Id].IsOn)
             {
                 return;
             }
@@ -308,19 +312,25 @@ namespace LegionKun.Module
 
             await Module.ConstVariables._Client.SetStatusAsync(UserStatus.Online);
 
-            if (ass)
+            switch(level)
             {
-                try
-                {
-                    await Context.Message.DeleteAsync();
-                }
-                catch
-                {
-                    Console.WriteLine("Ошибка доступа!");
-                }
+                case 1:
+                    {
+                        Module.ConstVariables.CServer[Context.Guild.Id].IsOn = true;
+                        ConstVariables.Log?.Invoke($" is group 'Admin' is command 'on' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is level {level}");
+                        return;
+                    }
+                case 2:
+                    {
+                        foreach(var key in Module.ConstVariables.CServer)
+                        {
+                            Module.ConstVariables.CServer[key.Key].IsOn = true;
+                        }
 
-                Module.ConstVariables.IsOn = true;
-                return;
+                        ConstVariables.Log?.Invoke($" is group 'Admin' is command 'on' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is level {level}");
+                        return;
+                    }
+                default: { break; }
             }
 
             var user = Context.Guild.GetUser(Context.User.Id);
@@ -359,15 +369,16 @@ namespace LegionKun.Module
                     IEmote em = new Emoji("💗");
 
                     await result.AddReactionAsync(em);
-                }                             
+                }
 
-                Module.ConstVariables.Log?.Invoke($" is group 'Automatic' is command 'on' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
+                ConstVariables.Log?.Invoke($" is group 'Automatic' is command 'on' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
 
-                Module.ConstVariables.IsOn = true;
+                Module.ConstVariables.CServer[Context.Guild.Id].IsOn = true;
             }
+            else await Module.ConstVariables.SendMessageAsync(Context.Channel, "Нет прав!", deleteAfter: 5);
         }
 
-        [Command("news")]/*Произведено исправление[1]*/
+        [Command("ne  ws")]/*Произведено исправление[1]*/
         public async Task NewsAsync([Remainder]string mess)
         {
             if (Module.ConstVariables.ThisTest)
@@ -430,9 +441,9 @@ namespace LegionKun.Module
                     }
                 }
 
-                Module.ConstVariables.Log?.Invoke($" is group 'Automatic' is command 'news' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
-                
+                ConstVariables.Log?.Invoke($" is group 'Automatic' is command 'news' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
             }
+            else await Module.ConstVariables.SendMessageAsync(Context.Channel, "Нет прав!", deleteAfter: 5);
         }
 
         [Command("status")]
@@ -473,7 +484,7 @@ namespace LegionKun.Module
                 builder.WithTitle("the status of the bot").WithFooter(Context.Guild.Name, Context.Guild.IconUrl);
                 builder.WithAuthor(Context.User.Username, Context.User.GetAvatarUrl());
                 builder.AddField("Guild", Context.Guild.Name, true).AddField("Resurs", guild.CountRes + "/" + guild.Restruction, true);
-                builder.AddField("Is on?", Module.ConstVariables.IsOn, true);
+                builder.AddField("Is on?", Module.ConstVariables.CServer[Context.Guild.Id].IsOn, true);
 
                 foreach (var rol in guild._Role)
                 {
@@ -499,6 +510,75 @@ namespace LegionKun.Module
 
                 await Context.Channel.SendMessageAsync("", false, builder.Build());
             }
-        }                        
+            else await Module.ConstVariables.SendMessageAsync(Context.Channel, "Нет прав!", deleteAfter: 5);
+        }
+
+        [Command("debug")]
+        public async Task DebugAsync()
+        {
+            var user = Context.Guild.GetUser(Context.User.Id);
+
+            ConstVariables.CDiscord guild = ConstVariables.CServer[Context.Guild.Id];
+
+            bool IsRole = false;
+
+            foreach (var role in user.Roles)
+                if (guild._Role.ContainsKey(role.Id))
+                {
+                    IsRole = true;
+                    break;
+                }
+
+            if (IsRole)
+            {
+                try
+                {
+                    await Context.Message.DeleteAsync();
+                }
+                catch
+                {
+                    Console.WriteLine("Ошибка доступа!");
+                }
+
+                ConstVariables.CServer[Context.Guild.Id].Debug = !Module.ConstVariables.CServer[Context.Guild.Id].Debug;
+
+                ConstVariables.Log?.Invoke($" is group 'Admin' is command 'debug' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is result '{(guild.Debug ? "on":"off")}'");
+            }
+            else await Module.ConstVariables.SendMessageAsync(Context.Channel, "Нет прав!", deleteAfter: 5);
+        }
+
+        [Command("logout")]
+        public async Task LogOutAsync()
+        {
+            var user = Context.Guild.GetUser(Context.User.Id);
+
+            ConstVariables.CDiscord guild = ConstVariables.CServer[Context.Guild.Id];
+
+            bool IsRole = false;
+
+            foreach (var role in user.Roles)
+                if (guild._Role.ContainsKey(role.Id))
+                {
+                    IsRole = true;
+                    break;
+                }
+
+            if (IsRole)
+            {
+                try
+                {
+                    await Context.Message.DeleteAsync();
+                }
+                catch
+                {
+                    Console.WriteLine("Ошибка доступа!");
+                }
+
+                await ConstVariables._Client.LogoutAsync();
+
+                ConstVariables.Log?.Invoke($" is group 'Admin' is command 'logout' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
+            }
+            else await Module.ConstVariables.SendMessageAsync(Context.Channel, "Нет прав!", deleteAfter: 5);
+        }
     }
 }

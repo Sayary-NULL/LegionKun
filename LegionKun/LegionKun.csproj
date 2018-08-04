@@ -51,12 +51,12 @@
   <PropertyGroup>
     <StartupObject>LegionKun.Program</StartupObject>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'LegionKunTests|AnyCPU'">
+    <OutputPath>bin\LegionKunTests\</OutputPath>
+  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Discord.Addons.InteractiveCommands, Version=1.2.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Discord.Addons.InteractiveCommands.1.2.4\lib\netstandard1.3\Discord.Addons.InteractiveCommands.dll</HintPath>
-    </Reference>
-    <Reference Include="Discord.Addons.MpGame, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Discord.Addons.MpGame.1.0.2\lib\netstandard2.0\Discord.Addons.MpGame.dll</HintPath>
+    <Reference Include="Discord.Addons.Interactive, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Discord.Addons.Interactive.1.0.1\lib\netstandard1.1\Discord.Addons.Interactive.dll</HintPath>
     </Reference>
     <Reference Include="Discord.Addons.SimplePermissions, Version=0.7.9.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Discord.Addons.SimplePermissions.0.7.9\lib\netstandard1.3\Discord.Addons.SimplePermissions.dll</HintPath>
@@ -201,6 +201,11 @@
     <Compile Include="Game\CrossZero\CrossZeroGame.cs" />
     <Compile Include="Game\CrossZero\CrossZeroModule.cs" />
     <Compile Include="Game\CrossZero\CrossZeroBase.cs" />
+    <Compile Include="masterDataSet.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>masterDataSet.xsd</DependentUpon>
+    </Compile>
     <Compile Include="Module\ConstVariables.cs" />
     <Compile Include="Module\MainClass.cs" />
     <Compile Include="Module\ThreadClass.cs" />
@@ -213,11 +218,31 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
     <Compile Include="Tests\TestClass.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="masterDataSet.xsc">
+      <DependentUpon>masterDataSet.xsd</DependentUpon>
+    </None>
+    <None Include="masterDataSet.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>masterDataSet.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="masterDataSet.xss">
+      <DependentUpon>masterDataSet.xsd</DependentUpon>
+    </None>
     <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Base\Resource1.resx">
@@ -230,7 +255,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Base\Bash.txt" />
     <Content Include="Base\Logger.txt" />
     <Content Include="Base\WiteListGuild.txt" />
     <Content Include="documents\Info.txt" />

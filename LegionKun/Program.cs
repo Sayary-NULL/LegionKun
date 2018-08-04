@@ -13,14 +13,13 @@ using System.Windows.Forms;
  *435485527156981770 - Disboard*/
 
  /*?) Доделать игру крестики-нолики
-  *+) Вынести MessageRec в свой класс
-  *-) добавить команду UserInfo in UsersCommands
-  *+) Доделать youtube stream */
+  *1) Переработать вывод бота
+  *2) идея о общем классе наследнике для всех Command*/
 
 namespace LegionKun
 {
     public class Program : Module.MainClass
-    {
+    { 
         static void Main(string[] args)
         {
             Module.ConstVariables.SetDelegate(new Program().Messege, new Program().Logger);
@@ -104,7 +103,7 @@ namespace LegionKun
             ulong Box = Module.ConstVariables.DMessage[message.Id];
             Module.ConstVariables.CDiscord guild = Module.ConstVariables.CServer[Box];
 
-            if ((reaction.Emote.Name == Module.ConstVariables.EReturn.Name) && (message.Id == guild.RMessages.RestUser.Id) && (reaction.User.Value.Id == guild.RMessages.UserId))
+            if ((reaction.Emote.Name == Module.ConstVariables.DEmoji.EReturn.Name) && (message.Id == guild.RMessages.RestUser.Id) && (reaction.User.Value.Id == guild.RMessages.UserId))
             {
                 EmbedBuilder builder = guild.RMessages.Embed;
                 Random ran = new Random();
@@ -112,7 +111,7 @@ namespace LegionKun
                 builder.WithDescription($"Выпало число: {ran.Next(guild.RMessages.MinValue, guild.RMessages.MaxValue)}");
                 
                 await guild.RMessages.RestUser.ModifyAsync(msg => msg.Embed = builder.Build());
-                await guild.RMessages.RestUser.RemoveReactionAsync(Module.ConstVariables.EReturn, reaction.User.Value);
+                await guild.RMessages.RestUser.RemoveReactionAsync(Module.ConstVariables.DEmoji.EReturn, reaction.User.Value);
             }
         }
 
@@ -275,6 +274,11 @@ namespace LegionKun
             //Console.WriteLine("Запуск");
             var guild = Module.ConstVariables.CServer[user.Guild.Id];
 
+            if(guild.Debug)
+            {
+                Messege($"Запуск");
+            }
+
             EmbedBuilder builder = new EmbedBuilder();
 
             string addrole = "";
@@ -282,7 +286,12 @@ namespace LegionKun
             builder.WithFooter(user.Guild.Name, user.Guild.IconUrl);
 
             builder.WithTitle("Добро пожаловать!").WithColor(Color.DarkBlue);
-            //Console.WriteLine("if");
+
+            if (guild.Debug)
+            {
+                Messege($"if");
+            }
+
             if (user.IsBot)
             {
                 builder.WithDescription($"{user.Mention} - это бот!");
@@ -291,7 +300,11 @@ namespace LegionKun
             }
             else
             {
-                //Console.WriteLine("switch");
+                if (guild.Debug)
+                {
+                    Messege($"switch");
+                }
+
                 switch (user.Guild.Id)
                 {
                     case 435485527156981770:
@@ -313,18 +326,27 @@ namespace LegionKun
                     default: { addrole = " deefault id:" + user.Guild.Id + " Name:" + user.Guild.Name; break; }
                 }
 
+                if (guild.Debug)
+                {
+                    Messege($"write");
+                }
+
                 builder.WithDescription($"{user.Mention}, добро пожаловать к нам! На сервер: {user.Guild.Name}");
 
                 Logger($" is func 'UserJoin' is Guild '{user.Guild.Name}' is user '{user.Username}#{user.Discriminator}' " + addrole);
             }
-            //Console.WriteLine("end");
+
+            if (guild.Debug)
+            {
+                Messege($"end");
+            }
+
             await guild.GetDefaultChannel().SendMessageAsync("", false, builder.Build());
         }
 
         private Task Log(LogMessage arg)
         {
-            if(Module.ConstVariables.ThisTest)
-                Console.WriteLine(arg);
+            Console.WriteLine(arg);
 
             if (arg.Message != "")
                 Logger(" " + arg.Message);
@@ -337,23 +359,29 @@ namespace LegionKun
         {
             Module.ConstVariables._Client.MessageReceived += HandleCommandAsync;
 
-            await Module.ConstVariables._Command.AddModulesAsync(Assembly.GetEntryAssembly(), Module.ConstVariables._Service);
+            await Module.ConstVariables._Command.AddModuleAsync<Module.UserCommands>(Module.ConstVariables._UserService);
+
+            await Module.ConstVariables._Command.AddModuleAsync<Module.AdminComands>(Module.ConstVariables._UserService);
+
+            await Module.ConstVariables._Command.AddModuleAsync<Tests.TestClass>(Module.ConstVariables._UserService);
+
+            await Module.ConstVariables._GameCommand.AddModuleAsync<Game.CrossZero.CrossZeroModule>(Module.ConstVariables._GameService);
         }
 
         private async Task HandleCommandAsync(SocketMessage arg)
         {
-            var Messeg = arg as SocketUserMessage;
+            SocketUserMessage Messeg = arg as SocketUserMessage;
 
             if (Messeg is null || Messeg.Author.IsBot)
                 return;
             int argPos = 0;
-            //|| Messeg.HasMentionPrefix(_client.CurrentUser, ref argPos)
+            
             if (Messeg.HasStringPrefix("sh!", ref argPos) || Messeg.HasStringPrefix("Sh!", ref argPos))
             {
-                var contex = new SocketCommandContext(Module.ConstVariables._Client, Messeg);
+                SocketCommandContext contex = new SocketCommandContext(Module.ConstVariables._Client, Messeg);
                 
-                var result = await Module.ConstVariables._Command.ExecuteAsync(contex, argPos, Module.ConstVariables._Service);
-                
+                IResult result = await Module.ConstVariables._Command.ExecuteAsync(contex, argPos, Module.ConstVariables._UserService);
+
                 if (!result.IsSuccess)
                 {
                     switch (result.Error.Value)
@@ -370,11 +398,33 @@ namespace LegionKun
                     }
                 }
             }
+            else if(Messeg.HasStringPrefix("c!", ref argPos))
+            {
+                SocketCommandContext contex = new SocketCommandContext(Module.ConstVariables._Client, Messeg);
+
+                IResult result = await Module.ConstVariables._GameCommand.ExecuteAsync(contex, argPos, Module.ConstVariables._GameService);
+
+                if (!result.IsSuccess)
+                {
+                    switch (result.Error.Value)
+                    {
+                        case CommandError.BadArgCount: { Logger($" is errors 'BadArgCount' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); contex.Channel.SendMessageAsync($"{contex.User.Mention}, неверные параметры команды").GetAwaiter(); break; }
+                        case CommandError.UnknownCommand: { Logger($" is errors 'UnknownCommand' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); contex.Channel.SendMessageAsync($"{contex.User.Mention}, неизвестная команда").GetAwaiter(); break; }
+                        case CommandError.ObjectNotFound: { Logger($" is errors 'ObjectNotFound' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
+                        case CommandError.ParseFailed: { Logger($" is errors 'ParseFailed' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
+                        case CommandError.MultipleMatches: { Logger($" is errors 'MultipleMatches' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
+                        case CommandError.UnmetPrecondition: { Logger($" is errors 'UnmetPrecondition' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
+                        case CommandError.Exception: { Logger($" is errors 'Exception' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
+                        case CommandError.Unsuccessful: { Logger($" is errors 'Unsuccessful' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
+                        default: { Logger($" is errors 'Default' is channel '{arg.Channel.Name}' is param {result.ErrorReason} is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
+                    }
+                }
+            }
         }
 
         private void Help(SocketCommandContext Context)
         {
-            if (!Module.ConstVariables.IsOn)
+            if (!Module.ConstVariables.CServer[Context.Guild.Id].IsOn)
             {
                 if (!Module.ConstVariables.ThisTest)
                     return;
@@ -388,6 +438,11 @@ namespace LegionKun
             SocketGuildUser user = Context.Guild.GetUser(Context.User.Id);
 
             Module.ConstVariables.CDiscord guild = Module.ConstVariables.CServer[Context.Guild.Id];
+
+            if(Context.User.Id == guild.DefaultCommandChannel)
+            {
+                return;
+            }
 
             bool IsRole = false;
 
@@ -416,7 +471,7 @@ namespace LegionKun
             builder.WithColor(Color.Orange);
             builder.WithFooter(Context.Guild.Name, Context.Guild.IconUrl);
 
-            Module.ConstVariables.Log?.Invoke($" is Guid {Context.Guild.Name} is command 'help' is user '{user.Username}' is channel '{Context.Channel.Name}' is IsRole {IsRole} ");
+            Module.ConstVariables.Log?.Invoke($" is Guid {Context.Guild.Name} is command 'help' is user '{user.Username}' is channel '{Context.Channel.Name}' is IsRole '{IsRole}' ");
 
             Context.Channel.SendMessageAsync("", false, builder.Build());
         }

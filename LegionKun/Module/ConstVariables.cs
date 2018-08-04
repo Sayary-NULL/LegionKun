@@ -42,6 +42,7 @@ namespace LegionKun.Module
             public string Name;
             public bool Debug = false;
             public bool IsOn = false;
+            public bool Trigger = false;
             //мини-класс для random
             public class Rmessages
             {
@@ -147,19 +148,11 @@ namespace LegionKun.Module
 
         public static string ATHelp { get; private set; } = "";
 
-        public static string Angle { get; private set; } = "";
-
-        public static string Line { get; private set; } = "";
-
-        public static string Angle90 { get; private set; } = "";
-
-        public static string Line90 { get; private set; } = "";
-
         public static string Video1Id { get; set; } = "";
 
         public static string Video2Id { get; set; } = "";
 
-        public static bool ThisTest { get; private set; } = true;
+        public static bool ThisTest { get; private set; } = false;
         
         public static bool Sharon { get; set; } = false;
 
@@ -170,8 +163,6 @@ namespace LegionKun.Module
         public static DMessege Mess = null;
 
         public static DLogger Log = null;
-
-        public static bool Trigger { get; set; } = false;
 
         public static MemoryStream ToStream(this Image<Rgba32> img)
         {
@@ -207,10 +198,6 @@ namespace LegionKun.Module
                 Filed = @"C:\Users\shlia\source\repos\LegionKun\LegionKun\Base\filed.jpg";
                 Cross = @"C:\Users\shlia\source\repos\LegionKun\LegionKun\Base\cross.png";
                 Zero = @"C:\Users\shlia\source\repos\LegionKun\LegionKun\Base\zero.png";
-                Angle = @"C:\Users\shlia\source\repos\LegionKun\LegionKun\Base\angle.png";
-                Line = @"C:\Users\shlia\source\repos\LegionKun\LegionKun\Base\line.png";
-                Angle90 = @"C:\Users\shlia\source\repos\LegionKun\LegionKun\Base\ahgle 90.png";
-                Line90 = @"C:\Users\shlia\source\repos\LegionKun\LegionKun\Base\line 90.png";
             }
             else
             {
@@ -220,10 +207,6 @@ namespace LegionKun.Module
                 Filed = @"Base\filed.jpg";
                 Cross = @"Base\cross.png";
                 Zero = @"Base\zero.png";
-                Angle = @"Base\ch1.png";
-                Line = @"Base\ch2.png";
-                Angle = @"Base\angle 90.png";
-                Line = @"Base\line 90.png";
             }
 
             _Client = new DiscordSocketClient();
@@ -243,25 +226,12 @@ namespace LegionKun.Module
                     UTHelp += $"{i++}: {help.CommandName}\r\n";
             }
 
-            /*UTHelp = "1: hello <Name>\r\n";
-            UTHelp += "2: warn [user] <comment>\r\n";
-            UTHelp += "3: say [text]\r\n";
-            UTHelp += "4: RoleInfo [Role]\r\n";
-            UTHelp += "5: time\r\n";
-            UTHelp += "6: help";*/
-
             i = 1;
             foreach(var help in AdminCommand)
             {
                 if (help.IsOn)
                     ATHelp += $"{i++}: {help.CommandName}\r\n";
-            }
-
-            /*ATHelp = "1: RoleInfo\r\n";
-            ATHelp += "2: CTInfo\r\n";
-            ATHelp += "3: CVInfo\r\n";
-            ATHelp += "4: news [message]\r\n";
-            ATHelp += "5: status\r\n";*/            
+            }           
 
             bool result = GuildDowload();
             Mess($"GuildDowload: {result}");

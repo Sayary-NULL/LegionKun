@@ -10,12 +10,44 @@ using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Processing.Text;
 using SixLabors.ImageSharp.Processing.Drawing;
+using Discord.Commands;
 
 namespace LegionKun.Game.CrossZero
 {
     public class CrossZeroGame : CrossZeroBase
     {
+        internal async Task<bool> ReplycGameAsync(SocketCommandContext Context)
+        {
+            if (DataDictionary.ContainsKey(Context.Channel))
+            {
+                await DataDictionary[Context.Channel].Message.DeleteAsync();
 
+                DataDictionary[Context.Channel].GetImage();
+
+                DataDictionary[Context.Channel].field3X3 = new string[,] { {"", "", "" },
+                                                                           {"", "", "" },
+                                                                           {"", "", "" }};
+
+                if (Context.User.Id == DataDictionary[Context.Channel].User1.Id)
+                {
+                    DataDictionary[Context.Channel].GoUser = DataDictionary[Context.Channel].User2;
+                    DataDictionary[Context.Channel].ScoreUser1++;
+                }
+                else
+                {
+                    DataDictionary[Context.Channel].GoUser = DataDictionary[Context.Channel].User1;
+                    DataDictionary[Context.Channel].ScoreUser2++;
+                }
+
+                await ReplyAndDeleteAsync("Пересоздано", timeout: TimeSpan.FromSeconds(5));
+
+                DataDictionary[Context.Channel].Message = await Context.Channel.SendFileAsync(Module.ConstVariables.ToStream(DataDictionary[Context.Channel].IField), "Filledfield.jpg");
+
+                return true;
+            }
+            else return false;
+        }
+         
         internal Embed StatusGame(ISocketMessageChannel channel)
         {
             if (DataDictionary.ContainsKey(channel))

@@ -17,15 +17,9 @@ namespace LegionKun.Game.CrossZero
 
     sealed class CrossZeroModule : CrossZeroGame
     {
-        [Command("new")]
-        public async Task NewGameAsync(IUser User2, bool New = false)
+        [Command("new", RunMode = RunMode.Async)]
+        public async Task NewGameAsync(IUser User2)
         {
-            if (!Module.ConstVariables.ThisTest)
-            {
-                await Module.ConstVariables.SendMessageAsync(Context.Channel, "Вразработке", deleteAfter: 5);
-                return;
-            }
-
             if (Context.User == User2)
             {
                 await Module.ConstVariables.SendMessageAsync(Context.Channel, "Самим с собой нельзя!", deleteAfter: 5);
@@ -39,59 +33,34 @@ namespace LegionKun.Game.CrossZero
                 return;
             }
 
-            if (!DataDictionary.ContainsKey(Context.Channel) || New)
+            if (!DataDictionary.ContainsKey(Context.Channel))
             {
-                if (!New)
+                DataType DBase = new DataType
                 {
-                    DataType DBase = new DataType
-                    {
-                        User1 = Context.User,
-                        User2 = User2,
-                        Channelsgame = Context.Channel,
-                        Guild = Context.Guild,
-                        Message = null,
-                        GameStat = StatGame.Create,
-                        GoUser = Context.User,
-                        Sum = 1
-                    };
-                    DBase.GetImage();
-                    DataDictionary.Add(Context.Channel, DBase);
-                    await Context.Message.DeleteAsync();
-                    DBase.Message = await Context.Channel.SendFileAsync(Module.ConstVariables.ToStream(DBase.IField), "Filledfield.jpg");
+                    User1 = Context.User,
+                    User2 = User2,
+                    Channelsgame = Context.Channel,
+                    Guild = Context.Guild,
+                    Message = null,
+                    GameStat = StatGame.Create,
+                    GoUser = Context.User,
+                    Sum = 1
+                };
 
-                    await Module.ConstVariables.SendMessageAsync(Context.Channel, "Создано", deleteAfter: 5);
-                }
-                else
-                {
-                    await DataDictionary[Context.Channel].Message.DeleteAsync();
-                    DataDictionary[Context.Channel].GetImage();
-                    DataDictionary[Context.Channel].Sum++;
-                    if(Context.User.Id == DataDictionary[Context.Channel].User1.Id)
-                    {
-                        DataDictionary[Context.Channel].ScoreUser1++;
-                    }
-                    else
-                    {
-                        DataDictionary[Context.Channel].ScoreUser2++;
-                    }
+                DBase.GetImage();
+                DataDictionary.Add(Context.Channel, DBase);
+                await Context.Message.DeleteAsync();
+                DBase.Message = await Context.Channel.SendFileAsync(Module.ConstVariables.ToStream(DBase.IField), "Filledfield.jpg");
 
-                    await Module.ConstVariables.SendMessageAsync(Context.Channel, "Пересоздано", deleteAfter: 5);
-
-                    DataDictionary[Context.Channel].Message = await Context.Channel.SendFileAsync(Module.ConstVariables.ToStream(DataDictionary[Context.Channel].IField), "Filledfield.jpg");
-                }
+                await ReplyAndDeleteAsync("Создано", timeout: TimeSpan.FromSeconds(5));
+                
             }
-            else await Module.ConstVariables.SendMessageAsync(Context.Channel, "Уже создано!", deleteAfter: 5);
+            else await ReplyAndDeleteAsync("Уже создано", timeout: TimeSpan.FromSeconds(5));
         }
 
         [Command("start")]
         public async Task StartGameAsync()
         {
-            if (!Module.ConstVariables.ThisTest)
-            {
-                await Module.ConstVariables.SendMessageAsync(Context.Channel, "В разработке!", deleteAfter: 5);
-                return;
-            }
-
             if (DataDictionary.ContainsKey(Context.Channel))
             {
                 DataType DBase = DataDictionary[Context.Channel];
@@ -100,32 +69,25 @@ namespace LegionKun.Game.CrossZero
                     DBase.GameStat = StatGame.Start;
 
                     await Context.Message.DeleteAsync();
-
-                    await Module.ConstVariables.SendMessageAsync(Context.Channel, "Запуск", deleteAfter: 5);
+                    
+                    await ReplyAndDeleteAsync("Запуск", timeout: TimeSpan.FromSeconds(5));
                 }
-                else await Module.ConstVariables.SendMessageAsync(Context.Channel, "Уже запущено!", deleteAfter: 5);
+                else await ReplyAndDeleteAsync("Уже запущено", timeout: TimeSpan.FromSeconds(5));
             }
-            else await Module.ConstVariables.SendMessageAsync(Context.Channel, "Не создано!", deleteAfter: 5);
+            else await ReplyAndDeleteAsync("Не создано", timeout: TimeSpan.FromSeconds(5));
         }
 
-        [Command("delete")]
-        [Alias("close")]
+        [Command("delete"), Alias("close")]
         public async Task CloseGameAsync()
         {
-            if (!Module.ConstVariables.ThisTest)
-            {
-                await Module.ConstVariables.SendMessageAsync(Context.Channel, "В разработке!", deleteAfter: 5);
-                return;
-            }
-
             if (DataDictionary.ContainsKey(Context.Channel))
             {
                 await DataDictionary[Context.Channel].Message.DeleteAsync();
                 DataDictionary.Remove(Context.Channel);
                 await Context.Message.DeleteAsync();
-                await Module.ConstVariables.SendMessageAsync(Context.Channel, "Удалено", deleteAfter: 5);
+                await ReplyAndDeleteAsync("Удалено", timeout: TimeSpan.FromSeconds(5));
             }
-            else await Module.ConstVariables.SendMessageAsync(Context.Channel, "Не создано", deleteAfter: 5);
+            else await ReplyAndDeleteAsync("Не создано", timeout: TimeSpan.FromSeconds(5));
         }
 
         [Command("stop")]
@@ -135,32 +97,25 @@ namespace LegionKun.Game.CrossZero
             {
                 await Context.Message.DeleteAsync();
                 DataDictionary[Context.Channel].GameStat = StatGame.Stop;
-                await Module.ConstVariables.SendMessageAsync(Context.Channel, "Остановлено", deleteAfter: 5);
+
+                await ReplyAndDeleteAsync("Остановка. . .", timeout: TimeSpan.FromSeconds(5));
             }
         }
 
         [Command("status")]
         public async Task StatusGameAync()
         {
-            if (!Module.ConstVariables.ThisTest)
-            {
-                await Module.ConstVariables.SendMessageAsync(Context.Channel, "В разработке!", deleteAfter: 5);
-                return;
-            }
-
             Embed embed = StatusGame(Context.Channel);
             if (embed != null)
             {
                 await Context.Message.DeleteAsync();
-
-                await Module.ConstVariables.SendMessageAsync(Context.Channel, "", embed: embed, deleteAfter: 15);
+                
+                await ReplyAndDeleteAsync("", embed: embed, timeout: TimeSpan.FromSeconds(15));
             }
-            else await Module.ConstVariables.SendMessageAsync(Context.Channel, "Не создано", deleteAfter: 5);
-            
+            else await ReplyAndDeleteAsync("Не создано", timeout: TimeSpan.FromSeconds(5));
         }
 
-        [Command("A")]
-        [Alias("а")]
+        [Command("A", RunMode = RunMode.Async), Alias("а")]
         public async Task AFieldAsync(int number)
         {
             if (DataDictionary.ContainsKey(Context.Channel))
@@ -223,17 +178,24 @@ namespace LegionKun.Game.CrossZero
                         if (data.User1 == data.GoUser)
                         {
                             data.GoUser = data.User2;
+                            data.ScoreUser1++;
                         }
                         else
                         {
                             data.GoUser = data.User1;
+                            data.ScoreUser2++;
                         }
 
                         if (WinGame(Context.Channel))
                         {
-                            await Module.ConstVariables.SendMessageAsync(Context.Channel, $"{Context.User.Mention}, ты выйграл!", deleteAfter: 5);
-                            await NewGameAsync(data.User2, true);
-                        }else
+                            await ReplyAndDeleteAsync($"{Context.User.Mention}, ты выйграл!", timeout: TimeSpan.FromSeconds(5));
+
+                            if(await ReplycGameAsync(Context))
+                            {
+                                return;
+                            }
+                        }
+                        else
                         {
                             await Context.Message.DeleteAsync();
 
@@ -253,8 +215,7 @@ namespace LegionKun.Game.CrossZero
             }
         }
 
-        [Command("B")]
-        [Alias("в")]
+        [Command("B", RunMode = RunMode.Async), Alias("в")]
         public async Task BFieldAsync(int number)
         {
             if (DataDictionary.ContainsKey(Context.Channel))
@@ -325,8 +286,12 @@ namespace LegionKun.Game.CrossZero
 
                         if (WinGame(Context.Channel))
                         {
-                            await Module.ConstVariables.SendMessageAsync(Context.Channel, $"{Context.User.Mention}, ты выйграл!", deleteAfter: 5);
-                            await NewGameAsync(data.User2, true);
+                            await ReplyAndDeleteAsync($"{Context.User.Mention}, ты выйграл!", timeout: TimeSpan.FromSeconds(5));
+
+                            if (await ReplycGameAsync(Context))
+                            {
+                                return;
+                            }
                         }
 
                         await Context.Message.DeleteAsync();
@@ -345,8 +310,7 @@ namespace LegionKun.Game.CrossZero
             }
         }
 
-        [Command("C")]
-        [Alias("с")]
+        [Command("C", RunMode = RunMode.Async), Alias("с")]
         public async Task CFieldAsync(int number)
         {
             if (DataDictionary.ContainsKey(Context.Channel))
@@ -417,8 +381,12 @@ namespace LegionKun.Game.CrossZero
 
                         if (WinGame(Context.Channel))
                         {
-                            await Module.ConstVariables.SendMessageAsync(Context.Channel, $"{Context.User.Mention}, ты выйграл!", deleteAfter: 5);
-                            await NewGameAsync(data.User2, true);
+                            await ReplyAndDeleteAsync($"{Context.User.Mention}, ты выйграл!", timeout: TimeSpan.FromSeconds(5));
+
+                            if (await ReplycGameAsync(Context))
+                            {
+                                return;
+                            }
                         }
 
                         await Context.Message.DeleteAsync();

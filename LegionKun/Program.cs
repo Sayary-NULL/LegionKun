@@ -271,7 +271,6 @@ namespace LegionKun
 
         private async Task Userjoin(SocketGuildUser user)
         {
-            //Console.WriteLine("Запуск");
             var guild = Module.ConstVariables.CServer[user.Guild.Id];
 
             if(guild.Debug)
@@ -323,7 +322,7 @@ namespace LegionKun
                             addrole = $" add role {role.Name}";
                             break;
                         }
-                    default: { addrole = " deefault id:" + user.Guild.Id + " Name:" + user.Guild.Name; break; }
+                    default: { addrole = " default id:" + user.Guild.Id + " Name:" + user.Guild.Name; break; }
                 }
 
                 if (guild.Debug)

@@ -5,6 +5,7 @@ using Discord;
 using Discord.WebSocket;
 using Discord.Commands;
 using Discord.Rest;
+using Discord.Addons.Interactive;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
@@ -13,7 +14,7 @@ using System.IO;
 
 namespace LegionKun.Game.CrossZero
 {
-    public class CrossZeroBase : ModuleBase<SocketCommandContext>
+    public class CrossZeroBase : InteractiveBase
     {
         public static Dictionary<IMessageChannel, DataType> DataDictionary { get; private set; }
             = new Dictionary<IMessageChannel, DataType>(DiscordComparers.ChannelComparer);
@@ -38,8 +39,8 @@ namespace LegionKun.Game.CrossZero
         public IUser GoUser;
         public int ScoreUser1 = 0;
         public int ScoreUser2 = 0;
-        public string GUser1 = "X";
-        public string GUser2 = "O";
+        public string GUser1 { get; private set; } = "X";
+        public string GUser2 { get; private set; } = "O";
         public int Sum = 0;
         public Image<Rgba32> IField { get; set; } = null;
         public Image<Rgba32> ICross { get; private set; } = null;

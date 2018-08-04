@@ -215,7 +215,7 @@ namespace LegionKun.Module
             else await Module.ConstVariables.SendMessageAsync(Context.Channel, "Нет прав!", deleteAfter: 5);
         }
         
-        [Command("off")]/*Произведено исправление[3]*/
+        [Command("off", RunMode = RunMode.Async)]/*Произведено исправление[3]*/
         public async Task OffBotAsync(byte level = 0)
         {
             if(!Module.ConstVariables.CServer[Context.Guild.Id].IsOn)
@@ -297,7 +297,7 @@ namespace LegionKun.Module
             else await Module.ConstVariables.SendMessageAsync(Context.Channel, "Нет прав!", deleteAfter: 5);
         }
 
-        [Command("on")]/*Произведено исправление[1]*/
+        [Command("on", RunMode = RunMode.Async)]/*Произведено исправление[1]*/
         public async Task OnBotAsync(byte level = 0)
         {
             if (Module.ConstVariables.CServer[Context.Guild.Id].IsOn)
@@ -311,27 +311,6 @@ namespace LegionKun.Module
             }
 
             await Module.ConstVariables._Client.SetStatusAsync(UserStatus.Online);
-
-            switch(level)
-            {
-                case 1:
-                    {
-                        Module.ConstVariables.CServer[Context.Guild.Id].IsOn = true;
-                        ConstVariables.Log?.Invoke($" is group 'Admin' is command 'on' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is level {level}");
-                        return;
-                    }
-                case 2:
-                    {
-                        foreach(var key in Module.ConstVariables.CServer)
-                        {
-                            Module.ConstVariables.CServer[key.Key].IsOn = true;
-                        }
-
-                        ConstVariables.Log?.Invoke($" is group 'Admin' is command 'on' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is level {level}");
-                        return;
-                    }
-                default: { break; }
-            }
 
             var user = Context.Guild.GetUser(Context.User.Id);
 
@@ -357,6 +336,28 @@ namespace LegionKun.Module
                     Console.WriteLine("Ошибка доступа!");
                 }
 
+                switch (level)
+                {
+                    case 1:
+                        {
+                            Module.ConstVariables.CServer[Context.Guild.Id].IsOn = true;
+                            ConstVariables.Log?.Invoke($" is group 'Admin' is command 'on' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is level {level}");
+                            return;
+                        }
+                    case 2:
+                        {
+                            foreach (var key in Module.ConstVariables.CServer)
+                            {
+                                Module.ConstVariables.CServer[key.Key].IsOn = true;
+                            }
+
+                            ConstVariables.Log?.Invoke($" is group 'Admin' is command 'on' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is level {level}");
+                            return;
+                        }
+                    default: { break; }
+                }
+
+
                 EmbedBuilder builder = new EmbedBuilder();
                 builder.WithTitle("Ура").WithDescription("Я снова в строю").WithColor(Discord.Color.Magenta);
 
@@ -378,7 +379,7 @@ namespace LegionKun.Module
             else await Module.ConstVariables.SendMessageAsync(Context.Channel, "Нет прав!", deleteAfter: 5);
         }
 
-        [Command("ne  ws")]/*Произведено исправление[1]*/
+        [Command("news", RunMode = RunMode.Async)]/*Произведено исправление[1]*/
         public async Task NewsAsync([Remainder]string mess)
         {
             if (Module.ConstVariables.ThisTest)

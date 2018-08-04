@@ -18,9 +18,9 @@ namespace LegionKun.Module
     {
         private readonly ThreadClass threadclass = new ThreadClass();
 
-        public void OneMin()
+        public void OneMin(ulong guildId)
         {
-            threadclass.OneMinStart();
+            threadclass.OneMinStart(guildId);
         }
 
         public void MainTime()
@@ -138,13 +138,13 @@ namespace LegionKun.Module
                     await channel.SendMessageAsync("Канти - наше солнышко! :kissing_heart:");
                     IsTrigger = true;
                 }
-                else if ((mess == "мур") && (guild.CountRes < guild.Restruction) && (!Module.ConstVariables.Trigger))
+                else if ((mess == "мур") && (guild.CountRes < guild.Restruction) && (!ConstVariables.CServer[Context.Guild.Id].Trigger))
                 {
                     await channel.SendMessageAsync($"{Context.User.Mention}, Мяу :heartpulse:");
                     guild.CountRes++;
                     IsTrigger = true;
-                    Module.ConstVariables.Trigger = true;
-                    new Program().OneMin();
+                    ConstVariables.CServer[Context.Guild.Id].Trigger = true;
+                    new Program().OneMin(Context.Guild.Id);
                 }
 
                 if ((mess.IndexOf("с возвращением") > -1))
@@ -157,23 +157,23 @@ namespace LegionKun.Module
                     await channel.SendMessageAsync($"Внимание!!! {Context.User.Mention} устроил бунт на корабле!");
                     IsTrigger = true;
                 }
-                else if ((mess.IndexOf("уруру") > -1) && (mess.Length <= "уруру))))".Length) && (guild.CountRes < guild.Restruction) && (!Module.ConstVariables.Trigger))
+                else if ((mess.IndexOf("уруру") > -1) && (mess.Length <= "уруру))))".Length) && (guild.CountRes < guild.Restruction) && (!ConstVariables.CServer[Context.Guild.Id].Trigger))
                 {
                     await channel.SendMessageAsync($"{Context.User.Mention}, ~Уруру");
 
                     guild.CountRes++;
                     IsTrigger = true;
-                    Module.ConstVariables.Trigger = true;
-                    new Program().OneMin();
+                    ConstVariables.CServer[Context.Guild.Id].Trigger = true;
+                    new Program().OneMin(Context.Guild.Id);
                 }
-                else if ((mess.IndexOf("ахах") > -1) && (guild.CountRes < guild.Restruction) && (!Module.ConstVariables.Trigger))
+                else if ((mess.IndexOf("ахах") > -1) && (guild.CountRes < guild.Restruction) && (!ConstVariables.CServer[Context.Guild.Id].Trigger))
                 {
                     await channel.SendMessageAsync("ахахаха. Чего смеёмся? Я тоже хочу!");
 
                     guild.CountRes++;
                     IsTrigger = true;
-                    Module.ConstVariables.Trigger = true;
-                    new Program().OneMin();
+                    ConstVariables.CServer[Context.Guild.Id].Trigger = true;
+                    new Program().OneMin(Context.Guild.Id);
                 }
 
                 if (IsTrigger)

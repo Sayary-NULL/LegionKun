@@ -20,9 +20,9 @@ namespace LegionKun.Module
 
         private Thread YouTubeStream = new Thread(Youtube);
 
-        public void OneMinStart()
+        public void OneMinStart(ulong guildId)
         {
-            OneMinTimer.Start();
+            OneMinTimer.Start(guildId);
         }
 
         public void MainTimerStart()
@@ -38,7 +38,8 @@ namespace LegionKun.Module
         private static void OneMin(object obj)
         {
             Thread.Sleep(60000);
-            Module.ConstVariables.Trigger = false;
+            ulong guildId = (ulong)obj;
+            Module.ConstVariables.CServer[guildId].Trigger = false;
         }
 
         private static void MainFunc(object obj)
@@ -69,6 +70,11 @@ namespace LegionKun.Module
 
         private static async void Youtube(object obj)
         {
+            if(ConstVariables.ThisTest)
+            {
+                return;
+            }
+
             Thread.Sleep(60000);
             ConstVariables.Mess?.Invoke(" Запуск потока: YouTubeStream;");
             ConstVariables.Log?.Invoke(" Запуск потока: YouTubeStream;");
@@ -137,8 +143,6 @@ namespace LegionKun.Module
                 {
                     foreach(KeyValuePair<ulong, ConstVariables.CDiscord> key in ConstVariables.CServer)
                     {
-                        await key.Value.GetDefaultNewsChannel().SendMessageAsync();
-
                         if ((url != "") || (url2 != ""))
                         {
                             await key.Value.GetDefaultNewsChannel().SendMessageAsync("@here", false, builder.Build());

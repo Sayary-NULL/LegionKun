@@ -90,14 +90,16 @@ namespace LegionKun.Module
         public static List<Commands> UserCommand { get; private set; } = new List<Commands>()
         {
             //UserCommands
-            new Commands( "hello" , "hello <Name>", true),//1
+            new Commands( "hello" , "hello <User Mention>", true),//1
             new Commands( "say" , "say [text]", true),//2
-            new Commands( "warn" , "warn [user] <comment>", true),//3
+            new Commands( "warn" , "warn [User Mention] <comment>", true),//3
             new Commands( "roleinfo" , "RoleInfo [Role]", true),//4
             new Commands( "time" , "time", true),//5
-            new Commands( "random" , "random <[MinValue] [MaxValue]>", true),//6
+            new Commands( "random" , "random [[MinValue] [MaxValue]]", true),//6
             new Commands( "search" , "search [Seearch text]", true),//7
-            new Commands( "help" , "help", true),//8
+            new Commands( "userinfo" , "user <User Mention>", true),//8
+            new Commands( "report" , "report [Name Command][report text]", true),//9
+            new Commands( "help" , "help", true),//10
         };
 
         public static List<Commands> AdminCommand { get; private set; } = new List<Commands>()
@@ -123,6 +125,13 @@ namespace LegionKun.Module
                 IsOn = ison;
                 CommandName = comname;
             }
+
+            public bool ContainerName(string name)
+            {
+                if (Name == name)
+                    return true;
+                return false;
+            }
         }
 
         public static class DEmoji
@@ -131,6 +140,8 @@ namespace LegionKun.Module
 
             public static Emoji EDelete = new Emoji("❎");
         }
+
+        public static ulong CreatorId { get; private set; } = 329653972728020994;
 
         public static string WiteListGuild { get; private set; } = @"";
 
@@ -151,9 +162,11 @@ namespace LegionKun.Module
         public static string Video1Id { get; set; } = "";
 
         public static string Video2Id { get; set; } = "";
-
+#if DEBUG
+        public static bool ThisTest { get; private set; } = true;
+#else 
         public static bool ThisTest { get; private set; } = false;
-        
+#endif 
         public static bool Sharon { get; set; } = false;
 
         public delegate void DLogger(string str);
@@ -163,15 +176,7 @@ namespace LegionKun.Module
         public static DMessege Mess = null;
 
         public static DLogger Log = null;
-
-        public static MemoryStream ToStream(this Image<Rgba32> img)
-        {
-            var imageStream = new MemoryStream();
-            img.SaveAsPng(imageStream, new PngEncoder() { CompressionLevel = 9 });
-            imageStream.Position = 0;
-            return imageStream;
-        }
-
+        
         public static async Task<IUserMessage> SendMessageAsync(this IMessageChannel channel, string text, bool isTTS = false, Embed embed = null, uint deleteAfter = 0, RequestOptions options = null)
         {
             var message = await channel.SendMessageAsync(text, isTTS, embed, options);
@@ -215,7 +220,7 @@ namespace LegionKun.Module
 
             _GameCommand = new CommandService();
 
-            _UserService = new ServiceCollection().AddSingleton(_Client).AddSingleton(_Command).BuildServiceProvider();
+            _UserService = new ServiceCollection().AddSingleton(_Client).AddSingleton(_Command).AddSingleton<InteractiveService>().BuildServiceProvider();
 
             _GameService = new ServiceCollection().AddSingleton(_Client).AddSingleton(_GameCommand).AddSingleton<InteractiveService>().BuildServiceProvider();
 

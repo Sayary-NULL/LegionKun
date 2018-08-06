@@ -44,15 +44,16 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject>LegionKun.Program</StartupObject>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'LegionKunTests|AnyCPU'">
-    <OutputPath>bin\LegionKunTests\</OutputPath>
+  <PropertyGroup>
+    <ApplicationIcon>Pandoras+actor+comp_f52e69_6302345.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Discord.Addons.Interactive, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
@@ -258,6 +259,7 @@
     <Content Include="Base\Logger.txt" />
     <Content Include="Base\WiteListGuild.txt" />
     <Content Include="documents\Info.txt" />
+    <Content Include="Pandoras+actor+comp_f52e69_6302345.ico" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.6.1">

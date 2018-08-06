@@ -575,9 +575,10 @@ namespace LegionKun.Module
                     Console.WriteLine("Ошибка доступа!");
                 }
 
-                await ConstVariables._Client.LogoutAsync();
-
                 ConstVariables.Log?.Invoke($" is group 'Admin' is command 'logout' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
+
+                await ConstVariables._Client.StopAsync();
+                await ConstVariables._Client.LogoutAsync();
             }
             else await Module.ConstVariables.SendMessageAsync(Context.Channel, "Нет прав!", deleteAfter: 5);
         }

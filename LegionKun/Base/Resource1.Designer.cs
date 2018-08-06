@@ -70,7 +70,7 @@ namespace LegionKun.Base {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на 4.22.
+        ///   Ищет локализованную строку, похожую на 4.25.
         /// </summary>
         internal static string VersionBot {
             get {

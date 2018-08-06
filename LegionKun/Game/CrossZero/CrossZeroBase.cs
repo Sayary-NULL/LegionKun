@@ -11,13 +11,89 @@ using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using System.Drawing;
 using System.IO;
+using System.Collections;
+using SixLabors.ImageSharp.Formats.Png;
 
 namespace LegionKun.Game.CrossZero
 {
     public class CrossZeroBase : InteractiveBase
     {
-        public static Dictionary<IMessageChannel, DataType> DataDictionary { get; private set; }
-            = new Dictionary<IMessageChannel, DataType>(DiscordComparers.ChannelComparer);
+        public static DataBase<IMessageChannel, DataType> DataGameBase { get; private set; } = new DataBase<IMessageChannel, DataType>();
+
+        public static MemoryStream ToStream(Image<Rgba32> img)
+        {
+            var imageStream = new MemoryStream();
+            img.SaveAsPng(imageStream, new PngEncoder() { CompressionLevel = 9 });
+            imageStream.Position = 0;
+            return imageStream;
+        }
+    }
+
+    public class DataBase<TValue, TKey> : IEnumerable
+    {
+        public static Dictionary<TValue, TKey> Data;
+
+        public DataBase()
+        {
+            Data = new Dictionary<TValue, TKey>();
+        }
+
+        public DataBase(int Long)
+        {
+            Data = new Dictionary<TValue, TKey>(Long);
+        }
+
+        public void Add(TValue value, TKey key)
+        {
+            Data.Add(value, key);
+        }
+
+        public bool ContainsKey(TValue value)
+        {
+            return Data.ContainsKey(value);
+        }
+
+        public bool ContainsValue(TKey key)
+        {
+            return Data.ContainsValue(key);
+        }
+
+        public bool Remove(TValue value)
+        {
+            return Data.Remove(value);
+        }
+
+        public bool Reset(TValue value, TKey key)
+        {
+            if (Data.ContainsKey(value))
+            {
+                if (Data.Remove(value))
+                {
+                    Data.Add(value, key);
+                    return true;
+                }
+                else return false;
+            }
+            else return false;
+        }
+
+        public TKey this[TValue tvalue]
+        {
+            get
+            {
+                return Data[tvalue];
+            }
+
+            set
+            {
+                Data[tvalue] = value;
+            }
+        }
+
+        public IEnumerator GetEnumerator()
+        {
+            return Data.GetEnumerator();
+        }
     }
 
     public enum StatGame

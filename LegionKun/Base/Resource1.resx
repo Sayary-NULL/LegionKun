@@ -122,7 +122,7 @@
     <comment>строка подключения к БД</comment>
   </data>
   <data name="VersionBot" xml:space="preserve">
-    <value>4.22</value>
+    <value>4.25</value>
     <comment>Версия бота</comment>
   </data>
 </root>

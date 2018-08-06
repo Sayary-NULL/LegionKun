@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Discord.Addons.Interactive;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -14,18 +15,47 @@ using Google.Apis.Services;
 
 namespace LegionKun.Module
 {
-    class UserCommands : ModuleBase<SocketCommandContext>
+    class UserCommands : InteractiveBase
     {
+        private async Task<bool> Access(string name)
+        {
+            if (!Module.ConstVariables.ThisTest)
+            {
+                if (!ConstVariables.CServer[Context.Guild.Id].IsOn)
+                {
+                    await ReplyAndDeleteAsync($"{Context.User.Mention}, все команды сейчас выключены!", timeout: TimeSpan.FromSeconds(5));
+                    return false;
+                }
+
+                bool isresult = false;
+
+                foreach (var key in ConstVariables.UserCommand)
+                {
+                    if (key.ContainerName("report"))
+                    {
+                        if (key.IsOn)
+                        {
+                            isresult = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!isresult)
+                {
+                    await ReplyAndDeleteAsync($"{Context.User.Mention}, это команда сейчас выключена!", timeout: TimeSpan.FromSeconds(5));
+                    return false;
+                }
+            }
+            else await ReplyAndDeleteAsync($"{Context.User.Mention}, включен тестовый режим!", timeout: TimeSpan.FromSeconds(5));
+
+            return true;
+        }
+
         [Command("hello")]
         public async Task HelloAsyng(SocketUser user = null)
         {
-            if (!ConstVariables.CServer[Context.Guild.Id].IsOn)
-            {
-                if (!Module.ConstVariables.ThisTest)
-                    return;
-            }
-
-            if (!Module.ConstVariables.UserCommand[0].IsOn)
+            if (!(await Access("hello")))
             {
                 return;
             }
@@ -51,7 +81,7 @@ namespace LegionKun.Module
             else if (h < 24)
                 good += "Доброй ночи!";
 
-            Module.ConstVariables.Log?.Invoke($" is Guid {Context.Guild.Name} is command 'hello' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is socetuser {(user == null ? "false" : user.Username)}");
+            ConstVariables.Log?.Invoke($" is Guid '{Context.Guild.Name}' is command 'hello' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is socetuser '{(user == null ? "false" : user.Username)}'");
 
             await Context.Channel.SendMessageAsync(good);
         }
@@ -59,13 +89,7 @@ namespace LegionKun.Module
         [Command("say")]
         public async Task SayMessAsync([Remainder] string mess)
         {
-            if (!ConstVariables.CServer[Context.Guild.Id].IsOn)
-            {
-                if (!Module.ConstVariables.ThisTest)
-                    return;
-            }
-
-            if (!Module.ConstVariables.UserCommand[1].IsOn)
+            if (!(await Access("say")))
             {
                 return;
             }
@@ -73,10 +97,10 @@ namespace LegionKun.Module
             EmbedBuilder builder = new EmbedBuilder();
 
             builder.WithAuthor(Context.User.Username, Context.User.GetAvatarUrl()).WithColor(Color.DarkPurple);
-            builder.WithFooter(Context.Guild.Name,Context.Guild.IconUrl);
+            builder.WithFooter(Context.Guild.Name, Context.Guild.IconUrl);
             builder.WithDescription(mess);
 
-            Module.ConstVariables.Log?.Invoke($" is Guid {Context.Guild.Name} is command 'say' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is mess {mess}");
+            ConstVariables.Log?.Invoke($" is Guid '{Context.Guild.Name}' is command 'say' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is mess '{mess}'");
 
             await Context.Channel.SendMessageAsync("", false, builder.Build());
         }
@@ -84,13 +108,7 @@ namespace LegionKun.Module
         [Command("warn")]
         public async Task WarnAsync(SocketUser user, [Remainder] string coment = null)
         {
-            if (!ConstVariables.CServer[Context.Guild.Id].IsOn)
-            {
-                if (!Module.ConstVariables.ThisTest)
-                    return;
-            }
-
-            if (!Module.ConstVariables.UserCommand[2].IsOn)
+            if (!(await Access("warn")))
             {
                 return;
             }
@@ -99,20 +117,19 @@ namespace LegionKun.Module
             {
                 await Context.Message.DeleteAsync();
             }
-            catch
+            catch(Exception e)
             {
-                Console.WriteLine("Ошибка доступа!");
+                Console.WriteLine("Ошибка доступа!" + e);
             }
 
-            if (user.Id == 460152583776894997)
+            if (user.Id == ConstVariables._Client.CurrentUser.Id)
             {
-               EmbedBuilder errors = new EmbedBuilder();
+                EmbedBuilder errors = new EmbedBuilder();
 
                 errors.WithTitle("Ошибка!").WithDescription("нельзя жаловатся на бота!");
                 errors.WithFooter(Context.Guild.Name, Context.Guild.IconUrl);
 
-                await Context.Channel.SendMessageAsync("", false, errors.Build());
-
+                await ReplyAndDeleteAsync("", embed: errors.Build(), timeout: TimeSpan.FromSeconds(5));
                 return;
             }
 
@@ -126,84 +143,42 @@ namespace LegionKun.Module
                 builder.WithDescription("Нельзя жаловаться на себя!");
                 builder.WithFooter(Context.Guild.Name, Context.Guild.IconUrl);
 
-                await Context.Channel.SendMessageAsync("", false, builder.Build());
+                await ReplyAndDeleteAsync("", embed: builder.Build(), timeout: TimeSpan.FromSeconds(5));
                 return;
             }
 
             builder.WithTitle("Жалоба!").WithColor(Color.Red);
 
-            if ((user.Mention == "<@!356145518444806144>") || (user.Mention == "<@!329653972728020994>"))
-                if (((user.Mention == "<@!356145518444806144>") || (Context.User.Mention == "<@!356145518444806144>")) && ((user.Mention == "<@!329653972728020994>") || (Context.User.Mention == "<@!329653972728020994>")))
-                    mess = "В споры своих создателей я не вмешиваюсь!";
-                else mess = $"Пользователь {user.Mention} пожаловался на {Context.User.Mention}!";
-            else mess = $"Пользователь {Context.User.Mention} пожаловался на {user.Mention}!";
-            
+            if (user.Id == ConstVariables.CreatorId)
+            {
+                mess = $"Пользователь {Context.User.Mention} пожаловался на {user.Mention}!";
+            }
+            else mess = $"Пользователь {user.Mention} пожаловался на {Context.User.Mention}!";
+
             builder.WithDescription(mess);
 
             if (coment != null)
             {
-                if (!(((user.Mention == "<@!356145518444806144>") || (Context.User.Mention == "<@!356145518444806144>")) && ((user.Mention == "<@!329653972728020994>") || (Context.User.Mention == "<@!329653972728020994>"))))
+                if(user.Id != ConstVariables.CreatorId)
                     builder.AddField("Коментарий", coment);
             }
 
             builder.WithFooter(Context.Guild.Name, Context.Guild.IconUrl);
 
-            Module.ConstVariables.Log?.Invoke($" is Guid {Context.Guild.Name} is command 'warn' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is user2 {user.Username} is coment {coment}");
+            ConstVariables.Log?.Invoke($" is Guid '{Context.Guild.Name}' is command 'warn' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is user2 '{user.Username}' is coment' {coment}'");
 
             await Context.Channel.SendMessageAsync("", false, builder.Build());
         }
 
-        [Command("RoleInfo")]
-        public async Task InfoRoleAsync([Remainder]string message)
+        [Command("roleinfo")]
+        [Priority(0)]
+        public async Task RoleInfoAsync(SocketRole Role)
         {
-            if (!ConstVariables.CServer[Context.Guild.Id].IsOn)
-            {
-                if (!Module.ConstVariables.ThisTest)
-                    return;
-            }
-
-            if (!Module.ConstVariables.UserCommand[3].IsOn)
+            if (!(await Access("roleinfo")))
             {
                 return;
             }
-
-            bool FoundARole = false;
-
-            ulong roleId = 0;            
-
-            if((message.IndexOf('<') == -1 ) && (message.IndexOf('>') == -1))
-            {
-                foreach (var rol in Context.Guild.Roles)
-                {
-                    if (rol.Name == message)
-                    {
-                        roleId = rol.Id;
-                        FoundARole = true;
-                    }
-                }
-            }
-            else
-            {
-
-                if (message.IndexOf('&') == -1)
-                {
-                    await Context.Channel.SendMessageAsync("Не является ролью");
-                    return;
-                }
-                message.Trim();
-                message = message.Trim(new char[] { '<', '@', '&', '>' });
-                roleId = Convert.ToUInt64(message);
-                FoundARole = true;
-            }
-
-            if (!FoundARole)
-            {
-                await Context.Channel.SendMessageAsync("Роль не найдена! ");
-                return;
-            }
-
-            SocketRole Role = Context.Guild.GetRole(roleId);
-
+            
             EmbedBuilder builder = new EmbedBuilder();
 
             string strock = "";
@@ -212,7 +187,7 @@ namespace LegionKun.Module
             foreach (var userr in Role.Members)
             {
                 if (userr.Nickname != "")
-                strock += $"{i}: {userr.Username}#{userr.Discriminator}\r\n";
+                    strock += $"{i}: {userr.Username}#{userr.Discriminator}\r\n";
                 else strock += $"{i}: {userr.Nickname}#{userr.Discriminator}\r\n";
                 i++;
             }
@@ -230,19 +205,70 @@ namespace LegionKun.Module
             Module.ConstVariables.Log?.Invoke($" is Guid {Context.Guild.Name} is command 'RoleInfo' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is role {Role.Name}");
 
             await Context.Channel.SendMessageAsync("", false, builder.Build());
+        }
 
+        [Command("roleinfo")]
+        [Priority(1)]
+        public async Task InfoRoleAsync([Remainder]string message)
+        {
+            if (!(await Access("roleinfo")))
+            {
+                return;
+            }
+
+            bool FoundARole = false;
+
+            ulong roleId = 0;
+
+            foreach (var rol in Context.Guild.Roles)
+            {
+                if (rol.Name == message)
+                {
+                    roleId = rol.Id;
+                    FoundARole = true;
+                }
+            }
+
+            if (!FoundARole)
+            {
+                await ReplyAndDeleteAsync("Роль не найдена", timeout: TimeSpan.FromSeconds(5));
+                return;
+            }
+
+            SocketRole Role = Context.Guild.GetRole(roleId);
+
+            EmbedBuilder builder = new EmbedBuilder();
+
+            string strock = "";
+            int i = 1;
+
+            foreach (var userr in Role.Members)
+            {
+                if (userr.Nickname != "")
+                    strock += $"{i++}: {userr.Username}#{userr.Discriminator}({userr.Nickname})\r\n";
+                else strock += $"{i++}: {userr.Nickname}#{userr.Discriminator}\r\n";
+            }
+
+            if (strock == "")
+                strock = "Пользователей нет";
+
+            builder.WithTitle($"Информация о роле для {Context.User.Username}");
+            builder.WithAuthor(Role.Name);
+            builder.AddField("Кол-во пользователей с ролью", i - 1, true);
+            builder.AddField("Цвет роли", $"{Role.Color}", true);
+            builder.AddField("Пользователи", strock);
+            builder.AddField("Администратор?", Role.Permissions.Administrator, true).AddField("Дата создания", $"{Role.CreatedAt.Day}.{Role.CreatedAt.Month}.{Role.CreatedAt.Year} {Role.CreatedAt.Hour + Role.CreatedAt.Offset.Hours}:{Role.CreatedAt.Minute}:{Role.CreatedAt.Second}.{Role.CreatedAt.Millisecond}", true);
+            builder.WithFooter(Context.Guild.Name, Context.Guild.IconUrl).WithColor(Role.Color);
+
+            ConstVariables.Log?.Invoke($" is Guid '{Context.Guild.Name}' is command 'RoleInfo' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is role '{Role.Name}'");
+
+            await Context.Channel.SendMessageAsync("", false, builder.Build());
         }
 
         [Command("time")]
         public async Task TimeAsync()
         {
-            if (!ConstVariables.CServer[Context.Guild.Id].IsOn)
-            {
-                if (!Module.ConstVariables.ThisTest)
-                    return;
-            }
-
-            if (!Module.ConstVariables.UserCommand[4].IsOn)
+            if (!(await Access("time")))
             {
                 return;
             }
@@ -255,7 +281,7 @@ namespace LegionKun.Module
             builder.WithThumbnailUrl("https://media.discordapp.net/attachments/462236317926031370/464149984934100992/time.png?width=473&height=473");
             builder.WithFooter(Context.Guild.Name, Context.Guild.IconUrl).WithColor(Color.DarkTeal);
 
-            Module.ConstVariables.Log?.Invoke($" is Guid {Context.Guild.Name} is command 'time' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
+            Module.ConstVariables.Log?.Invoke($" is Guid '{Context.Guild.Name}' is command 'time' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
 
             await Context.Channel.SendMessageAsync("", false, builder.Build());
         }
@@ -263,18 +289,12 @@ namespace LegionKun.Module
         [Command("random")]
         public async Task RandomAsync(int min, int max)
         {
-            if (!ConstVariables.CServer[Context.Guild.Id].IsOn)
-            {
-                if (!Module.ConstVariables.ThisTest)
-                    return;
-            }
-
-            if (!Module.ConstVariables.UserCommand[5].IsOn)
+            if (!(await Access("random")))
             {
                 return;
             }
 
-            if(min > max)
+            if (min > max)
             {
                 min += max;
                 max = min - max;
@@ -291,7 +311,7 @@ namespace LegionKun.Module
             builder.WithDescription($"Выпало число: {ran.Next(min, max)}");
 
             var mess = await Context.Channel.SendMessageAsync("", false, builder.Build());
-            
+
             await mess.AddReactionAsync(ConstVariables.DEmoji.EReturn);
 
             guild.RMessages.MaxValue = max;
@@ -307,23 +327,17 @@ namespace LegionKun.Module
         [Command("search")]
         public async Task SearchAsync([Remainder]string video)
         {
-            if (!ConstVariables.CServer[Context.Guild.Id].IsOn)
-            {
-                if (!Module.ConstVariables.ThisTest)
-                    return;
-            }
-
-            if (!Module.ConstVariables.UserCommand[6].IsOn)
+            if (!(await Access("search")))
             {
                 return;
             }
 
-            Module.ConstVariables.CDiscord guild = Module.ConstVariables.CServer[Context.Guild.Id];
+            ConstVariables.CDiscord guild = Module.ConstVariables.CServer[Context.Guild.Id];
 
             EmbedBuilder builder = new EmbedBuilder();
             builder.WithFooter(Context.Guild.Name, Context.Guild.IconUrl);
             builder.WithThumbnailUrl("https://media.discordapp.net/attachments/462236317926031370/473478987126013952/yt_logo_rgb_dark.png");
-            
+
             var youtubeService = new YouTubeService(new BaseClientService.Initializer()
             {
                 ApiKey = "AIzaSyDIuH33zi6aod6jSHm31V1VIVKYIIGxvEo",
@@ -335,7 +349,7 @@ namespace LegionKun.Module
             SearchVideo.Type = "video";
             SearchVideo.ChannelId = "UCScLnRAwAT2qyNcvaFSFvYA";
             SearchVideo.MaxResults = 5;
-            
+
             var SearchResult = await SearchVideo.ExecuteAsync();
             int i = 1;
             string strock = "";
@@ -346,78 +360,115 @@ namespace LegionKun.Module
             builder.AddField("YouTube video search", strock);
             await Context.Channel.SendMessageAsync("", false, builder.Build());
 
-            Module.ConstVariables.Log?.Invoke($" is Guid '{Context.Guild.Name}' is command 'help' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is Content '{video}'");
+            ConstVariables.Log?.Invoke($" is Guid '{Context.Guild.Name}' is command 'help' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is Content '{video}'");
         }
 
         [Command("perevorot")]
         public async Task PerevorotAsync()
         {
-            if (!ConstVariables.CServer[Context.Guild.Id].IsOn)
-            {
-                if (!Module.ConstVariables.ThisTest)
-                    return;
-            }
-
             if ((Context.User.Id == 252459542057713665) || (Context.User.Id == 329653972728020994))//Костя
             {
+                if (!ConstVariables.CServer[Context.Guild.Id].IsOn)
+                {
+                    if (!ConstVariables.ThisTest)
+                    {
+                        await ReplyAndDeleteAsync($"{Context.User.Mention}, все команды сейчас выключены!", timeout: TimeSpan.FromSeconds(5));
+                        return;
+                    }
+                }
+
                 DateTimeOffset time = Context.Message.CreatedAt;
 
                 Random ran = new Random();
 
                 int year = time.Year;
 
-                int month = time.Month + ran.Next(1, 13);
+                int month = ran.Next(1, 13);
 
-                int day = time.Day + ran.Next(1, 31);
+                int day = ran.Next(1, 31);
 
-                if (month > 12)
-                {
-                    month %= 12;
-                    year++;
-                }
+                time = time.AddDays(day).AddMonths(month);
 
-                if (month % 2 == 1)
-                {
-                    day %= 31;
-                }
-                else
-                {
-                    if (month == 2)
-                    {
-                        if(year % 4 == 2)
-                        {
-                            day %= 28;
-                        }
-                        else
-                        {
-                            day %= 29;
-                        }
-                    }
-                    else
-                    {
-                        day %= 30;
-                    }
-                }
-
-                await Context.Channel.SendMessageAsync($"{Context.User.Mention}, переворот назначен на {day}.{month}.{year}");
+                await Context.Channel.SendMessageAsync($"{Context.User.Mention}, переворот назначен на {time.Day}.{time.Month}.{time.Year}");
             }
-            else if (Context.User.Id == 380057037532561429)//Хидери
+            else
             {
-                await Context.Channel.SendMessageAsync($"{Context.User.Mention}, тебе ли делать переворот. . .");
+                try
+                {
+                    await Context.Message.DeleteAsync();
+                }
+                catch (Exception e)
+                {
+                    ConstVariables.Mess?.Invoke("Ошибка доступа:" + e.Message);
+                }
+
+                await ReplyAndDeleteAsync("Тихо! Об этом никто не должен знать!", timeout: TimeSpan.FromSeconds(5));
             }
 
         }
 
-        [Command("help")]
-        public async Task HelpAsync()
+        [Command("userinfo")]
+        public async Task UserInfoAsync(IGuildUser user = null)
         {
-            if (!ConstVariables.CServer[Context.Guild.Id].IsOn)
+            if (!(await Access("userinfo")))
             {
-                if (!Module.ConstVariables.ThisTest)
-                    return;
+                return;
             }
 
-            if (!Module.ConstVariables.UserCommand[6].IsOn)
+            var User = user ?? Context.User as IGuildUser;
+
+            EmbedBuilder builder = new EmbedBuilder();
+
+            if (!string.IsNullOrWhiteSpace(User.Nickname))
+            {
+                builder.AddField("Nickname", user.Nickname);
+            }
+
+            builder.AddField("Activity", User.Activity.Name, true)
+                .AddField("Имя пользователя", User.Username, true)
+                .AddField("Дата создания", $"{User.CreatedAt:dd.MM.yyyy HH:mm}", true)
+                .AddField("Дата присоединения", User.JoinedAt?.ToString("dd.MM.yyyy HH:mm"), true)
+                .AddField("Кол-во ролей", User.RoleIds.Count - 1);
+
+            var avatar = user.GetAvatarUrl();
+
+            if (avatar != null)
+            {
+                builder.WithThumbnailUrl(avatar);
+            }
+
+            await Context.Channel.SendMessageAsync("", embed: builder.Build());
+        }
+
+        [Command("report")]
+        public async Task ReportAsync(string command, [Remainder]string text)
+        {
+            if(!(await Access("report")))
+            {
+                return;
+            }
+
+            string UMention = Context.User.Username + "#" + Context.User.Discriminator;
+            string report = $"Пользователь: {UMention}\r\nКоманда: {command}\r\nСообщение: {text}";
+
+            ConstVariables.Mess?.Invoke(report);
+            await ConstVariables.CServer[Context.Guild.Id].GetGuild().GetUser(329653972728020994).SendMessageAsync(report);
+
+            try
+            {
+                await Context.Message.DeleteAsync();
+            }catch(Exception e)
+            {
+                Console.WriteLine("Ошибка доступа: " + e);
+            }
+
+            await ReplyAndDeleteAsync($"{Context.User.Mention}, спасибо за ваш отчет! Ваше сообщение очень важно для нас))", timeout: TimeSpan.FromSeconds(5)); 
+        }
+
+        [Command("help")]
+        public async Task HelpAsync() 
+        {
+            if (!(await Access("help")))
             {
                 return;
             }

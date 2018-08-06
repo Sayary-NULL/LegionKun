@@ -16,32 +16,36 @@ namespace LegionKun.Game.CrossZero
 {
     public class CrossZeroGame : CrossZeroBase
     {
-        internal async Task<bool> ReplycGameAsync(SocketCommandContext Context)
+        internal async Task<bool> ReplycGameAsync()
         {
-            if (DataDictionary.ContainsKey(Context.Channel))
+            if (DataGameBase.ContainsKey(Context.Channel))
             {
-                await DataDictionary[Context.Channel].Message.DeleteAsync();
+                await DataGameBase[Context.Channel].Message.DeleteAsync();
 
-                DataDictionary[Context.Channel].GetImage();
+                DataGameBase[Context.Channel].GetImage();
 
-                DataDictionary[Context.Channel].field3X3 = new string[,] { {"", "", "" },
-                                                                           {"", "", "" },
-                                                                           {"", "", "" }};
+                DataGameBase[Context.Channel].Sum = 0;
 
-                if (Context.User.Id == DataDictionary[Context.Channel].User1.Id)
+                DataGameBase[Context.Channel].field3X3 = new string[,] { {"", "", "" },
+                                                                         {"", "", "" },
+                                                                         {"", "", "" }};
+
+                if (Context.User.Id == DataGameBase[Context.Channel].User1.Id)
                 {
-                    DataDictionary[Context.Channel].GoUser = DataDictionary[Context.Channel].User2;
-                    DataDictionary[Context.Channel].ScoreUser1++;
+                    DataGameBase[Context.Channel].GoUser = DataGameBase[Context.Channel].User2;
+                    DataGameBase[Context.Channel].ScoreUser1++;
                 }
                 else
                 {
-                    DataDictionary[Context.Channel].GoUser = DataDictionary[Context.Channel].User1;
-                    DataDictionary[Context.Channel].ScoreUser2++;
+                    DataGameBase[Context.Channel].GoUser = DataGameBase[Context.Channel].User1;
+                    DataGameBase[Context.Channel].ScoreUser2++;
                 }
+
+                DataGameBase[Context.Channel].GameStat = StatGame.Start;
 
                 await ReplyAndDeleteAsync("Пересоздано", timeout: TimeSpan.FromSeconds(5));
 
-                DataDictionary[Context.Channel].Message = await Context.Channel.SendFileAsync(Module.ConstVariables.ToStream(DataDictionary[Context.Channel].IField), "Filledfield.jpg");
+                DataGameBase[Context.Channel].Message = await Context.Channel.SendFileAsync(ToStream(DataGameBase[Context.Channel].IField), "Filledfield.jpg");
 
                 return true;
             }
@@ -50,9 +54,9 @@ namespace LegionKun.Game.CrossZero
          
         internal Embed StatusGame(ISocketMessageChannel channel)
         {
-            if (DataDictionary.ContainsKey(channel))
+            if (DataGameBase.ContainsKey(channel))
             {
-                DataType DBase = DataDictionary[channel];
+                DataType DBase = DataGameBase[channel];
                 EmbedBuilder builder = new EmbedBuilder();
                 builder.WithTitle("Игровая статистика");
                 builder.AddField("/", "Игроки",true).AddField("Игрок1", DBase.User1.Mention, true).AddField("Игрок2", DBase.User2.Mention, true);
@@ -77,9 +81,9 @@ namespace LegionKun.Game.CrossZero
 
         internal bool WinGame(ISocketMessageChannel channel)
         {
-            if (DataDictionary.ContainsKey(channel))
+            if (DataGameBase.ContainsKey(channel))
             {
-                DataType data = DataDictionary[channel];                
+                DataType data = DataGameBase[channel];                
                 //горизонтально
                 if (data.GameStat != Game.CrossZero.StatGame.Win)
                 {
@@ -139,9 +143,100 @@ namespace LegionKun.Game.CrossZero
                     }
                 }
 
-                return data.GameStat == StatGame.Win;
+                return DataGameBase[channel].GameStat == StatGame.Win;
             }
             else return false;
+        }
+
+        internal async Task ApplyingParametersAsync()
+        {
+            DataGameBase[Context.Channel].Sum++;
+
+            if (DataGameBase[Context.Channel].User1 == DataGameBase[Context.Channel].GoUser)
+            {
+                DataGameBase[Context.Channel].GoUser = DataGameBase[Context.Channel].User2;
+            }
+            else
+            {
+                DataGameBase[Context.Channel].GoUser = DataGameBase[Context.Channel].User1;
+            }
+
+            if (WinGame(Context.Channel))
+            {
+                await ReplyAndDeleteAsync($"{Context.User.Mention}, ты выйграл!", timeout: TimeSpan.FromSeconds(5));
+
+                if (await ReplycGameAsync())
+                {
+                    return;
+                }
+                else await ReplyAndDeleteAsync("Ошибка!", timeout: TimeSpan.FromSeconds(5));
+            }
+            else
+            {
+                if (DataGameBase[Context.Channel].Sum >= 9)
+                {
+                    await ReplyAndDeleteAsync("Поле закончилось!", timeout: TimeSpan.FromSeconds(5));
+
+                    if (await ReplycGameAsync())
+                    {
+                        return;
+                    }
+                    else await ReplyAndDeleteAsync("Ошибка!", timeout: TimeSpan.FromSeconds(5));
+                }
+
+                if (DataGameBase[Context.Channel].Message != null)
+                {
+                    await DataGameBase[Context.Channel].Message.DeleteAsync();
+                }
+
+                DataGameBase[Context.Channel].Message = await Context.Channel.SendFileAsync(ToStream(DataGameBase[Context.Channel].IField), "Filledfield.jpg");
+
+                await Context.Message.DeleteAsync();
+            }
+        }
+
+        internal async Task CommandHandlerAsync()
+        {
+            switch (DataGameBase[Context.Channel].GameStat)
+            {
+                case StatGame.Close:
+                    {
+                        await ReplyAndDeleteAsync("Игра в статусе закрытия!", timeout: TimeSpan.FromSeconds(5));
+                        return;
+                    }
+
+                case StatGame.Create:
+                    {
+                        await ReplyAndDeleteAsync("Игра не запущена!", timeout: TimeSpan.FromSeconds(5));
+                        break;
+                    }
+
+                case StatGame.Stop:
+                    {
+                        await ReplyAndDeleteAsync("Игра остановлена!", timeout: TimeSpan.FromSeconds(5));
+                        break;
+                    }
+
+                case StatGame.Win:
+                    {
+                        await ReplyAndDeleteAsync("Еще не пересоздано!", timeout: TimeSpan.FromSeconds(5));
+                        break;
+                    }
+
+                case StatGame.Start:
+                    {
+                        if ((Context.User.Id == DataGameBase[Context.Channel].User1.Id) || (Context.User.Id == DataGameBase[Context.Channel].User2.Id))
+                        {
+                            await ReplyAndDeleteAsync("Не твой ход!", timeout: TimeSpan.FromSeconds(5));
+                        }
+                        break;
+                    }
+                default:
+                    {
+                        await ReplyAndDeleteAsync("Это как ты сделал значение параметра не из списка? О_О", timeout: TimeSpan.FromSeconds(5));
+                        break;
+                    }
+            }
         }
     }
 }

@@ -37,8 +37,14 @@ namespace LegionKun
                 new Program().Logger(i == 0 ? " Запуск программы":" Повторный запуск программы");
 
                 i = 1;
-
-                new Program().RunBotAsync().GetAwaiter().GetResult();
+                try
+                {
+                    new Program().RunBotAsync().GetAwaiter().GetResult();
+                }
+                catch(Exception e)
+                {
+                    Console.WriteLine(e);
+                }
 
             } while (MessageBox.Show(null, "Повторный запуск?", "Сообщение", MessageBoxButtons.YesNo, MessageBoxIcon.Asterisk) == DialogResult.No);
         }
@@ -397,7 +403,7 @@ namespace LegionKun
                     }
                 }
             }
-            else if(Messeg.HasStringPrefix("c!", ref argPos))
+            else if(Messeg.HasStringPrefix("c!", ref argPos) || Messeg.HasStringPrefix("с!", ref argPos))
             {
                 SocketCommandContext contex = new SocketCommandContext(Module.ConstVariables._Client, Messeg);
 

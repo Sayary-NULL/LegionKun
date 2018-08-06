@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
+using Discord;
 using Discord.Commands;
+using Discord.Net;
 using Discord.WebSocket;
 using System.Data.SqlClient;
 
@@ -117,10 +119,17 @@ namespace LegionKun.Tests
             Console.WriteLine("Отключено!");
         }
 
-        [Command("start", RunMode = RunMode.Async)]
-        public async Task Async()
+        [Command("start")]
+        public async Task Async(IGuildUser user = null)
         {
-
+            try
+            {
+                await user.ModifyAsync(u => u.Nickname = "string").ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
         }
     }
 }

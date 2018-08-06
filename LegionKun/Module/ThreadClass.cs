@@ -143,6 +143,11 @@ namespace LegionKun.Module
                 {
                     foreach(KeyValuePair<ulong, ConstVariables.CDiscord> key in ConstVariables.CServer)
                     {
+                        if(key.Value.DefaultChannelNewsId == 0)
+                        {
+                            continue;
+                        }
+
                         if ((url != "") || (url2 != ""))
                         {
                             await key.Value.GetDefaultNewsChannel().SendMessageAsync("@here", false, builder.Build());
@@ -151,15 +156,13 @@ namespace LegionKun.Module
                         if (url != "")
                         {
                             await key.Value.GetDefaultNewsChannel().SendMessageAsync("https://www.youtube.com/video/" + url);
-                            Module.ConstVariables.Video1Id = url;                            
-                            url = "";
+                            Module.ConstVariables.Video1Id = url;
                         }
 
                         if (url2 != "")
                         {
                             await key.Value.GetDefaultNewsChannel().SendMessageAsync("https://www.youtube.com/video/" + url2);
-                            Module.ConstVariables.Video2Id = url2;                            
-                            url2 = "";
+                            Module.ConstVariables.Video2Id = url2;
                         }
                     }
 
@@ -173,6 +176,8 @@ namespace LegionKun.Module
                         ConstVariables.Log?.Invoke(" Найдено соответствие с запростом url1: " + "https://www.youtube.com/video/" + url2);
                     }
 
+                    url = "";
+                    url2 = "";
                 }
                 Thread.Sleep(60000);
             } while (true);

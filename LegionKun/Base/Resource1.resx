@@ -117,9 +117,20 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ApiKeyToken" xml:space="preserve">
+    <value>AIzaSyDIuH33zi6aod6jSHm31V1VIVKYIIGxvEo</value>
+  </data>
   <data name="ConnectionKey" xml:space="preserve">
     <value>Data Source=KIRILL\SQL_LEGIONKUN;Initial Catalog=UserId;Integrated Security=True</value>
     <comment>строка подключения к БД</comment>
+  </data>
+  <data name="TestBotToken" xml:space="preserve">
+    <value>NDU4Mjc2NjM2MDY0ODc0NDk3.DhZByw.dBlIP1itXd7XOjmVe59drPhkB7o</value>
+    <comment>Токен тестового бота</comment>
+  </data>
+  <data name="TokenBot" xml:space="preserve">
+    <value>NDYwMTUyNTgzNzc2ODk0OTk3.DhAm7g.GSRCqXFiNo_oQQuv2Uhk770Rxbg</value>
+    <comment>токен рабочего бота</comment>
   </data>
   <data name="VersionBot" xml:space="preserve">
     <value>4.25</value>

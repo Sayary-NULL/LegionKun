@@ -135,7 +135,15 @@ namespace LegionKun.Module
                 }
                 else if (mess == "канти")
                 {
-                    await channel.SendMessageAsync("Канти - наше солнышко! :kissing_heart:");
+                    Random ran = new Random();
+                    if(ran.Next(0,1) == 1)
+                    {
+                        await channel.SendMessageAsync("Канти - наше солнышко! :kissing_heart:");
+                    }
+                    else
+                    {
+                        await channel.SendMessageAsync("раз, два, три, четыре, пять, вышла Канти погулять :stuck_out_tongue_closed_eyes:");
+                    }
                     IsTrigger = true;
                 }
                 else if ((mess == "мур") && (guild.CountRes < guild.Restruction) && (!ConstVariables.CServer[Context.Guild.Id].Trigger))
@@ -175,10 +183,14 @@ namespace LegionKun.Module
                     ConstVariables.CServer[Context.Guild.Id].Trigger = true;
                     new Program().OneMin(Context.Guild.Id);
                 }
+                else if ((mess.IndexOf("Sayary") > -1) || (mess.IndexOf("Сайяри") > -1))
+                {
+
+                }
 
                 if (IsTrigger)
                 {
-                    Logger($" Сработал тригер: {mess}! is Guid {guild.GetGuild().Name} is channel {channel.Name} is user '{Context.User.Username}#{Context.User.Discriminator}'");
+                    Logger($" Сработал тригер: {mess}! is Guid '{guild.GetGuild().Name}' is channel '{channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}'");
                 }
             }
         }

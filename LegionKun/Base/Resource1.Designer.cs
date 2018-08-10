@@ -61,11 +61,38 @@ namespace LegionKun.Base {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на AIzaSyDIuH33zi6aod6jSHm31V1VIVKYIIGxvEo.
+        /// </summary>
+        internal static string ApiKeyToken {
+            get {
+                return ResourceManager.GetString("ApiKeyToken", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Data Source=KIRILL\SQL_LEGIONKUN;Initial Catalog=UserId;Integrated Security=True.
         /// </summary>
         internal static string ConnectionKey {
             get {
                 return ResourceManager.GetString("ConnectionKey", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на NDU4Mjc2NjM2MDY0ODc0NDk3.DhZByw.dBlIP1itXd7XOjmVe59drPhkB7o.
+        /// </summary>
+        internal static string TestBotToken {
+            get {
+                return ResourceManager.GetString("TestBotToken", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на NDYwMTUyNTgzNzc2ODk0OTk3.DhAm7g.GSRCqXFiNo_oQQuv2Uhk770Rxbg.
+        /// </summary>
+        internal static string TokenBot {
+            get {
+                return ResourceManager.GetString("TokenBot", resourceCulture);
             }
         }
         

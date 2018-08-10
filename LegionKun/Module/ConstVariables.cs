@@ -43,6 +43,7 @@ namespace LegionKun.Module
             public bool Debug = false;
             public bool IsOn = false;
             public bool Trigger = false;
+            public int NumberNewUser = 0;
             //мини-класс для random
             public class Rmessages
             {
@@ -55,26 +56,26 @@ namespace LegionKun.Module
 
             public Rmessages RMessages = new Rmessages();
 
-            ///<summary>возвращает <code>class</code> сервера</summary>
+            ///<summary>возвращает class сервера</summary>
             public SocketGuild GetGuild()
             {
                 return _Client.GetGuild(GuildId);
             }
-
+            ///<summary>возвращает class канала по умолчанию</summary>
             public SocketTextChannel GetDefaultChannel()
             {
                 if (DefaultChannelId != 0)
                     return GetGuild().GetTextChannel(DefaultChannelId);
                 else return null;
             }
-
+            ///<summary>возвращает class канала новостей</summary>
             public SocketTextChannel GetDefaultNewsChannel()
             {
                 if (DefaultChannelNewsId != 0)
                     return GetGuild().GetTextChannel(DefaultChannelNewsId);
                 else return null;
             }
-
+            ///<summary>возвращает class канал с командами бота</summary>
             public SocketTextChannel GetDefaultCommandChannel()
             {
                 if (DefaultChannelId != 0)
@@ -90,27 +91,29 @@ namespace LegionKun.Module
         public static List<Commands> UserCommand { get; private set; } = new List<Commands>()
         {
             //UserCommands
-            new Commands( "hello" , "hello <User Mention>", true),//1
-            new Commands( "say" , "say [text]", true),//2
-            new Commands( "warn" , "warn [User Mention] <comment>", true),//3
-            new Commands( "roleinfo" , "RoleInfo [Role]", true),//4
-            new Commands( "time" , "time", true),//5
-            new Commands( "random" , "random [[MinValue] [MaxValue]]", true),//6
-            new Commands( "search" , "search [Seearch text]", true),//7
-            new Commands( "userinfo" , "user <User Mention>", true),//8
-            new Commands( "report" , "report [Name Command][report text]", true),//9
-            new Commands( "help" , "help", true),//10
+            new Commands( "hello" , "hello <User Mention>", true),
+            new Commands( "say" , "say [text]", true),
+            new Commands( "warn" , "warn [User Mention] <comment>", true),
+            new Commands( "roleinfo" , "RoleInfo <Role>", true),
+            new Commands( "time" , "time", true),
+            new Commands( "random" , "random [[MinValue] [MaxValue]]", true),
+            new Commands( "search" , "search [Seearch text]", true),
+            new Commands( "userinfo" , "userinfo <User Mention>", true),
+            new Commands( "serverinfo" , "serverinfo", true),
+            new Commands( "ctinfo" , "ctinfo", true),
+            new Commands( "cvinfo" , "cvinfo", true),
+            new Commands( "ping" , "ping", true),
+            new Commands( "report" , "report [Name Command] [report text]", true),
+            new Commands( "help" , "help", true),
         };
 
         public static List<Commands> AdminCommand { get; private set; } = new List<Commands>()
         {
             //AdminCommands
             new Commands( "test" , "test", ThisTest),
-            new Commands( "roleinfo" , "RoleInfo", true),
-            new Commands( "ctinfo" , "CTInfo", true),
-            new Commands( "cvinfo" , "CVInfo", true),
             new Commands( "news" , "news [news]", true),
             new Commands( "status" , "status", true),
+            new Commands( "debug" , "debug", true),
         };
 
         public struct Commands
@@ -169,6 +172,8 @@ namespace LegionKun.Module
 #endif 
         public static bool Sharon { get; set; } = false;
 
+        public static bool Perevorot { get; set; } = false;
+
         public delegate void DLogger(string str);
 
         public delegate void DMessege(string str);
@@ -176,7 +181,13 @@ namespace LegionKun.Module
         public static DMessege Mess = null;
 
         public static DLogger Log = null;
-        
+
+        public static Discord.Color InfoColor { get; private set; } = Color.DarkTeal;
+
+        public static Discord.Color UserColor { get; private set; } = Color.Blue;
+
+        public static Discord.Color AdminColor { get; private set; } = Color.Red;
+
         public static async Task<IUserMessage> SendMessageAsync(this IMessageChannel channel, string text, bool isTTS = false, Embed embed = null, uint deleteAfter = 0, RequestOptions options = null)
         {
             var message = await channel.SendMessageAsync(text, isTTS, embed, options);

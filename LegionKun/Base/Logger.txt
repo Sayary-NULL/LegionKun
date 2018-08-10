@@ -91,3 +91,421 @@
 [6 Август 2018  14:43:45] Connecting
 [6 Август 2018  14:43:47] Connected
 [6 Август 2018  14:43:48] Ready
+[8 Август 2018  21:13:41] Запуск программы
+[8 Август 2018  21:13:41] Запуск потока: MainFunc;
+[8 Август 2018  21:13:46] Discord.Net v2.0.0-beta2-00975 (API v6)
+[8 Август 2018  21:14:48] Connecting
+[8 Август 2018  21:15:30] Запуск потока: MainFunc;
+[8 Август 2018  21:16:14] Запуск потока: MainFunc;
+[8 Август 2018  21:16:40] Запуск потока: MainFunc;
+[8 Август 2018  21:16:40] Запуск программы
+[8 Август 2018  21:16:44] Discord.Net v2.0.0-beta2-00975 (API v6)
+[8 Август 2018  21:16:47] Connecting
+[8 Август 2018  21:16:49] Connected
+[8 Август 2018  21:16:50] Ready
+[8 Август 2018  21:19:22] Запуск программы
+[8 Август 2018  21:20:59] Запуск потока: MainFunc;
+[8 Август 2018  21:21:0] Запуск программы
+[8 Август 2018  21:21:2] Discord.Net v2.0.0-beta2-00975 (API v6)
+[8 Август 2018  21:21:13] Connecting
+[8 Август 2018  21:21:14] Connected
+[8 Август 2018  21:21:15] Ready
+[8 Август 2018  21:22:1] Запуск потока: YouTubeStream;
+[8 Август 2018  21:37:10] Запуск программы
+[8 Август 2018  21:38:30] Запуск потока: MainFunc;
+[8 Август 2018  21:38:30] Запуск программы
+[8 Август 2018  21:38:31] Discord.Net v2.0.0-beta2-00975 (API v6)
+[8 Август 2018  21:38:32] Запуск потока: YouTubeStream;
+[8 Август 2018  21:38:48] Connecting
+[8 Август 2018  21:39:47] Запуск потока: MainFunc;
+[8 Август 2018  21:39:47] Запуск программы
+[8 Август 2018  21:41:15] Запуск потока: MainFunc;
+[8 Август 2018  21:41:15] Запуск программы
+[8 Август 2018  21:41:16] Discord.Net v2.0.0-beta2-00975 (API v6)
+[8 Август 2018  21:41:26] Запуск потока: YouTubeStream;
+[8 Август 2018  21:41:26] Connecting
+[8 Август 2018  21:43:29] Запуск потока: MainFunc;
+[8 Август 2018  21:43:30] Запуск программы
+[8 Август 2018  21:43:33] Discord.Net v2.0.0-beta2-00975 (API v6)
+[8 Август 2018  21:43:33] Запуск потока: YouTubeStream;
+[8 Август 2018  21:44:58] Запуск потока: MainFunc;
+[8 Август 2018  21:44:58] Запуск программы
+[8 Август 2018  21:44:59] Discord.Net v2.0.0-beta2-00975 (API v6)
+[8 Август 2018  21:45:15] Запуск потока: YouTubeStream;
+[8 Август 2018  21:45:15] Connecting
+[8 Август 2018  21:46:22] Запуск потока: MainFunc;
+[8 Август 2018  21:46:22] Запуск программы
+[8 Август 2018  21:46:26] Discord.Net v2.0.0-beta2-00975 (API v6)
+[8 Август 2018  21:46:44] Connecting
+[8 Август 2018  21:46:49] Connected
+[8 Август 2018  21:46:49] Запуск потока: YouTubeStream;
+[8 Август 2018  21:46:50] Ready
+[8 Август 2018  21:57:55] Запуск потока: MainFunc;
+[8 Август 2018  21:57:55] Запуск программы
+[8 Август 2018  21:57:59] Discord.Net v2.0.0-beta2-00975 (API v6)
+[8 Август 2018  21:58:15] Connecting
+[8 Август 2018  21:58:19] Connected
+[8 Август 2018  21:58:19] Запуск потока: YouTubeStream;
+[8 Август 2018  21:58:20] Ready
+[8 Август 2018  21:59:47] Запуск потока: MainFunc;
+[8 Август 2018  21:59:47] Запуск программы
+[8 Август 2018  21:59:50] Discord.Net v2.0.0-beta2-00975 (API v6)
+[8 Август 2018  22:0:1] Connecting
+[8 Август 2018  22:0:7] Connected
+[8 Август 2018  22:0:8] Запуск потока: YouTubeStream;
+[8 Август 2018  22:0:10] Ready
+[8 Август 2018  22:4:36] Запуск потока: MainFunc;
+[8 Август 2018  22:4:37] Запуск программы
+[8 Август 2018  22:4:40] Discord.Net v2.0.0-beta2-00975 (API v6)
+[8 Август 2018  22:4:49] Connecting
+[8 Август 2018  22:4:53] Connected
+[8 Август 2018  22:4:54] Запуск потока: YouTubeStream;
+[8 Август 2018  22:4:54] Ready
+[8 Август 2018  22:16:38] Запуск потока: MainFunc;
+[8 Август 2018  22:17:22] Запуск программы
+[8 Август 2018  22:18:42] Запуск потока: MainFunc;
+[8 Август 2018  22:18:42] Запуск программы
+[8 Август 2018  22:18:48] Discord.Net v2.0.0-beta2-00975 (API v6)
+[8 Август 2018  22:19:5] Connecting
+[8 Август 2018  22:19:13] Connected
+[8 Август 2018  22:19:13] Запуск потока: YouTubeStream;
+[8 Август 2018  22:19:14] Ready
+[9 Август 2018  22:30:3] Запуск программы
+[9 Август 2018  22:31:6] Запуск потока: MainFunc;
+[9 Август 2018  22:31:6] Запуск программы
+[9 Август 2018  22:31:9] Discord.Net v2.0.0-beta2-00975 (API v6)
+[9 Август 2018  22:31:18] Connecting
+[9 Август 2018  22:31:23] Connected
+[9 Август 2018  22:31:24] Ready
+[9 Август 2018  22:32:9] is Guid 'Disboard' is command 'perevorot' is user 'Sayary' is channel 'лаборатория-sayary'
+[9 Август 2018  22:32:43] A MessageReceived handler is blocking the gateway task.
+[9 Август 2018  22:32:43] is errors 'Exception' is param Ссылка на объект не указывает на экземпляр объекта. is channel 'лаборатория-sayary' is user 'Sayary#2523' is context 'sh!userinfo'
+[9 Август 2018  22:58:28] Запуск программы
+[9 Август 2018  22:58:29] Запуск потока: MainFunc;
+[9 Август 2018  22:58:33] Discord.Net v2.0.0-beta2-00975 (API v6)
+[9 Август 2018  22:58:39] Connecting
+[9 Август 2018  22:58:45] Connected
+[9 Август 2018  22:58:46] Ready
+[9 Август 2018  22:59:30] A MessageReceived handler is blocking the gateway task.
+[9 Август 2018  22:59:51] is errors 'Exception' is param Ссылка на объект не указывает на экземпляр объекта. is channel 'лаборатория-sayary' is user 'Sayary#2523' is context 'sh!userinfo'
+[9 Август 2018  23:0:31] is errors 'Exception' is param Ссылка на объект не указывает на экземпляр объекта. is channel 'лаборатория-sayary' is user 'Sayary#2523' is context 'sh!userinfo'
+[9 Август 2018  23:2:14] Запуск потока: MainFunc;
+[9 Август 2018  23:2:15] Запуск программы
+[9 Август 2018  23:2:16] Discord.Net v2.0.0-beta2-00975 (API v6)
+[9 Август 2018  23:2:22] Connecting
+[9 Август 2018  23:2:26] Connected
+[9 Август 2018  23:2:29] Ready
+[9 Август 2018  23:3:5] A MessageReceived handler is blocking the gateway task.
+[9 Август 2018  23:3:5] is Guid 'Disboard' is command 'userinfo' is user 'Sayary' is channel 'лаборатория-sayary'
+[9 Август 2018  23:14:49] Запуск потока: MainFunc;
+[9 Август 2018  23:14:49] Запуск программы
+[9 Август 2018  23:14:54] Discord.Net v2.0.0-beta2-00975 (API v6)
+[9 Август 2018  23:15:1] Connecting
+[9 Август 2018  23:15:4] Connected
+[9 Август 2018  23:15:6] Ready
+[9 Август 2018  23:15:35] is Guid 'Disboard' is command 'userinfo' is user 'Sayary' is channel 'лаборатория-sayary'
+[9 Август 2018  23:17:8] Запуск потока: MainFunc;
+[9 Август 2018  23:18:29] Запуск потока: MainFunc;
+[9 Август 2018  23:18:29] Запуск программы
+[9 Август 2018  23:18:31] Discord.Net v2.0.0-beta2-00975 (API v6)
+[9 Август 2018  23:18:36] Connecting
+[9 Август 2018  23:18:39] Connected
+[9 Август 2018  23:18:41] Ready
+[9 Август 2018  23:19:3] is Guid 'Disboard' is command 'userinfo' is user 'Sayary' is channel 'лаборатория-sayary'
+[9 Август 2018  23:20:32] is Guid 'Disboard' is command 'perevorot' is user 'Sayary' is channel 'лаборатория-sayary'
+[9 Август 2018  23:47:22] Запуск программы
+[9 Август 2018  23:47:22] Запуск потока: MainFunc;
+[9 Август 2018  23:47:29] Discord.Net v2.0.0-beta2-00975 (API v6)
+[9 Август 2018  23:47:41] Connecting
+[9 Август 2018  23:47:47] Connected
+[9 Август 2018  23:47:49] Ready
+[9 Август 2018  23:57:11] Запуск программы
+[9 Август 2018  23:57:58] Запуск потока: MainFunc;
+[9 Август 2018  23:57:58] Запуск программы
+[9 Август 2018  23:58:0] Discord.Net v2.0.0-beta2-00975 (API v6)
+[9 Август 2018  23:58:6] Connecting
+[9 Август 2018  23:58:10] Connected
+[9 Август 2018  23:58:11] Ready
+[10 Август 2018  0:0:45] Запуск потока: MainFunc;
+[10 Август 2018  0:0:45] произведен сброс!
+[10 Август 2018  0:0:45] Запуск программы
+[10 Август 2018  0:0:46] Discord.Net v2.0.0-beta2-00975 (API v6)
+[10 Август 2018  0:0:51] Connecting
+[10 Август 2018  0:0:55] Connected
+[10 Август 2018  0:0:57] Ready
+[10 Август 2018  0:2:53] A MessageReceived handler is blocking the gateway task.
+[10 Август 2018  0:5:5] A MessageReceived handler is blocking the gateway task.
+[10 Август 2018  0:16:9] Запуск программы
+[10 Август 2018  0:16:9] Запуск потока: MainFunc;
+[10 Август 2018  0:16:10] произведен сброс!
+[10 Август 2018  0:16:13] Discord.Net v2.0.0-beta2-00975 (API v6)
+[10 Август 2018  0:16:22] Connecting
+[10 Август 2018  0:16:32] Connected
+[10 Август 2018  0:16:35] Ready
+[10 Август 2018  0:17:3] A MessageReceived handler is blocking the gateway task.
+[10 Август 2018  0:18:49] Запуск потока: MainFunc;
+[10 Август 2018  0:18:49] Запуск программы
+[10 Август 2018  0:18:49] произведен сброс!
+[10 Август 2018  0:18:51] Discord.Net v2.0.0-beta2-00975 (API v6)
+[10 Август 2018  0:18:57] Connecting
+[10 Август 2018  0:19:6] Connected
+[10 Август 2018  0:19:7] Ready
+[10 Август 2018  0:29:24] Запуск потока: MainFunc;
+[10 Август 2018  0:29:24] произведен сброс!
+[10 Август 2018  0:29:25] Запуск программы
+[10 Август 2018  0:29:25] Discord.Net v2.0.0-beta2-00975 (API v6)
+[10 Август 2018  0:29:28] Connecting
+[10 Август 2018  0:29:31] Connected
+[10 Август 2018  0:29:31] Ready
+[10 Август 2018  0:31:13] Запуск потока: MainFunc;
+[10 Август 2018  0:31:14] Запуск программы
+[10 Август 2018  0:31:14] произведен сброс!
+[10 Август 2018  0:31:16] Discord.Net v2.0.0-beta2-00975 (API v6)
+[10 Август 2018  0:31:20] Connecting
+[10 Август 2018  0:31:29] Connected
+[10 Август 2018  0:31:31] Ready
+[10 Август 2018  0:33:56] Запуск потока: MainFunc;
+[10 Август 2018  0:33:57] произведен сброс!
+[10 Август 2018  0:33:57] Запуск программы
+[10 Август 2018  0:33:59] Discord.Net v2.0.0-beta2-00975 (API v6)
+[10 Август 2018  0:34:6] Connecting
+[10 Август 2018  0:34:12] Connected
+[10 Август 2018  0:34:14] Ready
+[10 Август 2018  0:34:25] A MessageReceived handler is blocking the gateway task.
+[10 Август 2018  0:36:5] Запуск потока: MainFunc;
+[10 Август 2018  0:36:5] произведен сброс!
+[10 Август 2018  0:36:5] Запуск программы
+[10 Август 2018  0:36:8] Discord.Net v2.0.0-beta2-00975 (API v6)
+[10 Август 2018  0:36:13] Connecting
+[10 Август 2018  0:36:16] Connected
+[10 Август 2018  0:36:17] Ready
+[10 Август 2018  0:39:30] Запуск потока: MainFunc;
+[10 Август 2018  0:39:31] Запуск программы
+[10 Август 2018  0:39:31] произведен сброс!
+[10 Август 2018  0:39:33] Discord.Net v2.0.0-beta2-00975 (API v6)
+[10 Август 2018  0:39:41] Connecting
+[10 Август 2018  0:39:46] Connected
+[10 Август 2018  0:39:48] Ready
+[10 Август 2018  0:41:10] A MessageReceived handler is blocking the gateway task.
+[10 Август 2018  0:42:18] 
+[10 Август 2018  0:42:18] Disconnecting
+[10 Август 2018  0:42:22] Disconnected
+[10 Август 2018  0:42:25] Connecting
+[10 Август 2018  0:42:29] Resumed previous session
+[10 Август 2018  0:42:30] Connected
+[10 Август 2018  0:46:42] Запуск потока: MainFunc;
+[10 Август 2018  0:46:42] произведен сброс!
+[10 Август 2018  0:46:42] Запуск программы
+[10 Август 2018  0:46:46] Discord.Net v2.0.0-beta2-00975 (API v6)
+[10 Август 2018  0:46:51] Connecting
+[10 Август 2018  0:46:55] Connected
+[10 Август 2018  0:46:56] Ready
+[10 Август 2018  0:47:24] A MessageReceived handler is blocking the gateway task.
+[10 Август 2018  0:50:41] Запуск потока: MainFunc;
+[10 Август 2018  0:50:41] произведен сброс!
+[10 Август 2018  0:50:41] Запуск программы
+[10 Август 2018  0:50:45] Discord.Net v2.0.0-beta2-00975 (API v6)
+[10 Август 2018  0:50:49] Connecting
+[10 Август 2018  0:50:54] Connected
+[10 Август 2018  0:50:55] Ready
+[10 Август 2018  0:51:26] is group 'Admin' is command 'CTInfo' is user 'Sayary' is channel 'лаборатория-sayary'
+[10 Август 2018  0:51:27] A MessageReceived handler is blocking the gateway task.
+[10 Август 2018  0:55:44] Запуск потока: MainFunc;
+[10 Август 2018  0:55:45] произведен сброс!
+[10 Август 2018  0:55:45] Запуск программы
+[10 Август 2018  0:55:46] Discord.Net v2.0.0-beta2-00975 (API v6)
+[10 Август 2018  0:55:51] Connecting
+[10 Август 2018  0:55:56] Connected
+[10 Август 2018  0:55:59] Ready
+[10 Август 2018  0:56:29] is group 'Admin' is command 'CTInfo' is user 'Sayary' is channel 'лаборатория-sayary'
+[10 Август 2018  1:0:50] Запуск потока: MainFunc;
+[10 Август 2018  1:0:51] Запуск программы
+[10 Август 2018  1:0:54] Discord.Net v2.0.0-beta2-00975 (API v6)
+[10 Август 2018  1:0:57] Connecting
+[10 Август 2018  1:1:0] Connected
+[10 Август 2018  1:1:2] Ready
+[10 Август 2018  1:2:46] Запуск потока: MainFunc;
+[10 Август 2018  1:2:47] Запуск программы
+[10 Август 2018  1:2:50] Discord.Net v2.0.0-beta2-00975 (API v6)
+[10 Август 2018  1:2:58] Connecting
+[10 Август 2018  1:3:9] Connected
+[10 Август 2018  1:3:10] Ready
+[10 Август 2018  1:6:25] Запуск потока: MainFunc;
+[10 Август 2018  1:6:25] Запуск программы
+[10 Август 2018  1:6:28] Discord.Net v2.0.0-beta2-00975 (API v6)
+[10 Август 2018  1:6:33] Connecting
+[10 Август 2018  1:6:36] Connected
+[10 Август 2018  1:6:38] Ready
+[10 Август 2018  1:11:59] Запуск потока: MainFunc;
+[10 Август 2018  1:12:0] Запуск программы
+[10 Август 2018  1:12:2] Discord.Net v2.0.0-beta2-00975 (API v6)
+[10 Август 2018  1:12:7] Connecting
+[10 Август 2018  1:12:13] Connected
+[10 Август 2018  1:12:15] Ready
+[10 Август 2018  1:12:38] is group 'Admin' is command 'CTInfo' is user 'Sayary' is channel 'лаборатория-sayary'
+[10 Август 2018  1:17:14] is Guid 'Disboard' is command 'perevorot' is user 'Sayary' is channel 'лаборатория-sayary'
+[10 Август 2018  9:47:56] Запуск потока: MainFunc;
+[10 Август 2018  9:47:56] Запуск программы
+[10 Август 2018  9:47:57] Discord.Net v2.0.0-beta2-00975 (API v6)
+[10 Август 2018  9:48:1] Connecting
+[10 Август 2018  9:48:4] Connected
+[10 Август 2018  9:48:4] Ready
+[10 Август 2018  9:48:55] is group 'Admin' is command 'CTInfo' is user 'Sayary' is channel 'лаборатория-sayary'
+[10 Август 2018  10:41:25] Запуск программы
+[10 Август 2018  10:41:25] Запуск потока: MainFunc;
+[10 Август 2018  10:41:27] Discord.Net v2.0.0-beta2-00975 (API v6)
+[10 Август 2018  10:41:36] Connecting
+[10 Август 2018  10:41:39] Connected
+[10 Август 2018  10:41:39] Ready
+[10 Август 2018  10:44:50] is group 'Admin' is command 'CTInfo' is user 'Sayary' is channel 'лаборатория-sayary'
+[10 Август 2018  10:44:51] A MessageReceived handler is blocking the gateway task.
+[10 Август 2018  10:49:19] Запуск потока: MainFunc;
+[10 Август 2018  10:49:19] Запуск программы
+[10 Август 2018  10:49:21] Discord.Net v2.0.0-beta2-00975 (API v6)
+[10 Август 2018  10:49:26] Connecting
+[10 Август 2018  10:49:29] Connected
+[10 Август 2018  10:49:29] Ready
+[10 Август 2018  10:49:51] is group 'Admin' is command 'CTInfo' is user 'Sayary' is channel 'лаборатория-sayary'
+[10 Август 2018  10:51:43] Запуск потока: MainFunc;
+[10 Август 2018  10:51:44] Запуск программы
+[10 Август 2018  10:51:47] Discord.Net v2.0.0-beta2-00975 (API v6)
+[10 Август 2018  10:51:49] Connecting
+[10 Август 2018  10:51:52] Connected
+[10 Август 2018  10:51:52] Ready
+[10 Август 2018  10:52:38] is group 'Admin' is command 'CTInfo' is user 'Sayary' is channel 'лаборатория-sayary'
+[10 Август 2018  10:56:40] Запуск потока: MainFunc;
+[10 Август 2018  10:56:40] Запуск программы
+[10 Август 2018  10:56:41] Discord.Net v2.0.0-beta2-00975 (API v6)
+[10 Август 2018  10:56:43] Connecting
+[10 Август 2018  10:56:45] Connected
+[10 Август 2018  10:56:46] Ready
+[10 Август 2018  10:57:3] is group 'Admin' is command 'CTInfo' is user 'Sayary' is channel 'лаборатория-sayary'
+[10 Август 2018  10:58:53] Запуск потока: MainFunc;
+[10 Август 2018  10:59:25] Запуск программы
+[10 Август 2018  10:59:52] Запуск потока: MainFunc;
+[10 Август 2018  11:0:24] Запуск потока: MainFunc;
+[10 Август 2018  11:0:24] Запуск программы
+[10 Август 2018  11:0:25] Discord.Net v2.0.0-beta2-00975 (API v6)
+[10 Август 2018  11:0:30] Connecting
+[10 Август 2018  11:0:35] Connected
+[10 Август 2018  11:0:36] Ready
+[10 Август 2018  11:0:40] is group 'Admin' is command 'CTInfo' is user 'Sayary' is channel 'лаборатория-sayary'
+[10 Август 2018  11:4:35] Запуск программы
+[10 Август 2018  11:4:35] Запуск потока: MainFunc;
+[10 Август 2018  11:4:36] Discord.Net v2.0.0-beta2-00975 (API v6)
+[10 Август 2018  11:4:39] Connecting
+[10 Август 2018  11:4:41] Connected
+[10 Август 2018  11:4:43] Ready
+[10 Август 2018  11:5:20] is group 'Admin' is command 'CTInfo' is user 'Sayary' is channel 'лаборатория-sayary'
+[10 Август 2018  11:7:23] Запуск потока: MainFunc;
+[10 Август 2018  11:7:24] Запуск программы
+[10 Август 2018  11:7:31] Discord.Net v2.0.0-beta2-00975 (API v6)
+[10 Август 2018  11:7:40] Connecting
+[10 Август 2018  11:7:45] Connected
+[10 Август 2018  11:7:47] Ready
+[10 Август 2018  11:8:2] is group 'Admin' is command 'CTInfo' is user 'Sayary' is channel 'лаборатория-sayary'
+[10 Август 2018  11:8:16] is errors 'Exception' is param Индекс за пределами диапазона. Индекс должен быть положительным числом, а его размер не должен превышать размер коллекции.
+Имя параметра: index is channel 'лаборатория-sayary' is user 'Sayary#2523' is context 'sh!admin cvinfo'
+[10 Август 2018  11:8:43] is group 'Admin' is command 'CVInfo' is user 'Sayary' is channel 'лаборатория-sayary'
+[10 Август 2018  15:10:26] Запуск программы
+[10 Август 2018  15:10:26] Запуск потока: MainFunc;
+[10 Август 2018  15:10:28] Discord.Net v2.0.0-beta2-00975 (API v6)
+[10 Август 2018  15:10:35] Connecting
+[10 Август 2018  15:10:39] Connected
+[10 Август 2018  15:10:41] Ready
+[10 Август 2018  15:11:8] is command 'roleinfo' is user 'Sayary' is channel 'лаборатория-sayary'
+[10 Август 2018  15:11:55] is Guid 'Disboard' is command 'RoleInfo' is user 'Sayary' is channel 'лаборатория-sayary' is role 'Тестер'
+[10 Август 2018  15:13:6] is Guid 'Disboard' is command 'RoleInfo' is user 'Sayary' is channel 'лаборатория-sayary' is role 'Админ'
+[10 Август 2018  15:17:46] Запуск программы
+[10 Август 2018  15:17:46] Запуск потока: MainFunc;
+[10 Август 2018  15:17:48] Discord.Net v2.0.0-beta2-00975 (API v6)
+[10 Август 2018  15:17:51] Connecting
+[10 Август 2018  15:17:57] Connected
+[10 Август 2018  15:18:0] Ready
+[10 Август 2018  15:18:12] is Guid 'Disboard' is command 'RoleInfo' is user 'Sayary' is channel 'лаборатория-sayary' is role 'Админ'
+[10 Август 2018  15:18:31] is Guid 'Disboard' is command 'RoleInfo' is user 'Sayary' is channel 'лаборатория-sayary' is role 'Админ'
+[10 Август 2018  15:26:4] Запуск потока: MainFunc;
+[10 Август 2018  15:26:4] Запуск программы
+[10 Август 2018  15:26:7] Discord.Net v2.0.0-beta2-00975 (API v6)
+[10 Август 2018  15:26:13] Connecting
+[10 Август 2018  15:26:19] Connected
+[10 Август 2018  15:26:20] Ready
+[10 Август 2018  15:29:12] is command 'roleinfo' is user 'Sayary' is channel 'лаборатория-sayary'
+[10 Август 2018  15:29:31] is Guid 'Disboard' is command 'RoleInfo' is user 'Sayary' is channel 'лаборатория-sayary' is role 'жрец шайтана'
+[10 Август 2018  15:30:44] is Guid 'Disboard' is command 'RoleInfo' is user 'Sayary' is channel 'лаборатория-sayary' is role 'жрец шайтана'
+[10 Август 2018  15:43:19] is Guid 'Disboard' is command 'RoleInfo' is user 'Sayary' is channel 'лаборатория-sayary' is role 'жрец шайтана'
+[10 Август 2018  15:46:44] Запуск потока: MainFunc;
+[10 Август 2018  15:46:44] Запуск программы
+[10 Август 2018  15:46:47] Discord.Net v2.0.0-beta2-00975 (API v6)
+[10 Август 2018  15:46:54] Connecting
+[10 Август 2018  15:46:57] Connected
+[10 Август 2018  15:46:58] Ready
+[10 Август 2018  15:47:8] is Guid 'Disboard' is command 'RoleInfo' is user 'Sayary' is channel 'лаборатория-sayary' is role 'жрец шайтана'
+[10 Август 2018  16:34:13] Запуск потока: MainFunc;
+[10 Август 2018  16:34:13] Запуск программы
+[10 Август 2018  16:34:15] Discord.Net v2.0.0-beta2-00975 (API v6)
+[10 Август 2018  16:34:22] Connecting
+[10 Август 2018  16:34:26] Connected
+[10 Август 2018  16:34:27] Ready
+[10 Август 2018  16:38:50] is Guid 'Disboard' is command 'hello' is user 'Sayary' is channel 'лаборатория-sayary' is socetuser 'false'
+[10 Август 2018  16:39:10] is Guid 'Disboard' is command 'hello' is user 'Sayary' is channel 'лаборатория-sayary' is socetuser 'Легиоша'
+[10 Август 2018  16:39:37] is Guid 'Disboard' is command 'say' is user 'Sayary' is channel 'лаборатория-sayary' is mess '<@458283933549723650>, ерунда!'
+[10 Август 2018  16:40:4] is Guid 'Disboard' is command 'warn' is user 'Sayary' is channel 'лаборатория-sayary' is user2 'Легиоша' is coment 'неактивный'
+[10 Август 2018  16:40:24] is command 'roleinfo' is user 'Sayary' is channel 'лаборатория-sayary'
+[10 Август 2018  16:40:45] is Guid 'Disboard' is command 'RoleInfo' is user 'Sayary' is channel 'лаборатория-sayary' is role 'Админестратор'
+[10 Август 2018  16:41:37] is Guid 'Disboard' is command 'RoleInfo' is user 'Sayary' is channel 'лаборатория-sayary' is role 'жрец шайтана'
+[10 Август 2018  16:42:2] is Guid 'Disboard' is command 'time' is user 'Sayary' is channel 'лаборатория-sayary'
+[10 Август 2018  16:42:21] is Guid 'Disboard' is command 'help' is user 'Sayary' is channel 'лаборатория-sayary' is Random Min:12 Max: 16
+[10 Август 2018  16:42:55] is Guid 'Disboard' is command 'perevorot' is user 'Sayary' is channel 'лаборатория-sayary'
+[10 Август 2018  16:43:38] is Guid 'Disboard' is command 'userinfo' is user 'Sayary' is channel 'лаборатория-sayary'
+[10 Август 2018  16:44:3] is errors 'Exception' is param Ссылка на объект не указывает на экземпляр объекта. is channel 'лаборатория-sayary' is user 'Sayary#2523' is context 'sh!userinfo <@!358588355275128843>'
+[10 Август 2018  16:44:38] is errors 'Exception' is param Ссылка на объект не указывает на экземпляр объекта. is channel 'лаборатория-sayary' is user 'Sayary#2523' is context 'sh!userinfo <@358588355275128843>'
+[10 Август 2018  16:45:33] is Guid 'Disboard' is command 'perevorot' is user 'Sayary' is channel 'лаборатория-sayary'
+[10 Август 2018  16:46:8] is group 'Admin' is command 'CTInfo' is user 'Sayary' is channel 'лаборатория-sayary'
+[10 Август 2018  16:46:26] is group 'Admin' is command 'CVInfo' is user 'Sayary' is channel 'лаборатория-sayary'
+[10 Август 2018  16:46:37] is Guid 'Disboard' is command 'help' is user 'Sayary' is channel 'лаборатория-sayary' is IsRole True 
+[10 Август 2018  16:51:29] Запуск потока: MainFunc;
+[10 Август 2018  16:51:29] Запуск программы
+[10 Август 2018  16:51:30] Discord.Net v2.0.0-beta2-00975 (API v6)
+[10 Август 2018  16:51:34] Connecting
+[10 Август 2018  16:51:38] Connected
+[10 Август 2018  16:51:38] Ready
+[10 Август 2018  16:52:36] is errors 'Exception' is param Ссылка на объект не указывает на экземпляр объекта. is channel 'лаборатория-sayary' is user 'Sayary#2523' is context 'sh!userinfo <@458283933549723650>'
+[10 Август 2018  16:53:29] is errors 'Exception' is param Ссылка на объект не указывает на экземпляр объекта. is channel 'лаборатория-sayary' is user 'Sayary#2523' is context 'sh!userinfo <@458283933549723650>'
+[10 Август 2018  17:0:38] Запуск потока: MainFunc;
+[10 Август 2018  17:0:38] Запуск программы
+[10 Август 2018  17:0:38] Discord.Net v2.0.0-beta2-00975 (API v6)
+[10 Август 2018  17:0:40] Connecting
+[10 Август 2018  17:0:43] Connected
+[10 Август 2018  17:0:44] Ready
+[10 Август 2018  17:1:58] A MessageReceived handler is blocking the gateway task.
+[10 Август 2018  17:2:4] is errors 'Exception' is param Ссылка на объект не указывает на экземпляр объекта. is channel 'лаборатория-sayary' is user 'Sayary#2523' is context 'sh!userinfo <@458283933549723650>'
+[10 Август 2018  17:2:54] is errors 'Exception' is param Ссылка на объект не указывает на экземпляр объекта. is channel 'лаборатория-sayary' is user 'Sayary#2523' is context 'sh!userinfo <@458283933549723650>'
+[10 Август 2018  17:4:42] Запуск потока: MainFunc;
+[10 Август 2018  17:4:42] Запуск программы
+[10 Август 2018  17:4:43] Discord.Net v2.0.0-beta2-00975 (API v6)
+[10 Август 2018  17:4:46] Connecting
+[10 Август 2018  17:4:50] Connected
+[10 Август 2018  17:4:51] Ready
+[10 Август 2018  17:8:29] Запуск потока: MainFunc;
+[10 Август 2018  17:8:29] Запуск программы
+[10 Август 2018  17:8:31] Discord.Net v2.0.0-beta2-00975 (API v6)
+[10 Август 2018  17:8:37] Connecting
+[10 Август 2018  17:8:43] Connected
+[10 Август 2018  17:8:45] Ready
+[10 Август 2018  17:8:52] is Guid 'Disboard' is command 'userinfo' is user 'Sayary' is channel 'лаборатория-sayary'
+[10 Август 2018  17:10:7] is Guid 'Disboard' is command 'userinfo' is user 'Sayary' is channel 'лаборатория-sayary'
+[10 Август 2018  17:13:17] Запуск потока: MainFunc;
+[10 Август 2018  17:13:17] Запуск программы
+[10 Август 2018  17:13:18] Discord.Net v2.0.0-beta2-00975 (API v6)
+[10 Август 2018  17:13:23] Connecting
+[10 Август 2018  17:13:30] Connected
+[10 Август 2018  17:13:30] Ready
+[10 Август 2018  17:13:43] is Guid 'Disboard' is command 'userinfo' is user 'Sayary' is channel 'лаборатория-sayary'
+[10 Август 2018  17:14:19] is Guid 'Disboard' is command 'userinfo' is user 'Sayary' is channel 'лаборатория-sayary'
+[10 Август 2018  18:19:37] Запуск потока: MainFunc;
+[10 Август 2018  18:19:37] Запуск программы
+[10 Август 2018  18:19:38] Discord.Net v2.0.0-beta2-00975 (API v6)
+[10 Август 2018  18:19:46] Connecting
+[10 Август 2018  18:19:48] Connected
+[10 Август 2018  18:19:48] Ready

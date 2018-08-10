@@ -12,6 +12,7 @@ using System.Net;
 using System.Net.Mime;
 using Google.Apis.YouTube.v3;
 using Google.Apis.Services;
+using System.Diagnostics;
 
 namespace LegionKun.Module
 {
@@ -96,13 +97,18 @@ namespace LegionKun.Module
 
             EmbedBuilder builder = new EmbedBuilder();
 
-            builder.WithAuthor(Context.User.Username, Context.User.GetAvatarUrl()).WithColor(Color.DarkPurple);
-            builder.WithFooter(Context.Guild.Name, Context.Guild.IconUrl);
-            builder.WithDescription(mess);
+            if (Context.User.Id != ConstVariables.CreatorId)
+            {
+                builder.WithAuthor(Context.User.Username, Context.User.GetAvatarUrl());
+            }
+
+            builder.WithFooter(Context.Guild.Name, Context.Guild.IconUrl)
+                .WithDescription(mess)
+                .WithColor(ConstVariables.UserColor);
 
             ConstVariables.Log?.Invoke($" is Guid '{Context.Guild.Name}' is command 'say' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is mess '{mess}'");
 
-            await Context.Channel.SendMessageAsync("", false, builder.Build());
+            await Context.Channel.SendMessageAsync("", embed: builder.Build());
         }
 
         [Command("warn")]
@@ -126,8 +132,9 @@ namespace LegionKun.Module
             {
                 EmbedBuilder errors = new EmbedBuilder();
 
-                errors.WithTitle("Ошибка!").WithDescription("нельзя жаловатся на бота!");
-                errors.WithFooter(Context.Guild.Name, Context.Guild.IconUrl);
+                errors.WithTitle("Ошибка!").WithDescription("нельзя жаловатся на бота!")
+                    .WithFooter(Context.Guild.Name, Context.Guild.IconUrl)
+                    . WithColor(ConstVariables.InfoColor);
 
                 await ReplyAndDeleteAsync("", embed: errors.Build(), timeout: TimeSpan.FromSeconds(5));
                 return;
@@ -139,15 +146,16 @@ namespace LegionKun.Module
 
             if (user.Id == Context.User.Id)
             {
-                builder.WithAuthor(Context.User.Username, Context.User.GetAvatarUrl());
-                builder.WithDescription("Нельзя жаловаться на себя!");
-                builder.WithFooter(Context.Guild.Name, Context.Guild.IconUrl);
+                builder.WithAuthor(Context.User.Username, Context.User.GetAvatarUrl())
+                    .WithDescription("Нельзя жаловаться на себя!")
+                    .WithFooter(Context.Guild.Name, Context.Guild.IconUrl)
+                    .WithColor(ConstVariables.InfoColor);
 
                 await ReplyAndDeleteAsync("", embed: builder.Build(), timeout: TimeSpan.FromSeconds(5));
                 return;
             }
 
-            builder.WithTitle("Жалоба!").WithColor(Color.Red);
+            builder.WithTitle("Жалоба!").WithColor(ConstVariables.UserColor);
 
             if (user.Id == ConstVariables.CreatorId)
             {
@@ -165,44 +173,59 @@ namespace LegionKun.Module
 
             builder.WithFooter(Context.Guild.Name, Context.Guild.IconUrl);
 
-            ConstVariables.Log?.Invoke($" is Guid '{Context.Guild.Name}' is command 'warn' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is user2 '{user.Username}' is coment' {coment}'");
+            ConstVariables.Log?.Invoke($" is Guid '{Context.Guild.Name}' is command 'warn' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is user2 '{user.Username}' is coment '{coment}'");
 
-            await Context.Channel.SendMessageAsync("", false, builder.Build());
+            await Context.Channel.SendMessageAsync("", embed: builder.Build());
         }
 
         [Command("roleinfo")]
         [Priority(0)]
-        public async Task RoleInfoAsync(SocketRole Role)
+        public async Task RoleIhfoAsync() 
         {
             if (!(await Access("roleinfo")))
             {
                 return;
             }
-            
+
             EmbedBuilder builder = new EmbedBuilder();
 
-            string strock = "";
-            int i = 1;
+            int CountRole = Context.Guild.Roles.Count - 1;
 
-            foreach (var userr in Role.Members)
+            string roleinfo = "";
+
+            List<SocketRole> Inforole = new List<SocketRole>(CountRole + 1);
+
+            for (int z = 0; z < CountRole; z++)
             {
-                if (userr.Nickname != "")
-                    strock += $"{i}: {userr.Username}#{userr.Discriminator}\r\n";
-                else strock += $"{i}: {userr.Nickname}#{userr.Discriminator}\r\n";
-                i++;
+                Inforole.Add(null);
             }
 
-            builder.WithTitle($"Информация о роле для {Context.User.Username}");
-            builder.WithAuthor(Role.Name);
-            builder.AddField("Кол-во пользователей с ролью", i - 1, true);
-            builder.AddField("Цвет роли", $"{Role.Color}", true);
-            if (strock == "")
-                strock = "Пользователей нет";
-            builder.AddField("Пользователи", strock);
-            builder.AddField("Администратор?", Role.Permissions.Administrator, true).AddField("Дата создания", $"{Role.CreatedAt.Day}.{Role.CreatedAt.Month}.{Role.CreatedAt.Year} {Role.CreatedAt.Hour + Role.CreatedAt.Offset.Hours}:{Role.CreatedAt.Minute}:{Role.CreatedAt.Second}.{Role.CreatedAt.Millisecond}", true);
-            builder.WithFooter(Context.Guild.Name, Context.Guild.IconUrl).WithColor(Role.Color);
+            foreach (var role in Context.Guild.Roles)
+                if (role.Id != Context.Guild.EveryoneRole.Id)
+                {
+                    //Console.WriteLine($"{role.Name}, {role.Position}"); /*для отладки*/
+                    Inforole.RemoveAt(role.Position - 1);
+                    Inforole.Insert(role.Position - 1, role);
+                }
 
-            Module.ConstVariables.Log?.Invoke($" is Guid {Context.Guild.Name} is command 'RoleInfo' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is role {Role.Name}");
+            for (int i = CountRole; i > 0; i--)
+            {
+                try
+                {
+                    roleinfo += $"{CountRole - i + 1}: **{Inforole[i - 1].Name}** ({Inforole[i - 1].CreatedAt:dd.MM.yyyy HH:mm})\r\n";
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"{CountRole}, {i},  {e.Message}");
+                }
+            }
+
+            builder.WithTitle($"Количество ролей на сервере: {CountRole}")
+                .WithDescription(roleinfo)
+                .WithFooter(Context.Guild.Name, Context.Guild.IconUrl)
+                .WithColor(ConstVariables.UserColor);
+
+            ConstVariables.Log?.Invoke($" is command 'roleinfo' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
 
             await Context.Channel.SendMessageAsync("", false, builder.Build());
         }
@@ -244,7 +267,7 @@ namespace LegionKun.Module
 
             foreach (var userr in Role.Members)
             {
-                if (userr.Nickname != "")
+                if (!string.IsNullOrWhiteSpace(userr.Nickname))
                     strock += $"{i++}: {userr.Username}#{userr.Discriminator}({userr.Nickname})\r\n";
                 else strock += $"{i++}: {userr.Nickname}#{userr.Discriminator}\r\n";
             }
@@ -252,19 +275,61 @@ namespace LegionKun.Module
             if (strock == "")
                 strock = "Пользователей нет";
 
-            builder.WithTitle($"Информация о роле для {Context.User.Username}");
-            builder.WithAuthor(Role.Name);
-            builder.AddField("Кол-во пользователей с ролью", i - 1, true);
-            builder.AddField("Цвет роли", $"{Role.Color}", true);
-            builder.AddField("Пользователи", strock);
-            builder.AddField("Администратор?", Role.Permissions.Administrator, true).AddField("Дата создания", $"{Role.CreatedAt.Day}.{Role.CreatedAt.Month}.{Role.CreatedAt.Year} {Role.CreatedAt.Hour + Role.CreatedAt.Offset.Hours}:{Role.CreatedAt.Minute}:{Role.CreatedAt.Second}.{Role.CreatedAt.Millisecond}", true);
-            builder.WithFooter(Context.Guild.Name, Context.Guild.IconUrl).WithColor(Role.Color);
+            builder.WithTitle($"Информация о роле для {Context.User.Username}")
+                .WithAuthor(Role.Name)
+                .AddField("Кол-во пользователей с ролью", i - 1, true)
+                .AddField("Цвет роли", $"{Role.Color}", true)
+                .AddField("Администратор?", Role.Permissions.Administrator, true)
+                .AddField("Дата создания", $"{Role.CreatedAt.Day}.{Role.CreatedAt.Month}.{Role.CreatedAt.Year} {Role.CreatedAt.Hour + Role.CreatedAt.Offset.Hours}:{Role.CreatedAt.Minute}:{Role.CreatedAt.Second}.{Role.CreatedAt.Millisecond}", true)
+                .AddField("Пользователи", strock)
+                .WithFooter(Context.Guild.Name, Context.Guild.IconUrl)
+                .WithColor(ConstVariables.UserColor);
 
             ConstVariables.Log?.Invoke($" is Guid '{Context.Guild.Name}' is command 'RoleInfo' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is role '{Role.Name}'");
 
-            await Context.Channel.SendMessageAsync("", false, builder.Build());
+            await Context.Channel.SendMessageAsync("", embed: builder.Build());
         }
 
+        [Command("roleinfo")]
+        [Priority(2)]
+        public async Task RoleInfoAsync(SocketRole Role)
+        {
+            if (!(await Access("roleinfo")))
+            {
+                return;
+            }
+            
+            EmbedBuilder builder = new EmbedBuilder();
+
+            string strock = "";
+            int i = 1;
+
+            foreach (var userr in Role.Members)
+            {
+                if (string.IsNullOrWhiteSpace(userr.Nickname))
+                    strock += $"{i}: {userr.Username}#{userr.Discriminator}\r\n";
+                else strock += $"{i}: {userr.Username}#{userr.Discriminator}({userr.Nickname})\r\n";
+                i++;
+            }
+
+            if (strock == "")
+                strock = "Пользователей нет";
+
+            builder.WithTitle($"Информация о роле для {Context.User.Username}")
+                .WithAuthor(Role.Name)
+                .AddField("Кол-во пользователей с ролью", i - 1, true)
+                .AddField("Администратор?", Role.Permissions.Administrator, true)
+                .AddField("Цвет роли", $"{Role.Color}", true)
+                .AddField("Дата создания", $"{Role.CreatedAt.Day}.{Role.CreatedAt.Month}.{Role.CreatedAt.Year} {Role.CreatedAt.Hour + Role.CreatedAt.Offset.Hours}:{Role.CreatedAt.Minute}:{Role.CreatedAt.Second}.{Role.CreatedAt.Millisecond}", true)
+                .AddField("Пользователи", strock)
+                .WithFooter(Context.Guild.Name, Context.Guild.IconUrl)
+                .WithColor(ConstVariables.UserColor);
+
+            ConstVariables.Log?.Invoke($" is Guid '{Context.Guild.Name}' is command 'RoleInfo' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is role '{Role.Name}'");
+
+            await Context.Channel.SendMessageAsync("", embed: builder.Build());
+        }
+        
         [Command("time")]
         public async Task TimeAsync()
         {
@@ -276,14 +341,15 @@ namespace LegionKun.Module
             TimeSpan current_time = DateTime.Now.TimeOfDay;
             EmbedBuilder builder = new EmbedBuilder();
 
-            builder.WithTitle("Time").WithDescription($"local time: {current_time.Hours}:{current_time.Minutes}:{current_time.Seconds}");
-            builder.WithAuthor(Context.User.Username, Context.User.GetAvatarUrl());
-            builder.WithThumbnailUrl("https://media.discordapp.net/attachments/462236317926031370/464149984934100992/time.png?width=473&height=473");
-            builder.WithFooter(Context.Guild.Name, Context.Guild.IconUrl).WithColor(Color.DarkTeal);
+            builder.WithTitle("Time").WithDescription($"local time: {current_time.Hours}:{current_time.Minutes}:{current_time.Seconds}")
+                .WithAuthor(Context.User.Username, Context.User.GetAvatarUrl())
+                .WithThumbnailUrl("https://media.discordapp.net/attachments/462236317926031370/464149984934100992/time.png?width=473&height=473")
+                .WithFooter(Context.Guild.Name, Context.Guild.IconUrl)
+                .WithColor(ConstVariables.InfoColor);
 
-            Module.ConstVariables.Log?.Invoke($" is Guid '{Context.Guild.Name}' is command 'time' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
+            ConstVariables.Log?.Invoke($" is Guid '{Context.Guild.Name}' is command 'time' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
 
-            await Context.Channel.SendMessageAsync("", false, builder.Build());
+            await Context.Channel.SendMessageAsync("", embed: builder.Build());
         }
 
         [Command("random")]
@@ -302,15 +368,15 @@ namespace LegionKun.Module
             }
 
             ConstVariables.CDiscord guild = ConstVariables.CServer[Context.Guild.Id];
-
             Random ran = new Random();
             EmbedBuilder builder = new EmbedBuilder();
 
-            builder.WithTitle($"Случайное число с промежутка: от {min} до {max}").WithColor(Discord.Color.DarkGreen);
-            builder.WithFooter(Context.Guild.Name, Context.Guild.IconUrl);
-            builder.WithDescription($"Выпало число: {ran.Next(min, max)}");
+            builder.WithTitle($"Случайное число с промежутка: от {min} до {max}")
+                .WithFooter(Context.Guild.Name, Context.Guild.IconUrl)
+                .WithDescription($"Выпало число: {ran.Next(min, max)}")
+                .WithColor(ConstVariables.UserColor);
 
-            var mess = await Context.Channel.SendMessageAsync("", false, builder.Build());
+            var mess = await Context.Channel.SendMessageAsync("", embed: builder.Build());
 
             await mess.AddReactionAsync(ConstVariables.DEmoji.EReturn);
 
@@ -319,9 +385,9 @@ namespace LegionKun.Module
             guild.RMessages.Embed = builder;
             guild.RMessages.RestUser = mess;
             guild.RMessages.UserId = Context.User.Id;
-            Module.ConstVariables.DMessage.Add(mess.Id, guild.GuildId);
+            ConstVariables.DMessage.Add(mess.Id, guild.GuildId);
 
-            Module.ConstVariables.Log?.Invoke($" is Guid '{Context.Guild.Name}' is command 'help' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is Random Min:{min} Max: {max}");
+            ConstVariables.Log?.Invoke($" is Guid '{Context.Guild.Name}' is command 'help' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is Random Min:{min} Max: {max}");
         }
 
         [Command("search")]
@@ -335,8 +401,8 @@ namespace LegionKun.Module
             ConstVariables.CDiscord guild = Module.ConstVariables.CServer[Context.Guild.Id];
 
             EmbedBuilder builder = new EmbedBuilder();
-            builder.WithFooter(Context.Guild.Name, Context.Guild.IconUrl);
-            builder.WithThumbnailUrl("https://media.discordapp.net/attachments/462236317926031370/473478987126013952/yt_logo_rgb_dark.png");
+            builder.WithFooter(Context.Guild.Name, Context.Guild.IconUrl)
+                .WithThumbnailUrl("https://media.discordapp.net/attachments/462236317926031370/473478987126013952/yt_logo_rgb_dark.png");
 
             var youtubeService = new YouTubeService(new BaseClientService.Initializer()
             {
@@ -357,8 +423,11 @@ namespace LegionKun.Module
             {
                 strock += $"{i++}: {Search.Snippet.Title}\r\nurl:https://www.youtube.com/video/" + Search.Id.VideoId + "\r\n";
             }
-            builder.AddField("YouTube video search", strock);
-            await Context.Channel.SendMessageAsync("", false, builder.Build());
+
+            builder.AddField("YouTube video search", strock)
+                .WithColor(ConstVariables.InfoColor);
+
+            await Context.Channel.SendMessageAsync("", embed: builder.Build());
 
             ConstVariables.Log?.Invoke($" is Guid '{Context.Guild.Name}' is command 'help' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is Content '{video}'");
         }
@@ -377,6 +446,14 @@ namespace LegionKun.Module
                     }
                 }
 
+                if(ConstVariables.Perevorot)
+                {
+                    await ReplyAndDeleteAsync("Этой командой можно пользоваться только один раз в день!", timeout: TimeSpan.FromSeconds(5));
+                    return;
+                }
+
+                ConstVariables.Perevorot = true;
+
                 DateTimeOffset time = Context.Message.CreatedAt;
 
                 Random ran = new Random();
@@ -390,6 +467,8 @@ namespace LegionKun.Module
                 time = time.AddDays(day).AddMonths(month);
 
                 await Context.Channel.SendMessageAsync($"{Context.User.Mention}, переворот назначен на {time.Day}.{time.Month}.{time.Year}");
+
+                ConstVariables.Log?.Invoke($" is Guid '{Context.Guild.Name}' is command 'perevorot' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
             }
             else
             {
@@ -403,6 +482,8 @@ namespace LegionKun.Module
                 }
 
                 await ReplyAndDeleteAsync("Тихо! Об этом никто не должен знать!", timeout: TimeSpan.FromSeconds(5));
+
+                ConstVariables.Log?.Invoke($" is Guid '{Context.Guild.Name}' is command 'perevorot' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
             }
 
         }
@@ -415,29 +496,214 @@ namespace LegionKun.Module
                 return;
             }
 
-            var User = user ?? Context.User as IGuildUser;
+            IGuildUser User = Context.User as IGuildUser;
+
+            if (user != null)
+            {
+                User = user;
+            }
 
             EmbedBuilder builder = new EmbedBuilder();
 
+            builder.AddField("Имя пользователя", User.Username + "#" + User.Discriminator, true);
+
             if (!string.IsNullOrWhiteSpace(User.Nickname))
             {
-                builder.AddField("Nickname", user.Nickname);
+                builder.AddField("Nickname", User.Nickname, true);
             }
 
-            builder.AddField("Activity", User.Activity.Name, true)
-                .AddField("Имя пользователя", User.Username, true)
-                .AddField("Дата создания", $"{User.CreatedAt:dd.MM.yyyy HH:mm}", true)
-                .AddField("Дата присоединения", User.JoinedAt?.ToString("dd.MM.yyyy HH:mm"), true)
-                .AddField("Кол-во ролей", User.RoleIds.Count - 1);
+            if(User.Activity != null)
+            {
+                builder.AddField("Activity", User.Activity.Name, true);
+            }
 
-            var avatar = user.GetAvatarUrl();
+            builder.AddField("Дата создания", $"{User.CreatedAt:dd.MM.yyyy HH:mm}", true)
+            .AddField("Дата присоединения", User.JoinedAt?.ToString("dd.MM.yyyy HH:mm"), true)
+            .AddField("Кол-во ролей", User.RoleIds.Count - 1, true)
+            .WithColor(ConstVariables.InfoColor);
+            
 
-            if (avatar != null)
+            string avatar = User.GetAvatarUrl();
+
+            if (Uri.IsWellFormedUriString(avatar, UriKind.Absolute))
             {
                 builder.WithThumbnailUrl(avatar);
             }
+            
+            string role = "";
+            int i = 1;
+
+            foreach(var key in User.RoleIds)
+            {
+                if(!Context.Guild.GetRole(key).IsEveryone)
+                {
+                    role += $"{i++}: **{Context.Guild.GetRole(key).Name}** ({Context.Guild.GetRole(key).CreatedAt:dd.MM.yyyy HH:mm})\r\n";
+                }
+            }
+
+            builder.AddField("Роли", role);
 
             await Context.Channel.SendMessageAsync("", embed: builder.Build());
+
+            ConstVariables.Log?.Invoke($" is Guid '{Context.Guild.Name}' is command 'userinfo' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
+        }
+
+        [Command("serverinfo")]
+        public async Task ServerInfoAsync()
+        {
+            if(!await Access("serverinfo"))
+            {
+                return;
+            }
+
+            SocketGuild Guild = Context.Guild;
+
+            IGuildUser ownerName = Guild.GetUser(Guild.OwnerId);
+
+            DateTime createdAt = new DateTime(2015, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddMilliseconds(Guild.Id >> 22);
+
+            string GuildName = Guild.Name;
+
+            int TextChan = Guild.TextChannels.Count;
+
+            int VoiseChan = Guild.VoiceChannels.Count;
+
+            ulong GuildId = Guild.Id;
+
+            EmbedBuilder builder = new EmbedBuilder();
+
+            builder.AddField("Имя", GuildName, true)
+                .AddField("Id", GuildId, true)
+                .AddField("Создатель", ownerName, true)
+                .AddField("Дата создания", createdAt, true)
+                .AddField("Члены", Guild.MemberCount, true)
+                .AddField("Кол-во ролей", Guild.Roles.Count, true)
+                .AddField("Кол-во текстовых каналов", TextChan, true)
+                .AddField("Кол-во голосовых каналов", VoiseChan, true)
+                .WithColor(ConstVariables.InfoColor);
+
+            if(Uri.IsWellFormedUriString(Guild.IconUrl, UriKind.Absolute))
+            {
+                builder.WithThumbnailUrl(Guild.IconUrl);
+            }
+
+            await Context.Channel.SendMessageAsync("", embed: builder.Build());
+
+            ConstVariables.Log?.Invoke($" is Guid '{Context.Guild.Name}' is command 'perevorot' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
+        }
+
+        [Command("ctinfo")]
+        public async Task CTIhfoAsync()
+        {
+            if (!(await Access("ctinfo")))
+            {
+                return;
+            }
+
+            EmbedBuilder builder = new EmbedBuilder();
+
+            int CountChannels = Context.Guild.TextChannels.Count;
+
+            string chanel = "";
+
+            List<SocketTextChannel> Channels = new List<SocketTextChannel>(CountChannels);
+
+            try
+            {
+                for (int z = 0; z < CountChannels; z++)
+                {
+                    Channels.Add(null);
+                }
+
+                foreach (var chan in Context.Guild.TextChannels)
+                {
+                    Channels.RemoveAt(chan.Position);
+                    Channels.Insert(chan.Position, chan);
+                    // Console.WriteLine($"{chan.Position}: {chan.Id} {chan.Name}");/*для отладки*/
+                }
+
+                for (int i = 0; i < CountChannels; i++)
+                {
+                    if (Channels[i] == null)
+                        continue;
+                    //Console.WriteLine($"{i + 1}: {Channels[i].Name}");/*для отладки*/
+                    chanel += $"{ i + 1 }: **{Channels[i]}** ({Channels[i].CreatedAt:dd.MM.yyyy HH:mm})\r\n";
+                }
+
+                builder.WithTitle($"Количество текстовых каналов на сервере: {CountChannels}")
+                    .WithDescription(chanel)
+                    .WithFooter(Context.Guild.Name, Context.Guild.IconUrl)
+                    .WithColor(ConstVariables.UserColor);
+
+                ConstVariables.Log?.Invoke($" is group 'Admin' is command 'CTInfo' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
+
+                await Context.Channel.SendMessageAsync("", false, builder.Build());
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"{CountChannels}, {Channels.Capacity}, {e.Message}");
+                await ReplyAndDeleteAsync("Ошибка получения информации!", timeout: TimeSpan.FromSeconds(5));
+            }
+
+        }
+
+        [Command("cvinfo")]
+        public async Task CVIhfoAsync()
+        {
+            if (!(await Access("cvinfo")))
+            {
+                return;
+            }
+
+            EmbedBuilder builder = new EmbedBuilder();
+
+            int CountChannel = Context.Guild.VoiceChannels.Count;
+
+            List<SocketVoiceChannel> channels = new List<SocketVoiceChannel>(CountChannel);
+
+            string chanel = "";
+
+            for (int i = 0; i < CountChannel; i++)
+            {
+                channels.Add(null);
+            }
+
+            foreach (var chan in Context.Guild.VoiceChannels)
+            {
+                // Console.WriteLine($"{chan.Position}: {chan.Name}, {channels.Count}");/*для отладки*/
+                channels.RemoveAt(chan.Position);
+                channels.Insert(chan.Position, chan);
+            }
+
+            for (int i = 0; i < CountChannel; i++)
+            {
+                chanel += $"{i + 1}: **{channels[i]}** ({channels[i].CreatedAt:dd.MM.yyyy HH:mm})\r\n";
+            }
+
+            builder.WithTitle($"Количество голосовых каналов на сервере: {CountChannel}")
+                .WithDescription(chanel)
+                .WithFooter(Context.Guild.Name, Context.Guild.IconUrl)
+                .WithColor(ConstVariables.UserColor);
+
+            ConstVariables.Log?.Invoke($" is group 'Admin' is command 'CVInfo' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
+
+            await Context.Channel.SendMessageAsync("", false, builder.Build());
+        }
+
+        [Command("ping")]
+        public async Task Ping()
+        {
+            if (!(await Access("ping")))
+            {
+                return;
+            }
+
+            var sw = Stopwatch.StartNew();
+            var msg = await Context.Channel.SendMessageAsync("😝").ConfigureAwait(false);
+            sw.Stop();
+            await msg.DeleteAsync();
+
+            await Context.Channel.SendMessageAsync($"{Context.User.Mention}, пинг составляет: {(int)sw.Elapsed.TotalMilliseconds}ms").ConfigureAwait(false);
         }
 
         [Command("report")]
@@ -462,7 +728,9 @@ namespace LegionKun.Module
                 Console.WriteLine("Ошибка доступа: " + e);
             }
 
-            await ReplyAndDeleteAsync($"{Context.User.Mention}, спасибо за ваш отчет! Ваше сообщение очень важно для нас))", timeout: TimeSpan.FromSeconds(5)); 
+            await ReplyAndDeleteAsync($"{Context.User.Mention}, спасибо за ваш отчет! Ваше сообщение очень важно для нас))", timeout: TimeSpan.FromSeconds(5));
+
+            ConstVariables.Log?.Invoke($" is Guid '{Context.Guild.Name}' is command 'report' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
         }
 
         [Command("help")]

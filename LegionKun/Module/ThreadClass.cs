@@ -56,7 +56,11 @@ namespace LegionKun.Module
                     {
                         Module.ConstVariables.CServer[gui.Key].CountRes = 0;
                         Module.ConstVariables.CServer[gui.Key].EndUser = 0;
+                        Module.ConstVariables.CServer[gui.Key].NumberNewUser = 0;
                     }
+
+                    ConstVariables.Perevorot = false;
+
                     Module.ConstVariables.Mess?.Invoke($"[{time.Hours}:{time.Minutes}:{time.Seconds}] произведен сброс!");
                     Module.ConstVariables.Log?.Invoke(" произведен сброс!");
                 }
@@ -75,28 +79,22 @@ namespace LegionKun.Module
                 return;
             }
 
-            Thread.Sleep(60000);
+            while(ConstVariables._Client.ConnectionState != ConnectionState.Connected)
+            {
+            }
+
+            Thread.Sleep(2000);
+
             ConstVariables.Mess?.Invoke(" Запуск потока: YouTubeStream;");
             ConstVariables.Log?.Invoke(" Запуск потока: YouTubeStream;");
 
-            Module.ConstVariables.CDiscord guild = Module.ConstVariables.CServer[423154703354822668];
-            SocketTextChannel channel = null;
-
-            if (Module.ConstVariables.ThisTest)
-            {
-                guild = Module.ConstVariables.CServer[435485527156981770];
-                channel = guild.GetDefaultChannel();
-            }
-            else channel = guild.GetDefaultNewsChannel();
-
-            EmbedBuilder builder = new EmbedBuilder();
-            builder.WithFooter(guild.Name, guild.GetGuild().IconUrl);
-            builder.AddField("Новости", "У Генерала найден стрим!");
-            builder.WithColor(Discord.Color.Red);
+            EmbedBuilder Live = new EmbedBuilder();
+            Live.AddField("Новости", "у Генерала найден стрим!")
+                .WithColor(ConstVariables.InfoColor);
 
             var youtubeService = new YouTubeService(new BaseClientService.Initializer()
             {
-                ApiKey = "AIzaSyDIuH33zi6aod6jSHm31V1VIVKYIIGxvEo",
+                ApiKey = Base.Resource1.ApiKeyToken,
                 ApplicationName = "Legion-kun"
             });            
 
@@ -114,71 +112,69 @@ namespace LegionKun.Module
 
             do
             {
-                // Call the search.list method to retrieve results matching the specified query term.
                 SearchListResponse SharonResponse = await SharonRequest.ExecuteAsync();
                 SearchListResponse DejzResponse = await DejzRequest.ExecuteAsync();
-                
-                string url = "";
-                string url2 = "";
-                // Add each result to the appropriate list, and then display the lists of.
-                foreach (var searchResult in SharonResponse.Items)
+
+                SearchResult SharoHH = null;
+                SearchResult Dejz = null;
+
+                if ((SharonResponse.Items.Count != 0) || (DejzResponse.Items.Count != 0))
                 {
-                    if (searchResult.Id.Kind == "youtube#video")
+                    if (SharonResponse.Items.Count != 0)
                     {
-                        url = searchResult.Id.VideoId;
-                        break;
+                        SharoHH = SharonResponse.Items[0];
+                    }
+
+                    if (DejzResponse.Items.Count != 0)
+                    {
+                        Dejz = DejzResponse.Items[0];
+                    }
+
+                    if (ConstVariables.ThisTest)
+                    {
+                        ConstVariables.CDiscord guild = ConstVariables.CServer[435485527156981770];
+                        SocketTextChannel channel = guild.GetDefaultChannel();
+
+                        await channel.SendMessageAsync("", embed: Live.Build());
+
+                        if (SharonResponse.Items.Count != 0)
+                        {
+                            await channel.SendMessageAsync("https://www.youtube.com/video/" + SharoHH.Id.VideoId);
+                        }
+
+                        if (DejzResponse.Items.Count != 0)
+                        {
+                            await channel.SendMessageAsync("https://www.youtube.com/video/" + Dejz.Id.VideoId);
+                        }
+                    }
+                    else
+                    {
+                        foreach (var key in ConstVariables.CServer)
+                        {
+                            SocketTextChannel channel = null;
+                            if (key.Value.DefaultChannelNewsId == 0)
+                            {
+                                channel = key.Value.GetDefaultChannel();
+                            }
+                            else channel = key.Value.GetDefaultNewsChannel();
+
+                            if ((SharonResponse.Items.Count != 0) && (ConstVariables.Video1Id != SharoHH.Id.VideoId))
+                            {
+                                await key.Value.GetDefaultNewsChannel().SendMessageAsync("", embed: Live.Build());
+                                await key.Value.GetDefaultNewsChannel().SendMessageAsync("https://www.youtube.com/video/" + SharoHH.Id.VideoId);
+                                ConstVariables.Video1Id = SharoHH.Id.VideoId;
+                            }
+
+                            if ((DejzResponse.Items.Count != 0) && (ConstVariables.Video2Id != Dejz.Id.VideoId))
+                            {
+                                await key.Value.GetDefaultNewsChannel().SendMessageAsync("", embed: Live.Build());
+                                await key.Value.GetDefaultNewsChannel().SendMessageAsync("https://www.youtube.com/video/" + Dejz.Id.VideoId);
+                                ConstVariables.Video2Id = Dejz.Id.VideoId;
+                            }
+                        }
                     }
                 }
 
-                foreach (var searchResult in DejzResponse.Items)
-                {
-                    if (searchResult.Id.Kind == "youtube#video")
-                    {
-                        url2 = searchResult.Id.VideoId;
-                        break;
-                    }
-                }
-
-                if ((url != Module.ConstVariables.Video1Id) || (url2 != Module.ConstVariables.Video2Id))
-                {
-                    foreach(KeyValuePair<ulong, ConstVariables.CDiscord> key in ConstVariables.CServer)
-                    {
-                        if(key.Value.DefaultChannelNewsId == 0)
-                        {
-                            continue;
-                        }
-
-                        if ((url != "") || (url2 != ""))
-                        {
-                            await key.Value.GetDefaultNewsChannel().SendMessageAsync("@here", false, builder.Build());
-                        }
-
-                        if (url != "")
-                        {
-                            await key.Value.GetDefaultNewsChannel().SendMessageAsync("https://www.youtube.com/video/" + url);
-                            Module.ConstVariables.Video1Id = url;
-                        }
-
-                        if (url2 != "")
-                        {
-                            await key.Value.GetDefaultNewsChannel().SendMessageAsync("https://www.youtube.com/video/" + url2);
-                            Module.ConstVariables.Video2Id = url2;
-                        }
-                    }
-
-                    if(url != "")
-                    {
-                        ConstVariables.Log?.Invoke(" Найдено соответствие с запростом url1: " + "https://www.youtube.com/video/" + url);
-                    }
-
-                    if (url2 != "")
-                    {
-                        ConstVariables.Log?.Invoke(" Найдено соответствие с запростом url1: " + "https://www.youtube.com/video/" + url2);
-                    }
-
-                    url = "";
-                    url2 = "";
-                }
                 Thread.Sleep(60000);
             } while (true);
         }

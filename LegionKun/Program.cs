@@ -75,23 +75,19 @@ namespace LegionKun
 
             if (!Module.ConstVariables.ThisTest)
             {
-                string botTokenOff = "NDYwMTUyNTgzNzc2ODk0OTk3.DhAm7g.GSRCqXFiNo_oQQuv2Uhk770Rxbg";
-
                 Console.WriteLine("------------!Рабочий бот!--------------");
 
                 Console.WriteLine($"Версия: {Base.Resource1.VersionBot}");
 
-                await Module.ConstVariables._Client.LoginAsync(Discord.TokenType.Bot, botTokenOff);
+                await Module.ConstVariables._Client.LoginAsync(TokenType.Bot, Base.Resource1.TokenBot);
             }
             else
             {
-                string botTokenTest = "NDU4Mjc2NjM2MDY0ODc0NDk3.DhZByw.dBlIP1itXd7XOjmVe59drPhkB7o";
-
                 Console.WriteLine("------------!Тестовый бот!--------------");
 
                 Console.WriteLine($"Версия: {Base.Resource1.VersionBot}");
 
-                await Module.ConstVariables._Client.LoginAsync(TokenType.Bot, botTokenTest);
+                await Module.ConstVariables._Client.LoginAsync(TokenType.Bot, Base.Resource1.TestBotToken);
             }
 
             await Module.ConstVariables._Client.StartAsync();
@@ -288,8 +284,6 @@ namespace LegionKun
 
             string addrole = "";
 
-            builder.WithFooter(user.Guild.Name, user.Guild.IconUrl);
-
             builder.WithTitle("Добро пожаловать!").WithColor(Color.DarkBlue);
 
             if (guild.Debug)
@@ -316,6 +310,11 @@ namespace LegionKun
                         {
                             //Тестер
                             var role = user.Guild.GetRole(435486930885672970);
+                            if (role == null)
+                            {
+                                await guild.GetDefaultChannel().SendMessageAsync("Такой роли не существет!");
+                                break;
+                            }
                             await user.AddRoleAsync(role);
                             addrole = $" add role {role.Name}";
                             break;
@@ -324,6 +323,11 @@ namespace LegionKun
                         {
                             //Житель легиона
                             var role = user.Guild.GetRole(463829025169604630);
+                            if(role == null)
+                            {
+                                await guild.GetDefaultChannel().SendMessageAsync("Такой роли не существет!");
+                                break;
+                            }
                             await user.AddRoleAsync(role);
                             addrole = $" add role {role.Name}";
                             break;
@@ -345,6 +349,10 @@ namespace LegionKun
             {
                 Messege($"end");
             }
+
+            Module.ConstVariables.CServer[user.Guild.Id].NumberNewUser++;
+
+            builder.WithFooter(user.Guild.Name + $" Вы {guild.NumberNewUser} который к нам сегодня зашел", user.Guild.IconUrl);
 
             await guild.GetDefaultChannel().SendMessageAsync("", false, builder.Build());
         }

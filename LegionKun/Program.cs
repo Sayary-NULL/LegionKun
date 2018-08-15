@@ -3,10 +3,8 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
 using Discord.Commands;
-using System.Reflection;
-using System.IO;
-using System.Collections.Generic;
 using System.Windows.Forms;
+using LegionKun.Module;
 
 /*461284473799966730 - шароновский легион
  *423154703354822668 - [Legion Sharon'a]
@@ -22,7 +20,7 @@ namespace LegionKun
     { 
         static void Main(string[] args)
         {
-            Module.ConstVariables.SetDelegate(new Program().Messege, new Program().Logger);
+            Module.ConstVariables.SetDelegate(new Program().Messege);
 
             Module.ConstVariables.InstallationLists();
 
@@ -34,7 +32,7 @@ namespace LegionKun
            
             do
             {
-                new Program().Logger(i == 0 ? " Запуск программы":" Повторный запуск программы");
+                ConstVariables.logger.Info(i == 0 ? "Запуск программы":"Повторный запуск программы");
 
                 i = 1;
                 try
@@ -46,7 +44,7 @@ namespace LegionKun
                     Console.WriteLine(e);
                 }
 
-            } while (MessageBox.Show(null, "Повторный запуск?", "Сообщение", MessageBoxButtons.YesNo, MessageBoxIcon.Asterisk) == DialogResult.No);
+            } while (MessageBox.Show(null, "Повторный запуск?", "Сообщение", MessageBoxButtons.YesNo, MessageBoxIcon.Asterisk) != DialogResult.No);
         }
 
         private async Task RunBotAsync()
@@ -102,18 +100,10 @@ namespace LegionKun
                 return;
             }
 
-            ulong Box = Module.ConstVariables.DMessage[message.Id];
-            Module.ConstVariables.CDiscord guild = Module.ConstVariables.CServer[Box];
-
-            if ((reaction.Emote.Name == Module.ConstVariables.DEmoji.EReturn.Name) && (message.Id == guild.RMessages.RestUser.Id) && (reaction.User.Value.Id == guild.RMessages.UserId))
+            if ((reaction.Emote.Name == ConstVariables.DEmoji.EDelete.Name) && (reaction.UserId == ConstVariables.CreatorId))
             {
-                EmbedBuilder builder = guild.RMessages.Embed;
-                Random ran = new Random();
-
-                builder.WithDescription($"Выпало число: {ran.Next(guild.RMessages.MinValue, guild.RMessages.MaxValue)}");
-                
-                await guild.RMessages.RestUser.ModifyAsync(msg => msg.Embed = builder.Build());
-                await guild.RMessages.RestUser.RemoveReactionAsync(Module.ConstVariables.DEmoji.EReturn, reaction.User.Value);
+                var mess = await channel.GetMessageAsync(message.Id);
+                await mess.DeleteAsync();
             }
         }
 
@@ -156,8 +146,8 @@ namespace LegionKun
                         break;
                     }
             }
-            
-            Logger($" is func 'UserLeft' is user '{user.Username}#{user.Discriminator}' is guild '{user.Guild.Name}'");
+
+            ConstVariables.logger.Info($" is func 'UserLeft' is user '{user.Username}#{user.Discriminator}' is guild '{user.Guild.Name}'");
 
             await guild.GetDefaultChannel().SendMessageAsync("", false, builder.Build());
         }
@@ -191,7 +181,7 @@ namespace LegionKun
                 }
             }
 
-            Logger($" is func 'UserUp' is user  1:'{arg1.Username}#{arg1.Discriminator}'; 2:'{arg2.Username}#{arg2.Discriminator}';");
+            ConstVariables.logger.Info($" is func 'UserUp' is user  1:'{arg1.Username}#{arg1.Discriminator}'; 2:'{arg2.Username}#{arg2.Discriminator}';");
 
         }
 
@@ -209,13 +199,13 @@ namespace LegionKun
             {
                 builder.WithDescription($"Бот: {arg1.Mention} - разбанен");
 
-                Logger($" is func 'UnBanned' is Guild '{arg2.Name}#{arg2.CurrentUser.Discriminator}' is bot '{arg1.Username}#{arg1.Discriminator}'");
+                ConstVariables.logger.Info($" is func 'UnBanned' is Guild '{arg2.Name}#{arg2.CurrentUser.Discriminator}' is bot '{arg1.Username}#{arg1.Discriminator}'");
             }
             else
             {
                 builder.WithDescription($"Пользователь: {arg1.Mention} - разбанен");
 
-                Logger($" is func 'UnBanned' is Guild '{arg2.Name}#{arg2.CurrentUser.Discriminator}' is user '{arg1.Username}#{arg1.Discriminator}'");
+                ConstVariables.logger.Info($" is func 'UnBanned' is Guild '{arg2.Name}#{arg2.CurrentUser.Discriminator}' is user '{arg1.Username}#{arg1.Discriminator}'");
 
                 if (guild.EndUser == arg1.Id)
                     guild.EndUser = 0;
@@ -242,20 +232,19 @@ namespace LegionKun
             {
                 builder.WithDescription($"Бот: {arg1.Mention} - изгнан");
 
-                Logger($" is func 'Ban' is Guid '{arg2.Name}' is bot '{arg1.Username}#{arg1.Discriminator}'");
+                ConstVariables.logger.Info($" is func 'Ban' is Guid '{arg2.Name}' is bot '{arg1.Username}#{arg1.Discriminator}'");
             }
             else
             {
                 builder.WithDescription($"Пользователь: {arg1.Mention} - забанен");
 
-                Logger($" is func 'Ban' is Guild '{arg2.Name}' is user '{arg1.Username}#{arg1.Discriminator}'");
+                ConstVariables.logger.Info($" is func 'Ban' is Guild '{arg2.Name}' is user '{arg1.Username}#{arg1.Discriminator}'");
 
                 guild.EndUser = arg1.Id;
             }
 
-            switch (ran.Next(0, 1))
-            {                  //https://drive.google.com/file/d/1eKqLZ36lkriK-fM-oxkGMX6XT8iumckz/view?usp=sharing 
-                               //https://drive.google.com/file/d/1HRD8pOlSwAnWS11iHveT15fw5Q8xyO8w/view?usp=sharing
+            switch (ran.Next(0, 2))
+            {
                 case 0: { url = "https://cdn.discordapp.com/attachments/462236317926031370/462236494459961344/Katyusha_2.gif "; break; }
                 case 1: { url = "https://cdn.discordapp.com/attachments/462236317926031370/462236553771483137/KspISzf.gif"; break; }
                 default: { url = ""; break; }
@@ -265,8 +254,6 @@ namespace LegionKun
             {
                 builder.WithImageUrl(url);
             }
-
-            Logger($"выбор файла {url}");
 
             await guild.GetDefaultChannel().SendMessageAsync("", false, builder.Build());
         }
@@ -295,7 +282,7 @@ namespace LegionKun
             {
                 builder.WithDescription($"{user.Mention} - это бот!");
 
-                Logger($" is Guild {user.Guild.Name} is bot {user.Username}#{user.Discriminator}");
+                ConstVariables.logger.Info($" is Guild {user.Guild.Name} is bot {user.Username}#{user.Discriminator}");
             }
             else
             {
@@ -342,7 +329,7 @@ namespace LegionKun
 
                 builder.WithDescription($"{user.Mention}, добро пожаловать к нам! На сервер: {user.Guild.Name}");
 
-                Logger($" is func 'UserJoin' is Guild '{user.Guild.Name}' is user '{user.Username}#{user.Discriminator}' " + addrole);
+                ConstVariables.logger.Info($" is func 'UserJoin' is Guild '{user.Guild.Name}' is user '{user.Username}#{user.Discriminator}' " + addrole);
             }
 
             if (guild.Debug)
@@ -350,9 +337,9 @@ namespace LegionKun
                 Messege($"end");
             }
 
-            Module.ConstVariables.CServer[user.Guild.Id].NumberNewUser++;
+            ConstVariables.CServer[user.Guild.Id].NumberNewUser++;
 
-            builder.WithFooter(user.Guild.Name + $" Вы {guild.NumberNewUser} который к нам сегодня зашел", user.Guild.IconUrl);
+            builder.WithFooter($" Вы {guild.NumberNewUser} который к нам сегодня зашел, сегодня на сервере {user.Guild.MemberCount}", user.Guild.IconUrl);
 
             await guild.GetDefaultChannel().SendMessageAsync("", false, builder.Build());
         }
@@ -362,8 +349,8 @@ namespace LegionKun
             Console.WriteLine(arg);
 
             if (arg.Message != "")
-                Logger(" " + arg.Message);
-            else Logger(" " + arg.Exception);
+                ConstVariables.logger.Info(arg.Message);
+            else ConstVariables.logger.Info(arg.Exception);
 
             return Task.CompletedTask;
         }
@@ -399,15 +386,15 @@ namespace LegionKun
                 {
                     switch (result.Error.Value)
                     {
-                        case CommandError.BadArgCount: { Logger($" is errors 'BadArgCount' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); contex.Channel.SendMessageAsync($"{contex.User.Mention}, неверные параметры команды").GetAwaiter(); break; }
-                        case CommandError.UnknownCommand: { Logger($" is errors 'UnknownCommand' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); contex.Channel.SendMessageAsync($"{contex.User.Mention}, неизвестная команда").GetAwaiter(); Help(contex); break; }
-                        case CommandError.ObjectNotFound: { Logger($" is errors 'ObjectNotFound' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                        case CommandError.ParseFailed: { Logger($" is errors 'ParseFailed' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                        case CommandError.MultipleMatches: { Logger($" is errors 'MultipleMatches' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                        case CommandError.UnmetPrecondition: { Logger($" is errors 'UnmetPrecondition' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                        case CommandError.Exception: { Logger($" is errors 'Exception' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                        case CommandError.Unsuccessful: { Logger($" is errors 'Unsuccessful' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                        default: { Logger($" is errors 'Default' is channel '{arg.Channel.Name}' is param {result.ErrorReason} is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
+                        case CommandError.BadArgCount: { ConstVariables.logger.Error($" is errors 'BadArgCount' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); contex.Channel.SendMessageAsync($"{contex.User.Mention}, неверные параметры команды").GetAwaiter(); break; }
+                        case CommandError.UnknownCommand: { ConstVariables.logger.Error($" is errors 'UnknownCommand' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); contex.Channel.SendMessageAsync($"{contex.User.Mention}, неизвестная команда").GetAwaiter(); Help(contex); break; }
+                        case CommandError.ObjectNotFound: { ConstVariables.logger.Error($" is errors 'ObjectNotFound' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
+                        case CommandError.ParseFailed: { ConstVariables.logger.Error($" is errors 'ParseFailed' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
+                        case CommandError.MultipleMatches: { ConstVariables.logger.Error($" is errors 'MultipleMatches' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
+                        case CommandError.UnmetPrecondition: { ConstVariables.logger.Error($" is errors 'UnmetPrecondition' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
+                        case CommandError.Exception: { ConstVariables.logger.Error($" is errors 'Exception' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
+                        case CommandError.Unsuccessful: { ConstVariables.logger.Error($" is errors 'Unsuccessful' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
+                        default: { ConstVariables.logger.Error($" is errors 'Default' is channel '{arg.Channel.Name}' is param {result.ErrorReason} is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
                     }
                 }
             }
@@ -421,15 +408,15 @@ namespace LegionKun
                 {
                     switch (result.Error.Value)
                     {
-                        case CommandError.BadArgCount: { Logger($" is errors 'BadArgCount' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); contex.Channel.SendMessageAsync($"{contex.User.Mention}, неверные параметры команды").GetAwaiter(); break; }
-                        case CommandError.UnknownCommand: { Logger($" is errors 'UnknownCommand' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); contex.Channel.SendMessageAsync($"{contex.User.Mention}, неизвестная команда").GetAwaiter(); break; }
-                        case CommandError.ObjectNotFound: { Logger($" is errors 'ObjectNotFound' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                        case CommandError.ParseFailed: { Logger($" is errors 'ParseFailed' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                        case CommandError.MultipleMatches: { Logger($" is errors 'MultipleMatches' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                        case CommandError.UnmetPrecondition: { Logger($" is errors 'UnmetPrecondition' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                        case CommandError.Exception: { Logger($" is errors 'Exception' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                        case CommandError.Unsuccessful: { Logger($" is errors 'Unsuccessful' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                        default: { Logger($" is errors 'Default' is channel '{arg.Channel.Name}' is param {result.ErrorReason} is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
+                        case CommandError.BadArgCount: { ConstVariables.logger.Error($" is errors 'BadArgCount' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); contex.Channel.SendMessageAsync($"{contex.User.Mention}, неверные параметры команды").GetAwaiter(); break; }
+                        case CommandError.UnknownCommand: { ConstVariables.logger.Error($" is errors 'UnknownCommand' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); contex.Channel.SendMessageAsync($"{contex.User.Mention}, неизвестная команда").GetAwaiter(); break; }
+                        case CommandError.ObjectNotFound: { ConstVariables.logger.Error($" is errors 'ObjectNotFound' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
+                        case CommandError.ParseFailed: { ConstVariables.logger.Error($" is errors 'ParseFailed' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
+                        case CommandError.MultipleMatches: { ConstVariables.logger.Error($" is errors 'MultipleMatches' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
+                        case CommandError.UnmetPrecondition: { ConstVariables.logger.Error($" is errors 'UnmetPrecondition' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
+                        case CommandError.Exception: { ConstVariables.logger.Error($" is errors 'Exception' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
+                        case CommandError.Unsuccessful: { ConstVariables.logger.Error($" is errors 'Unsuccessful' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
+                        default: { ConstVariables.logger.Error($" is errors 'Default' is channel '{arg.Channel.Name}' is param {result.ErrorReason} is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
                     }
                 }
             }
@@ -484,7 +471,7 @@ namespace LegionKun
             builder.WithColor(Color.Orange);
             builder.WithFooter(Context.Guild.Name, Context.Guild.IconUrl);
 
-            Module.ConstVariables.Log?.Invoke($" is Guid {Context.Guild.Name} is command 'help' is user '{user.Username}' is channel '{Context.Channel.Name}' is IsRole '{IsRole}' ");
+            ConstVariables.logger.Info($" is Guid {Context.Guild.Name} is command 'help' is user '{user.Username}' is channel '{Context.Channel.Name}' is IsRole '{IsRole}' ");
 
             Context.Channel.SendMessageAsync("", false, builder.Build());
         }

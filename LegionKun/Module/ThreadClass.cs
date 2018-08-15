@@ -45,7 +45,7 @@ namespace LegionKun.Module
         private static void MainFunc(object obj)
         {
             ConstVariables.Mess?.Invoke(" Запуск потока: MainFunc;");
-            ConstVariables.Log?.Invoke(" Запуск потока: MainFunc;");
+            ConstVariables.logger.Info("Запуск потока: MainFunc;");
             while (true)
             {
                 TimeSpan time = DateTime.Now.TimeOfDay;
@@ -62,7 +62,7 @@ namespace LegionKun.Module
                     ConstVariables.Perevorot = false;
 
                     Module.ConstVariables.Mess?.Invoke($"[{time.Hours}:{time.Minutes}:{time.Seconds}] произведен сброс!");
-                    Module.ConstVariables.Log?.Invoke(" произведен сброс!");
+                    ConstVariables.logger.Info("произведен сброс!");
                 }
 
                 Thread.Sleep(900000);
@@ -86,7 +86,7 @@ namespace LegionKun.Module
             Thread.Sleep(2000);
 
             ConstVariables.Mess?.Invoke(" Запуск потока: YouTubeStream;");
-            ConstVariables.Log?.Invoke(" Запуск потока: YouTubeStream;");
+            ConstVariables.logger.Info("Запуск потока: YouTubeStream;");
 
             EmbedBuilder Live = new EmbedBuilder();
             Live.AddField("Новости", "у Генерала найден стрим!")
@@ -112,6 +112,12 @@ namespace LegionKun.Module
 
             do
             {
+                if(!ConstVariables.ControlFlow)
+                {
+                    Thread.Sleep(60000);
+                    continue;
+                }
+
                 SearchListResponse SharonResponse = await SharonRequest.ExecuteAsync();
                 SearchListResponse DejzResponse = await DejzRequest.ExecuteAsync();
 

@@ -3,9 +3,10 @@ using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using Discord;
 using Discord.Commands;
-using Discord.Net;
+using Discord.Addons.Interactive;
 using Discord.WebSocket;
 using System.Data.SqlClient;
+using LegionKun.Attribute;
 
 //UCDnNz_stjQqcikCvIF2NTAw - Kanade
 //UCScLnRAwAT2qyNcvaFSFvYA - Sharon
@@ -13,13 +14,13 @@ using System.Data.SqlClient;
 namespace LegionKun.Tests
 {
     [Group("tests")]
-    class TestClass : ModuleBase<SocketCommandContext>
+    [Tests, OwnerOnly]
+    class TestClass : InteractiveBase
     {
         [Command("test")]/*Произведено исправление[100]*/
         [Alias("задрал!")]
         public async Task TestAsync(SocketUser text = null)
         {
-
             if(!Module.ConstVariables.ThisTest)
             {
                 return;
@@ -37,7 +38,6 @@ namespace LegionKun.Tests
                     IsRole = true;
                     break;
                 }
-
 
             if (IsRole)
             {
@@ -85,9 +85,6 @@ namespace LegionKun.Tests
                 }*/
             }
             else await ReplyAsync($"{Context.User.Mention}, :sweat_smile:");
-
-
-
         }
 
         [Command("connect")]
@@ -120,7 +117,7 @@ namespace LegionKun.Tests
         }
 
         [Command("start")]
-        public async Task Async(IGuildUser user = null)
+        public async Task Async(IGuildUser user)
         {
             try
             {
@@ -131,5 +128,5 @@ namespace LegionKun.Tests
                 Console.WriteLine(e);
             }
         }
-    }
+    }    
 }

@@ -7,10 +7,8 @@ using Discord.Commands;
 using Discord.WebSocket;
 using Discord.Addons.Interactive;
 using Microsoft.Extensions.DependencyInjection;
-using SixLabors.ImageSharp.Formats.Png;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
 using Discord.Rest;
+using NLog;
 
 namespace LegionKun.Module
 {
@@ -31,6 +29,7 @@ namespace LegionKun.Module
             public Dictionary<ulong, string> _Channels = new Dictionary<ulong, string>();
             public Dictionary<ulong, string> _Role = new Dictionary<ulong, string>();
             //id
+            public ulong OwnerId;
             public ulong DefaultChannelId;
             public ulong DefaultChannelNewsId;
             public ulong DefaultCommandChannel;
@@ -53,8 +52,12 @@ namespace LegionKun.Module
                 public RestUserMessage RestUser = null;
                 public ulong UserId = 0;
             }
-
             public Rmessages RMessages = new Rmessages();
+
+            public CDiscord()
+            {
+
+            }
 
             ///<summary>возвращает class сервера</summary>
             public SocketGuild GetGuild()
@@ -96,7 +99,7 @@ namespace LegionKun.Module
             new Commands( "warn" , "warn [User Mention] <comment>", true),
             new Commands( "roleinfo" , "RoleInfo <Role>", true),
             new Commands( "time" , "time", true),
-            new Commands( "random" , "random [[MinValue] [MaxValue]]", true),
+            new Commands( "coin" , "coin [number]", true),
             new Commands( "search" , "search [Seearch text]", true),
             new Commands( "userinfo" , "userinfo <User Mention>", true),
             new Commands( "serverinfo" , "serverinfo", true),
@@ -114,6 +117,7 @@ namespace LegionKun.Module
             new Commands( "news" , "news [news]", true),
             new Commands( "status" , "status", true),
             new Commands( "debug" , "debug", true),
+            new Commands( "flowcontrol" , "flowcontrol <number level>", true),
         };
 
         public struct Commands
@@ -148,10 +152,6 @@ namespace LegionKun.Module
 
         public static string WiteListGuild { get; private set; } = @"";
 
-        public static string Logger { get; private set; } = @"";
-
-        public static string Basht { get; private set; } = @"";
-
         public static string Filed { get; private set; } = @"";
 
         public static string Cross { get; private set; } = @"";
@@ -174,19 +174,19 @@ namespace LegionKun.Module
 
         public static bool Perevorot { get; set; } = false;
 
-        public delegate void DLogger(string str);
+        public static bool ControlFlow { get; set; } = true;
 
         public delegate void DMessege(string str);
 
         public static DMessege Mess = null;
-
-        public static DLogger Log = null;
 
         public static Discord.Color InfoColor { get; private set; } = Color.DarkTeal;
 
         public static Discord.Color UserColor { get; private set; } = Color.Blue;
 
         public static Discord.Color AdminColor { get; private set; } = Color.Red;
+
+        public static Logger logger { get; private set; } = LogManager.GetCurrentClassLogger(); 
 
         public static async Task<IUserMessage> SendMessageAsync(this IMessageChannel channel, string text, bool isTTS = false, Embed embed = null, uint deleteAfter = 0, RequestOptions options = null)
         {
@@ -206,11 +206,9 @@ namespace LegionKun.Module
 
         public static void InstallationLists()
         {
-            if (ThisTest)
+            if(ThisTest)
             {
                 WiteListGuild = @"C:\Users\shlia\source\repos\LegionKun\LegionKun\Base\WiteListGuild.txt";
-                Logger = @"C:\Users\shlia\source\repos\LegionKun\LegionKun\Base\Logger.txt";
-                Basht = @"C:\Users\shlia\source\repos\LegionKun\LegionKun\Base\Bash.txt";
                 Filed = @"C:\Users\shlia\source\repos\LegionKun\LegionKun\Base\filed.jpg";
                 Cross = @"C:\Users\shlia\source\repos\LegionKun\LegionKun\Base\cross.png";
                 Zero = @"C:\Users\shlia\source\repos\LegionKun\LegionKun\Base\zero.png";
@@ -218,8 +216,6 @@ namespace LegionKun.Module
             else
             {
                 WiteListGuild = @"Base\WiteListGuild.txt";
-                Logger = @"Base\Logger.txt";
-                Basht = @"Base\Bash.txt";
                 Filed = @"Base\filed.jpg";
                 Cross = @"Base\cross.png";
                 Zero = @"Base\zero.png";
@@ -253,12 +249,11 @@ namespace LegionKun.Module
             Mess($"GuildDowload: {result}");
         }
 
-        public static void SetDelegate(DMessege fun, DLogger log)
+        public static void SetDelegate(DMessege fun)
         {
             Mess = fun;
-            Log = log;
         }
-        
+         
         private static bool GuildDowload()
         {
             bool result = false;
@@ -279,6 +274,10 @@ namespace LegionKun.Module
                     {
                         //Mess?.Invoke($"{strock.Substring("Id: ".Length, strock.Length - "Id: ".Length)}");
                         discord.GuildId = Convert.ToUInt64(strock.Substring("Id: ".Length, strock.Length - "Id: ".Length));
+                    }
+                    else if(strock.IndexOf("OwnerId: ") == 0)
+                    {
+                        discord.OwnerId = Convert.ToUInt64(strock.Substring("OwnerId: ".Length, strock.Length - "OwnerId: ".Length));
                     }
                     else if (strock.IndexOf("Defaultchannelid: ") > -1)
                     {

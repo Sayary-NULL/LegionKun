@@ -240,4 +240,3 @@ namespace LegionKun.Game.CrossZero
         }
     }
 }
-

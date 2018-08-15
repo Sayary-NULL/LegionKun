@@ -4,15 +4,11 @@ using Discord.WebSocket;
 using Discord.Addons.Interactive;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.IO;
-using System.Net;
-using System.Net.Mime;
+using System.Diagnostics;
 using Google.Apis.YouTube.v3;
 using Google.Apis.Services;
-using System.Diagnostics;
+using LegionKun.Module;
 
 namespace LegionKun.Module
 {
@@ -82,7 +78,7 @@ namespace LegionKun.Module
             else if (h < 24)
                 good += "Доброй ночи!";
 
-            ConstVariables.Log?.Invoke($" is Guid '{Context.Guild.Name}' is command 'hello' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is socetuser '{(user == null ? "false" : user.Username)}'");
+            ConstVariables.logger.Info($"is Guid '{Context.Guild.Name}' is command 'hello' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is socetuser '{(user == null ? "false" : user.Username)}'");
 
             await Context.Channel.SendMessageAsync(good);
         }
@@ -106,7 +102,7 @@ namespace LegionKun.Module
                 .WithDescription(mess)
                 .WithColor(ConstVariables.UserColor);
 
-            ConstVariables.Log?.Invoke($" is Guid '{Context.Guild.Name}' is command 'say' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is mess '{mess}'");
+            ConstVariables.logger.Info($"is Guid '{Context.Guild.Name}' is command 'say' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is mess '{mess}'");
 
             await Context.Channel.SendMessageAsync("", embed: builder.Build());
         }
@@ -158,10 +154,10 @@ namespace LegionKun.Module
             builder.WithTitle("Жалоба!").WithColor(ConstVariables.UserColor);
 
             if (user.Id == ConstVariables.CreatorId)
-            {
-                mess = $"Пользователь {Context.User.Mention} пожаловался на {user.Mention}!";
+            {                
+                mess = $"Пользователь {user.Mention} пожаловался на {Context.User.Mention}!";
             }
-            else mess = $"Пользователь {user.Mention} пожаловался на {Context.User.Mention}!";
+            else mess = $"Пользователь {Context.User.Mention} пожаловался на {user.Mention}!";
 
             builder.WithDescription(mess);
 
@@ -173,14 +169,14 @@ namespace LegionKun.Module
 
             builder.WithFooter(Context.Guild.Name, Context.Guild.IconUrl);
 
-            ConstVariables.Log?.Invoke($" is Guid '{Context.Guild.Name}' is command 'warn' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is user2 '{user.Username}' is coment '{coment}'");
+            ConstVariables.logger.Info($"is Guid '{Context.Guild.Name}' is command 'warn' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is user2 '{user.Username}' is coment '{coment}'");
 
             await Context.Channel.SendMessageAsync("", embed: builder.Build());
         }
 
         [Command("roleinfo")]
         [Priority(0)]
-        public async Task RoleIhfoAsync() 
+        public async Task RoleIhfoAsync()
         {
             if (!(await Access("roleinfo")))
             {
@@ -195,39 +191,51 @@ namespace LegionKun.Module
 
             List<SocketRole> Inforole = new List<SocketRole>(CountRole + 1);
 
-            for (int z = 0; z < CountRole; z++)
+            try
             {
-                Inforole.Add(null);
-            }
-
-            foreach (var role in Context.Guild.Roles)
-                if (role.Id != Context.Guild.EveryoneRole.Id)
+                for (int z = 0; z < CountRole; z++)
                 {
-                    //Console.WriteLine($"{role.Name}, {role.Position}"); /*для отладки*/
-                    Inforole.RemoveAt(role.Position - 1);
-                    Inforole.Insert(role.Position - 1, role);
+                    Inforole.Add(null);
                 }
 
-            for (int i = CountRole; i > 0; i--)
+                foreach (var role in Context.Guild.Roles)
+                    if (role.Id != Context.Guild.EveryoneRole.Id)
+                    {
+                        if (ConstVariables.CServer[Context.Guild.Id].Debug || ConstVariables.ThisTest)
+                            Console.WriteLine($"{role.Name}, {role.Position}"); /*для отладки*/
+
+                        Inforole.RemoveAt(role.Position - 1);
+                        Inforole.Insert(role.Position - 1, role);
+                    }
+
+                for (int i = CountRole; i > 0; i--)
+                {
+                    if (Inforole[i - 1] == null)
+                        continue;
+
+                    try
+                    {
+                        roleinfo += $"{CountRole - i + 1}: **{Inforole[i - 1].Name}** ({Inforole[i - 1].CreatedAt:dd.MM.yyyy HH:mm})\r\n";
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine($"{CountRole}, {i}:  {e.Message}");
+                    }
+                }
+
+                builder.WithTitle($"Количество ролей на сервере: {CountRole}")
+                    .WithDescription(roleinfo)
+                    .WithFooter(Context.Guild.Name, Context.Guild.IconUrl)
+                    .WithColor(ConstVariables.UserColor);
+
+                ConstVariables.logger.Info($"is guild {Context.Guild.Name} is command 'roleinfo' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
+
+                await Context.Channel.SendMessageAsync("", embed: builder.Build());
+            }
+            catch (Exception e)
             {
-                try
-                {
-                    roleinfo += $"{CountRole - i + 1}: **{Inforole[i - 1].Name}** ({Inforole[i - 1].CreatedAt:dd.MM.yyyy HH:mm})\r\n";
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine($"{CountRole}, {i},  {e.Message}");
-                }
+                ConstVariables.logger.Error($"is guild {Context.Guild.Name} is command 'roleinfo' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is exception '{e}'");
             }
-
-            builder.WithTitle($"Количество ролей на сервере: {CountRole}")
-                .WithDescription(roleinfo)
-                .WithFooter(Context.Guild.Name, Context.Guild.IconUrl)
-                .WithColor(ConstVariables.UserColor);
-
-            ConstVariables.Log?.Invoke($" is command 'roleinfo' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
-
-            await Context.Channel.SendMessageAsync("", false, builder.Build());
         }
 
         [Command("roleinfo")]
@@ -285,7 +293,7 @@ namespace LegionKun.Module
                 .WithFooter(Context.Guild.Name, Context.Guild.IconUrl)
                 .WithColor(ConstVariables.UserColor);
 
-            ConstVariables.Log?.Invoke($" is Guid '{Context.Guild.Name}' is command 'RoleInfo' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is role '{Role.Name}'");
+            ConstVariables.logger.Info($"is Guid '{Context.Guild.Name}' is command 'RoleInfo' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is role '{Role.Name}'");
 
             await Context.Channel.SendMessageAsync("", embed: builder.Build());
         }
@@ -325,7 +333,7 @@ namespace LegionKun.Module
                 .WithFooter(Context.Guild.Name, Context.Guild.IconUrl)
                 .WithColor(ConstVariables.UserColor);
 
-            ConstVariables.Log?.Invoke($" is Guid '{Context.Guild.Name}' is command 'RoleInfo' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is role '{Role.Name}'");
+            ConstVariables.logger.Info($"is Guid '{Context.Guild.Name}' is command 'RoleInfo' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is role '{Role.Name}'");
 
             await Context.Channel.SendMessageAsync("", embed: builder.Build());
         }
@@ -347,47 +355,37 @@ namespace LegionKun.Module
                 .WithFooter(Context.Guild.Name, Context.Guild.IconUrl)
                 .WithColor(ConstVariables.InfoColor);
 
-            ConstVariables.Log?.Invoke($" is Guid '{Context.Guild.Name}' is command 'time' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
+            ConstVariables.logger.Info($"is Guid '{Context.Guild.Name}' is command 'time' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
 
             await Context.Channel.SendMessageAsync("", embed: builder.Build());
         }
 
-        [Command("random")]
-        public async Task RandomAsync(int min, int max)
+        [Command("coin")]
+        public async Task ThrowACoinAsync(int count = 1)
         {
-            if (!(await Access("random")))
+            if (!(await Access("coin")))
             {
                 return;
             }
 
-            if (min > max)
-            {
-                min += max;
-                max = min - max;
-                min = min - max;
-            }
+            if ((count <= 0) && (count > 100))
+                return;
 
-            ConstVariables.CDiscord guild = ConstVariables.CServer[Context.Guild.Id];
             Random ran = new Random();
             EmbedBuilder builder = new EmbedBuilder();
+            int ResultArray = 0;
 
-            builder.WithTitle($"Случайное число с промежутка: от {min} до {max}")
-                .WithFooter(Context.Guild.Name, Context.Guild.IconUrl)
-                .WithDescription($"Выпало число: {ran.Next(min, max)}")
-                .WithColor(ConstVariables.UserColor);
+            for(int i = 0; i < count; i++)
+            {
+                ResultArray += ran.Next(0, 2);
+            }
 
-            var mess = await Context.Channel.SendMessageAsync("", embed: builder.Build());
+            builder.WithTitle("Результаты броска монеты")
+                .WithDescription($"Орел: {ResultArray}\r\nРешка:{count - ResultArray}");
 
-            await mess.AddReactionAsync(ConstVariables.DEmoji.EReturn);
+            await ReplyAsync("", embed: builder.Build());
 
-            guild.RMessages.MaxValue = max;
-            guild.RMessages.MinValue = min;
-            guild.RMessages.Embed = builder;
-            guild.RMessages.RestUser = mess;
-            guild.RMessages.UserId = Context.User.Id;
-            ConstVariables.DMessage.Add(mess.Id, guild.GuildId);
-
-            ConstVariables.Log?.Invoke($" is Guid '{Context.Guild.Name}' is command 'help' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is Random Min:{min} Max: {max}");
+            ConstVariables.logger.Info($"is Guid '{Context.Guild.Name}' is command 'coin' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
         }
 
         [Command("search")]
@@ -429,13 +427,13 @@ namespace LegionKun.Module
 
             await Context.Channel.SendMessageAsync("", embed: builder.Build());
 
-            ConstVariables.Log?.Invoke($" is Guid '{Context.Guild.Name}' is command 'help' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is Content '{video}'");
+            ConstVariables.logger.Info($"is Guid '{Context.Guild.Name}' is command 'help' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is Content '{video}'");
         }
 
         [Command("perevorot")]
         public async Task PerevorotAsync()
         {
-            if ((Context.User.Id == 252459542057713665) || (Context.User.Id == 329653972728020994))//Костя
+            if ((Context.User.Id == 252459542057713665) || (Context.User.Id == ConstVariables.CreatorId))//Костя
             {
                 if (!ConstVariables.CServer[Context.Guild.Id].IsOn)
                 {
@@ -468,7 +466,7 @@ namespace LegionKun.Module
 
                 await Context.Channel.SendMessageAsync($"{Context.User.Mention}, переворот назначен на {time.Day}.{time.Month}.{time.Year}");
 
-                ConstVariables.Log?.Invoke($" is Guid '{Context.Guild.Name}' is command 'perevorot' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
+                ConstVariables.logger.Info($"is Guid '{Context.Guild.Name}' is command 'perevorot' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
             }
             else
             {
@@ -483,7 +481,7 @@ namespace LegionKun.Module
 
                 await ReplyAndDeleteAsync("Тихо! Об этом никто не должен знать!", timeout: TimeSpan.FromSeconds(5));
 
-                ConstVariables.Log?.Invoke($" is Guid '{Context.Guild.Name}' is command 'perevorot' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
+                ConstVariables.logger.Info($"is Guid '{Context.Guild.Name}' is command 'perevorot' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
             }
 
         }
@@ -545,7 +543,7 @@ namespace LegionKun.Module
 
             await Context.Channel.SendMessageAsync("", embed: builder.Build());
 
-            ConstVariables.Log?.Invoke($" is Guid '{Context.Guild.Name}' is command 'userinfo' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
+            ConstVariables.logger.Info($"is Guid '{Context.Guild.Name}' is command 'userinfo' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
         }
 
         [Command("serverinfo")]
@@ -589,7 +587,7 @@ namespace LegionKun.Module
 
             await Context.Channel.SendMessageAsync("", embed: builder.Build());
 
-            ConstVariables.Log?.Invoke($" is Guid '{Context.Guild.Name}' is command 'perevorot' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
+            ConstVariables.logger.Info($"is Guid '{Context.Guild.Name}' is command 'perevorot' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
         }
 
         [Command("ctinfo")]
@@ -635,13 +633,13 @@ namespace LegionKun.Module
                     .WithFooter(Context.Guild.Name, Context.Guild.IconUrl)
                     .WithColor(ConstVariables.UserColor);
 
-                ConstVariables.Log?.Invoke($" is group 'Admin' is command 'CTInfo' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
+                ConstVariables.logger.Info($" is command 'cvinfo' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
 
                 await Context.Channel.SendMessageAsync("", false, builder.Build());
             }
             catch (Exception e)
             {
-                Console.WriteLine($"{CountChannels}, {Channels.Capacity}, {e.Message}");
+                ConstVariables.logger.Error($"is guild '{Context.Guild.Name}' is command 'ctinfo' is channel '{Context.Channel.Name}' is user '{Context.User.Username}' is param '{CountChannels}, {Channels.Capacity}, {e.Message}'");
                 await ReplyAndDeleteAsync("Ошибка получения информации!", timeout: TimeSpan.FromSeconds(5));
             }
 
@@ -685,7 +683,7 @@ namespace LegionKun.Module
                 .WithFooter(Context.Guild.Name, Context.Guild.IconUrl)
                 .WithColor(ConstVariables.UserColor);
 
-            ConstVariables.Log?.Invoke($" is group 'Admin' is command 'CVInfo' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
+            ConstVariables.logger.Info($" is command 'cvinfo' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
 
             await Context.Channel.SendMessageAsync("", false, builder.Build());
         }
@@ -702,6 +700,8 @@ namespace LegionKun.Module
             var msg = await Context.Channel.SendMessageAsync("😝").ConfigureAwait(false);
             sw.Stop();
             await msg.DeleteAsync();
+
+            ConstVariables.logger.Info($"is guild '{Context.Guild.Name}' is command 'ping' is channel '{Context.Channel.Name}' is user '{Context.User.Username}'");
 
             await Context.Channel.SendMessageAsync($"{Context.User.Mention}, пинг составляет: {(int)sw.Elapsed.TotalMilliseconds}ms").ConfigureAwait(false);
         }
@@ -730,7 +730,7 @@ namespace LegionKun.Module
 
             await ReplyAndDeleteAsync($"{Context.User.Mention}, спасибо за ваш отчет! Ваше сообщение очень важно для нас))", timeout: TimeSpan.FromSeconds(5));
 
-            ConstVariables.Log?.Invoke($" is Guid '{Context.Guild.Name}' is command 'report' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
+            ConstVariables.logger.Info($"is Guid '{Context.Guild.Name}' is command 'report' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
         }
 
         [Command("help")]
@@ -743,7 +743,7 @@ namespace LegionKun.Module
 
             SocketGuildUser user = Context.Guild.GetUser(Context.User.Id);
 
-            Module.ConstVariables.CDiscord guild = Module.ConstVariables.CServer[Context.Guild.Id];
+            ConstVariables.CDiscord guild = ConstVariables.CServer[Context.Guild.Id];
 
             bool IsRole = false;
 
@@ -772,10 +772,9 @@ namespace LegionKun.Module
             builder.WithColor(Color.Orange);
             builder.WithFooter(Context.Guild.Name, Context.Guild.IconUrl);
 
-            Module.ConstVariables.Log?.Invoke($" is Guid '{Context.Guild.Name}' is command 'help' is user '{user.Username}' is channel '{Context.Channel.Name}' is IsRole {IsRole} ");
+            ConstVariables.logger.Info($"is Guid '{Context.Guild.Name}' is command 'help' is user '{user.Username}' is channel '{Context.Channel.Name}' is IsRole {IsRole}");
 
             await Context.Channel.SendMessageAsync($"{Context.Message.Author.Mention},", false, builder.Build());
-
         }
     }
 }

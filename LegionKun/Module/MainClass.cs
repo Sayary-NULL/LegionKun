@@ -1,15 +1,8 @@
 ﻿using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
-using SixLabors.ImageSharp.Processing.Drawing;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace LegionKun.Module
@@ -45,24 +38,24 @@ namespace LegionKun.Module
 
             if (!ConstVariables.CServer[Context.Guild.Id].IsOn)
             {
-                if (!Module.ConstVariables.ThisTest)
+                if (!ConstVariables.ThisTest)
                     return;
             }           
 
             bool IsTrigger = false;
 
-            Module.ConstVariables.CDiscord guild = Module.ConstVariables.CServer[Context.Guild.Id];
+            ConstVariables.CDiscord guild = ConstVariables.CServer[Context.Guild.Id];
 
-            if (Context.User.Id == 178916136404910082 || Context.User.Id == 178916011167318017)
+            if(MentionUser(Context, 178916136404910082, 178916011167318017))
             {
-                if (!Module.ConstVariables.Sharon)
+                if (!ConstVariables.Sharon)
                 {
                     Module.ConstVariables.Sharon = true;
                     EmbedBuilder builder = new EmbedBuilder();
                     builder.WithAuthor(Context.User.Username, Context.User.GetAvatarUrl());
                     builder.WithDescription("Генерал, мы тебя ждали!");
                     await channel.SendMessageAsync("", false, builder.Build());
-                    Logger($"Написал генерал! is Guid '{guild.GetGuild().Name}' is channel '{channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}'");
+                    ConstVariables.logger.Info($"Написал генерал! is Guid '{guild.GetGuild().Name}' is channel '{channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}'");
                 }
             }
 
@@ -136,7 +129,7 @@ namespace LegionKun.Module
                 else if (mess == "канти")
                 {
                     Random ran = new Random();
-                    if(ran.Next(0,1) == 1)
+                    if (ran.Next(0, 2) == 1)
                     {
                         await channel.SendMessageAsync("Канти - наше солнышко! :kissing_heart:");
                     }
@@ -160,7 +153,7 @@ namespace LegionKun.Module
                     await channel.SendMessageAsync($"Мы тебя ждали!");
                     IsTrigger = true;
                 }
-                else if (((mess.IndexOf("хидери") > -1) || (mess.IndexOf("<@380057037532561429>") > -1)) && (mess.IndexOf("ты не прав") > -1))
+                else if (((mess.IndexOf("хидери") > -1) || MentionUser(Context, guild.OwnerId, ConstVariables.CreatorId)) && (mess.IndexOf("ты не прав") > -1))
                 {
                     await channel.SendMessageAsync($"Внимание!!! {Context.User.Mention} устроил бунт на корабле!");
                     IsTrigger = true;
@@ -190,46 +183,31 @@ namespace LegionKun.Module
 
                 if (IsTrigger)
                 {
-                    Logger($" Сработал тригер: {mess}! is Guid '{guild.GetGuild().Name}' is channel '{channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}'");
+                    ConstVariables.logger.Info($" Сработал тригер: {mess}! is Guid '{guild.GetGuild().Name}' is channel '{channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}'");
                 }
             }
+        }
+
+        public bool MentionUser(ICommandContext Context, params ulong[] Id)
+        {
+            foreach(var key in Context.Message.MentionedUserIds)
+            {
+                for(int i=0; i < Id.Length; i++)
+                {
+                    if(Id[i] == key)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
         public virtual void Messege(string str)
         {
             TimeSpan time = DateTime.Now.TimeOfDay;
             Console.WriteLine($"[{time.Hours}:{time.Minutes}:{time.Seconds}.{time.Milliseconds}] {str}");
-        }
-
-        public virtual void Logger(string mess)
-        {
-            using (StreamWriter writer = File.AppendText(Module.ConstVariables.Logger))
-            {
-                TimeSpan time = DateTime.Now.TimeOfDay;
-
-                DateTime day = DateTime.Now.Date;
-
-                string month = "Не указано";
-
-                switch (day.Month)
-                {
-                    case 1: { month = "Январь"; break; }
-                    case 2: { month = "Февраль"; break; }
-                    case 3: { month = "Март"; break; }
-                    case 4: { month = "Апрель"; break; }
-                    case 5: { month = "Май"; break; }
-                    case 6: { month = "Июнь"; break; }
-                    case 7: { month = "Июль"; break; }
-                    case 8: { month = "Август"; break; }
-                    case 9: { month = "Сентябрь"; break; }
-                    case 10: { month = "Октябрь"; break; }
-                    case 11: { month = "Ноябрь"; break; }
-                    case 12: { month = "Декабрь"; break; }
-                    default: { month = "Не указано"; break; }
-                }
-
-                writer.WriteLine($"[{day.Day} {month} {day.Year}  {time.Hours}:{time.Minutes}:{time.Seconds}]{mess}");
-            }
         }
     }
 }

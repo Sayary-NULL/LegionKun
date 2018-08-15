@@ -1,5 +1,6 @@
 ﻿Name: [Legion Sharon'a]
 Id: 423154703354822668
+OwnerId: 380057037532561429
 Defaultchannelid: 423154703959064577
 Restruction: 50 
 ChannelNewsId: 440982561900986369
@@ -16,6 +17,7 @@ ChannelsId:
 ------------------------------------------
 Name: Шаровой легион
 Id: 461284473799966730
+OwnerId: 397084009185935362
 Defaultchannelid: 464467333671550980
 Restruction: 50
 ChannelNewsId: 461334957764247583
@@ -32,6 +34,7 @@ ChannelsId:
 ------------------------------------------
 Name: Disboard
 Id: 435485527156981770
+OwnerId: 329653972728020994
 Defaultchannelid: 435485527156981772
 Restruction: 50
 ChannelNewsId: -

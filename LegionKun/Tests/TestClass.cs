@@ -88,16 +88,25 @@ namespace LegionKun.Tests
         }
 
         [Command("connect")]
-        public async Task ConnectAsync()
+        public async Task ConnectAsync(IUser User, [Remainder]string comment = null)
         {
-            await Module.ConstVariables.SendMessageAsync(Context.Channel, "Заморожено!", deleteAfter: 5);
-            return;
+            //await ConstVariables.SendMessageAsync(Context.Channel, "Заморожено!", deleteAfter: 5);
+            //return;
 
-            string Ask = $"INSERT INTO Users (UserId, Name) VALUES (1, {Context.User.Id}, '{Context.User.Username}')";
+            string Ask;
+
+            if (comment != null)
+                Ask = $"INSERT INTO List_User_Banned (BannedId, AdminId, Comment) VALUES ({User.Id}, {Context.User.Id}, '{comment}')";
+            else Ask = $"INSERT INTO List_User_Banned (BannedId, AdminId) VALUES ({User.Id}, {Context.User.Id})";
+
             //string Ask = $"UPDATE Users Set Name = '{Context.User.Username}', UserId = {Context.User.Id} WHERE id = 1";
             //string Ask = "DELETE  FROM Users WHERE Name='Sayary'";
 
-            using (SqlConnection conect = new SqlConnection(Base.Resource1.ConnectionKey))
+            //string ConnectionKey = Base.Resource1.ConnectionKey;
+
+            string ConnectionKey = @"Data Source=KIRILL\SQL_LEGIONKUN;Initial Catalog=UserBanned;Integrated Security=True";
+
+            using (SqlConnection conect = new SqlConnection(ConnectionKey))
             {
                 conect.Open();
                 Console.WriteLine("Подключено!");

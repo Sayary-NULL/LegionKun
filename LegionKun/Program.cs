@@ -5,14 +5,15 @@ using Discord.WebSocket;
 using Discord.Commands;
 using System.Windows.Forms;
 using LegionKun.Module;
+using Discord.Rest;
 
 /*461284473799966730 - шароновский легион
  *423154703354822668 - [Legion Sharon'a]
  *435485527156981770 - Disboard*/
 
- /*?) Доделать игру крестики-нолики
-  *1) Переработать вывод бота
-  *2) идея о общем классе наследнике для всех Command*/
+/*?) Доделать игру крестики-нолики
+ *1) Переработать вывод бота
+ *2) идея о общем классе наследнике для всех Command*/
 
 namespace LegionKun
 {
@@ -104,17 +105,21 @@ namespace LegionKun
             {
                 var mess = await channel.GetMessageAsync(message.Id);
                 await mess.DeleteAsync();
+
+                ConstVariables.logger.Info($"is grout 'automatic' is func 'AddReaction' is punkt 'delete message' is guild '--' is channel '{channel.Name}' is user '{reaction.User.Value.Username}#{reaction.User.Value.Discriminator}'");
             }
         }
 
         private async Task UserLeft(SocketGuildUser user)
         {
-            Module.ConstVariables.CDiscord guild = Module.ConstVariables.CServer[user.Guild.Id];
+            ConstVariables.CDiscord guild = ConstVariables.CServer[user.Guild.Id];
 
             if (guild.EndUser == user.Id)
                 return;
 
             EmbedBuilder builder = new EmbedBuilder();
+
+            builder.WithColor(ConstVariables.InfoColor);
 
             switch (user.Guild.Id)
             {
@@ -135,6 +140,9 @@ namespace LegionKun
                 //[Legion Sharon'a]
                 case 423154703354822668:
                     {
+                        var Guild = ConstVariables.CServer[461284473799966730];
+                        await Guild.GetDefaultChannel().SendMessageAsync($"С сервера [Legion Sharon'a] ушел 1 человек: '{user.Username}#{user.Discriminator}({user.Nickname})'");
+
                         builder.WithDescription($"'{user.Username}#{user.Discriminator}' - ушёл в последний бой");
                         builder.WithTitle("Мемориал памяти воинского трибунала");
                         break;
@@ -147,7 +155,7 @@ namespace LegionKun
                     }
             }
 
-            ConstVariables.logger.Info($" is func 'UserLeft' is user '{user.Username}#{user.Discriminator}' is guild '{user.Guild.Name}'");
+            ConstVariables.logger.Info($"is func 'UserLeft' is guild '{user.Guild.Name}' is user '{user.Username}#{user.Discriminator}'");
 
             await guild.GetDefaultChannel().SendMessageAsync("", false, builder.Build());
         }
@@ -161,10 +169,10 @@ namespace LegionKun
 
             EmbedBuilder builder = new EmbedBuilder();
 
-            builder.WithDescription($"Пользователь: {arg1.Username}. Сменил имя на: {arg2.Username}");
-            builder.WithTitle("Пользователь обновлен");
+            builder.WithDescription($"Пользователь: {arg1.Username}. Сменил имя на: {arg2.Username}")
+                .WithTitle("Пользователь обновлен");
 
-            foreach(var guild in Module.ConstVariables._Client.Guilds)
+            foreach(var guild in ConstVariables._Client.Guilds)
             {
                 if(guild.Id == 461284473799966730)
                 {
@@ -173,7 +181,7 @@ namespace LegionKun
 
                 if((guild.GetUser(arg2.Id) != null))
                 {
-                    var dguild = Module.ConstVariables.CServer[guild.Id];
+                    var dguild = ConstVariables.CServer[guild.Id];
 
                     builder.WithFooter(guild.Name, guild.IconUrl);
 
@@ -181,8 +189,7 @@ namespace LegionKun
                 }
             }
 
-            ConstVariables.logger.Info($" is func 'UserUp' is user  1:'{arg1.Username}#{arg1.Discriminator}'; 2:'{arg2.Username}#{arg2.Discriminator}';");
-
+            ConstVariables.logger.Info($"is func 'UserUp' is user  1:'{arg1.Username}#{arg1.Discriminator}'; 2:'{arg2.Username}#{arg2.Discriminator}';");
         }
 
         private async Task UserUnbaned(SocketUser arg1, SocketGuild arg2)
@@ -191,24 +198,23 @@ namespace LegionKun
 
             EmbedBuilder builder = new EmbedBuilder();
 
-            builder.WithFooter(arg2.Name, arg2.IconUrl);
-
-            builder.WithTitle("Разбан").WithColor(Color.DarkBlue);
+            builder.WithFooter(arg2.Name, arg2.IconUrl)
+                .WithTitle("Разбан").WithColor(Color.DarkBlue);
 
             if (arg1.IsBot)
             {
                 builder.WithDescription($"Бот: {arg1.Mention} - разбанен");
 
-                ConstVariables.logger.Info($" is func 'UnBanned' is Guild '{arg2.Name}#{arg2.CurrentUser.Discriminator}' is bot '{arg1.Username}#{arg1.Discriminator}'");
+                ConstVariables.logger.Info($"is func 'UnBanned' is Guild '{arg2.Name}#{arg2.CurrentUser.Discriminator}' is bot '{arg1.Username}#{arg1.Discriminator}'");
             }
             else
             {
                 builder.WithDescription($"Пользователь: {arg1.Mention} - разбанен");
 
-                ConstVariables.logger.Info($" is func 'UnBanned' is Guild '{arg2.Name}#{arg2.CurrentUser.Discriminator}' is user '{arg1.Username}#{arg1.Discriminator}'");
-
                 if (guild.EndUser == arg1.Id)
                     guild.EndUser = 0;
+
+                ConstVariables.logger.Info($"is func 'UnBanned' is Guild '{arg2.Name}' is user '{arg1.Username}#{arg1.Discriminator}'");
             }
 
             await guild.GetDefaultChannel().SendMessageAsync("", false, builder.Build());
@@ -216,51 +222,62 @@ namespace LegionKun
 
         private async Task UserBaned(SocketUser arg1, SocketGuild arg2)
         {
-            var guild = Module.ConstVariables.CServer[arg2.Id];
-
-            EmbedBuilder builder = new EmbedBuilder();
-
-            Random ran = new Random();
-
-            string url = "";
-
-            builder.WithFooter(arg2.Name, arg2.IconUrl);
-
-            builder.WithTitle("Бан").WithColor(Color.DarkBlue);
-
-            if (arg1.IsBot)
+            try
             {
-                builder.WithDescription($"Бот: {arg1.Mention} - изгнан");
+                var guild = ConstVariables.CServer[arg2.Id];
 
-                ConstVariables.logger.Info($" is func 'Ban' is Guid '{arg2.Name}' is bot '{arg1.Username}#{arg1.Discriminator}'");
+                RestBan banned = await arg2.GetBanAsync(arg1);
+
+                EmbedBuilder builder = new EmbedBuilder();
+
+                Random ran = new Random();
+
+                builder.WithFooter(arg2.Name, arg2.IconUrl)
+                    .WithTitle("Бан")
+                    .WithColor(ConstVariables.InfoColor);
+
+                switch (arg2.Id)
+                {
+                    case 461284473799966730:
+                        {
+                            var Guild = ConstVariables.CServer[461284473799966730];
+                            await Guild.GetDefaultChannel().SendMessageAsync($"На сервере [Legion Sharon'a] был забанен 1 человек: '{arg1.Username}#{arg1.Discriminator}({arg2.GetUser(arg1.Id).Nickname})'");
+                            break;
+                        }
+                    default:
+                        break;
+                }
+
+                if (arg1.IsBot)
+                {
+                    builder.WithDescription($"Бот: {arg1.Mention} - изгнан")
+                        .AddField("Администратор", banned.User);
+
+                    ConstVariables.logger.Info($"is func 'Ban' is Guid '{arg2.Name}' is bot '{arg1.Username}#{arg1.Discriminator}' is Admin '{banned.User}'");
+                }
+                else
+                {
+                    builder.WithDescription($"Пользователь: {arg1.Mention} - забанен")
+                        .AddField($"Причина", banned.Reason, true);
+
+                    ConstVariables.logger.Info($"is func 'Ban' is Guild '{arg2.Name}' is user '{arg1.Username}#{arg1.Discriminator}' is Admin '{banned.User}' is Reason '{banned.Reason}'");
+
+                    ConstVariables.CServer[arg2.Id].EndUser = arg1.Id;
+                }
+
+                builder.WithImageUrl("https://cdn.discordapp.com/attachments/462236317926031370/462236494459961344/Katyusha_2.gif");
+
+                await guild.GetDefaultChannel().SendMessageAsync("", false, builder.Build());
             }
-            else
+            catch(Exception e)
             {
-                builder.WithDescription($"Пользователь: {arg1.Mention} - забанен");
-
-                ConstVariables.logger.Info($" is func 'Ban' is Guild '{arg2.Name}' is user '{arg1.Username}#{arg1.Discriminator}'");
-
-                guild.EndUser = arg1.Id;
-            }
-
-            switch (ran.Next(0, 2))
-            {
-                case 0: { url = "https://cdn.discordapp.com/attachments/462236317926031370/462236494459961344/Katyusha_2.gif "; break; }
-                case 1: { url = "https://cdn.discordapp.com/attachments/462236317926031370/462236553771483137/KspISzf.gif"; break; }
-                default: { url = ""; break; }
-            }
-
-            if (url != "")
-            {
-                builder.WithImageUrl(url);
-            }
-
-            await guild.GetDefaultChannel().SendMessageAsync("", false, builder.Build());
+                Console.WriteLine(e);
+            }            
         }
 
         private async Task Userjoin(SocketGuildUser user)
         {
-            var guild = Module.ConstVariables.CServer[user.Guild.Id];
+            var guild = ConstVariables.CServer[user.Guild.Id];
 
             if(guild.Debug)
             {
@@ -329,7 +346,7 @@ namespace LegionKun
 
                 builder.WithDescription($"{user.Mention}, добро пожаловать к нам! На сервер: {user.Guild.Name}");
 
-                ConstVariables.logger.Info($" is func 'UserJoin' is Guild '{user.Guild.Name}' is user '{user.Username}#{user.Discriminator}' " + addrole);
+                ConstVariables.logger.Info($"is func 'UserJoin' is Guild '{user.Guild.Name}' is user '{user.Username}#{user.Discriminator}'" + addrole);
             }
 
             if (guild.Debug)
@@ -339,7 +356,7 @@ namespace LegionKun
 
             ConstVariables.CServer[user.Guild.Id].NumberNewUser++;
 
-            builder.WithFooter($" Вы {guild.NumberNewUser} который к нам сегодня зашел, сегодня на сервере {user.Guild.MemberCount}", user.Guild.IconUrl);
+            builder.WithFooter($"Вы {guild.NumberNewUser} который к нам сегодня зашел. Сегодня на сервере {user.Guild.MemberCount} пользователей", user.Guild.IconUrl);
 
             await guild.GetDefaultChannel().SendMessageAsync("", false, builder.Build());
         }
@@ -347,10 +364,8 @@ namespace LegionKun
         private Task Log(LogMessage arg)
         {
             Console.WriteLine(arg);
-
-            if (arg.Message != "")
-                ConstVariables.logger.Info(arg.Message);
-            else ConstVariables.logger.Info(arg.Exception);
+            
+            ConstVariables.logger.Error(arg);
 
             return Task.CompletedTask;
         }
@@ -378,45 +393,45 @@ namespace LegionKun
             
             if (Messeg.HasStringPrefix("sh!", ref argPos) || Messeg.HasStringPrefix("Sh!", ref argPos))
             {
-                SocketCommandContext contex = new SocketCommandContext(Module.ConstVariables._Client, Messeg);
+                SocketCommandContext contex = new SocketCommandContext(ConstVariables._Client, Messeg);
                 
-                IResult result = await Module.ConstVariables._Command.ExecuteAsync(contex, argPos, Module.ConstVariables._UserService);
+                IResult result = await ConstVariables._Command.ExecuteAsync(contex, argPos, ConstVariables._UserService);
 
                 if (!result.IsSuccess)
                 {
                     switch (result.Error.Value)
                     {
-                        case CommandError.BadArgCount: { ConstVariables.logger.Error($" is errors 'BadArgCount' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); contex.Channel.SendMessageAsync($"{contex.User.Mention}, неверные параметры команды").GetAwaiter(); break; }
-                        case CommandError.UnknownCommand: { ConstVariables.logger.Error($" is errors 'UnknownCommand' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); contex.Channel.SendMessageAsync($"{contex.User.Mention}, неизвестная команда").GetAwaiter(); Help(contex); break; }
-                        case CommandError.ObjectNotFound: { ConstVariables.logger.Error($" is errors 'ObjectNotFound' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                        case CommandError.ParseFailed: { ConstVariables.logger.Error($" is errors 'ParseFailed' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                        case CommandError.MultipleMatches: { ConstVariables.logger.Error($" is errors 'MultipleMatches' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                        case CommandError.UnmetPrecondition: { ConstVariables.logger.Error($" is errors 'UnmetPrecondition' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                        case CommandError.Exception: { ConstVariables.logger.Error($" is errors 'Exception' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                        case CommandError.Unsuccessful: { ConstVariables.logger.Error($" is errors 'Unsuccessful' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                        default: { ConstVariables.logger.Error($" is errors 'Default' is channel '{arg.Channel.Name}' is param {result.ErrorReason} is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
+                        case CommandError.BadArgCount: { ConstVariables.logger.Error($"is errors 'BadArgCount' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); contex.Channel.SendMessageAsync($"{contex.User.Mention}, неверные параметры команды").GetAwaiter(); break; }
+                        case CommandError.UnknownCommand: { ConstVariables.logger.Error($"is errors 'UnknownCommand' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); contex.Channel.SendMessageAsync($"{contex.User.Mention}, неизвестная команда").GetAwaiter(); Help(contex); break; }
+                        case CommandError.ObjectNotFound: { ConstVariables.logger.Error($"is errors 'ObjectNotFound' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
+                        case CommandError.ParseFailed: { ConstVariables.logger.Error($"is errors 'ParseFailed' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
+                        case CommandError.MultipleMatches: { ConstVariables.logger.Error($"is errors 'MultipleMatches' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
+                        case CommandError.UnmetPrecondition: { ConstVariables.logger.Error($"is errors 'UnmetPrecondition' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
+                        case CommandError.Exception: { ConstVariables.logger.Error($"is errors 'Exception' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
+                        case CommandError.Unsuccessful: { ConstVariables.logger.Error($"is errors 'Unsuccessful' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
+                        default: { ConstVariables.logger.Error($"is errors 'Default' is channel '{arg.Channel.Name}' is param {result.ErrorReason} is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
                     }
                 }
             }
             else if(Messeg.HasStringPrefix("c!", ref argPos) || Messeg.HasStringPrefix("с!", ref argPos))
             {
-                SocketCommandContext contex = new SocketCommandContext(Module.ConstVariables._Client, Messeg);
+                SocketCommandContext contex = new SocketCommandContext(ConstVariables._Client, Messeg);
 
-                IResult result = await Module.ConstVariables._GameCommand.ExecuteAsync(contex, argPos, Module.ConstVariables._GameService);
+                IResult result = await ConstVariables._GameCommand.ExecuteAsync(contex, argPos, ConstVariables._GameService);
 
                 if (!result.IsSuccess)
                 {
                     switch (result.Error.Value)
                     {
-                        case CommandError.BadArgCount: { ConstVariables.logger.Error($" is errors 'BadArgCount' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); contex.Channel.SendMessageAsync($"{contex.User.Mention}, неверные параметры команды").GetAwaiter(); break; }
-                        case CommandError.UnknownCommand: { ConstVariables.logger.Error($" is errors 'UnknownCommand' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); contex.Channel.SendMessageAsync($"{contex.User.Mention}, неизвестная команда").GetAwaiter(); break; }
-                        case CommandError.ObjectNotFound: { ConstVariables.logger.Error($" is errors 'ObjectNotFound' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                        case CommandError.ParseFailed: { ConstVariables.logger.Error($" is errors 'ParseFailed' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                        case CommandError.MultipleMatches: { ConstVariables.logger.Error($" is errors 'MultipleMatches' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                        case CommandError.UnmetPrecondition: { ConstVariables.logger.Error($" is errors 'UnmetPrecondition' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                        case CommandError.Exception: { ConstVariables.logger.Error($" is errors 'Exception' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                        case CommandError.Unsuccessful: { ConstVariables.logger.Error($" is errors 'Unsuccessful' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                        default: { ConstVariables.logger.Error($" is errors 'Default' is channel '{arg.Channel.Name}' is param {result.ErrorReason} is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
+                        case CommandError.BadArgCount: { ConstVariables.logger.Error($"is errors 'BadArgCount' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); contex.Channel.SendMessageAsync($"{contex.User.Mention}, неверные параметры команды").GetAwaiter(); break; }
+                        case CommandError.UnknownCommand: { ConstVariables.logger.Error($"is errors 'UnknownCommand' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); contex.Channel.SendMessageAsync($"{contex.User.Mention}, неизвестная команда").GetAwaiter(); break; }
+                        case CommandError.ObjectNotFound: { ConstVariables.logger.Error($"is errors 'ObjectNotFound' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
+                        case CommandError.ParseFailed: { ConstVariables.logger.Error($"is errors 'ParseFailed' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
+                        case CommandError.MultipleMatches: { ConstVariables.logger.Error($"is errors 'MultipleMatches' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
+                        case CommandError.UnmetPrecondition: { ConstVariables.logger.Error($"is errors 'UnmetPrecondition' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
+                        case CommandError.Exception: { ConstVariables.logger.Error($"is errors 'Exception' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
+                        case CommandError.Unsuccessful: { ConstVariables.logger.Error($"is errors 'Unsuccessful' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
+                        default: { ConstVariables.logger.Error($"is errors 'Default' is channel '{arg.Channel.Name}' is param {result.ErrorReason} is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
                     }
                 }
             }
@@ -424,22 +439,22 @@ namespace LegionKun
 
         private void Help(SocketCommandContext Context)
         {
-            if (!Module.ConstVariables.CServer[Context.Guild.Id].IsOn)
+            if (!ConstVariables.CServer[Context.Guild.Id].IsOn)
             {
-                if (!Module.ConstVariables.ThisTest)
+                if (!ConstVariables.ThisTest)
                     return;
             }
 
-            if (!Module.ConstVariables.UserCommand[6].IsOn)
+            if (!ConstVariables.UserCommand[6].IsOn)
             {
                 return;
             }
 
             SocketGuildUser user = Context.Guild.GetUser(Context.User.Id);
 
-            Module.ConstVariables.CDiscord guild = Module.ConstVariables.CServer[Context.Guild.Id];
+            ConstVariables.CDiscord guild = ConstVariables.CServer[Context.Guild.Id];
 
-            if(Context.User.Id == guild.DefaultCommandChannel)
+            if(Context.Channel.Id == guild.DefaultCommandChannel)
             {
                 return;
             }
@@ -457,21 +472,19 @@ namespace LegionKun
 
             string TitlList = "Префикс команд для бота 'sh!' или 'Sh!'";
 
-            builder.AddField("Параметры", "[] - обязательно \r\n<> - не обязательно");
-
-            builder.WithTitle(TitlList);
-
-            builder.AddField("Group: Default", Module.ConstVariables.UTHelp, true);
+            builder.AddField("Параметры", "[] - обязательно \r\n<> - не обязательно")
+                .WithTitle(TitlList)
+                .AddField("Group: Default", ConstVariables.UTHelp, true);
 
             if (IsRole)
             {
-                builder.AddField("Group: Admin", Module.ConstVariables.ATHelp, true);
+                builder.AddField("Group: Admin", ConstVariables.ATHelp, true);
             }
 
-            builder.WithColor(Color.Orange);
-            builder.WithFooter(Context.Guild.Name, Context.Guild.IconUrl);
+            builder.WithColor(Color.Orange)
+                .WithFooter(Context.Guild.Name, Context.Guild.IconUrl);
 
-            ConstVariables.logger.Info($" is Guid {Context.Guild.Name} is command 'help' is user '{user.Username}' is channel '{Context.Channel.Name}' is IsRole '{IsRole}' ");
+            ConstVariables.logger.Info($"is Guid {Context.Guild.Name} is command 'help' is user '{user.Username}' is channel '{Context.Channel.Name}' is IsRole '{IsRole}'");
 
             Context.Channel.SendMessageAsync("", false, builder.Build());
         }

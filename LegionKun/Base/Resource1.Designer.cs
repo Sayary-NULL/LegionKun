@@ -70,7 +70,7 @@ namespace LegionKun.Base {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Data Source=KIRILL\SQL_LEGIONKUN;Initial Catalog=UserId;Integrated Security=True.
+        ///   Ищет локализованную строку, похожую на Data Source=KIRILL\SQL_LEGIONKUN;Initial Catalog=UserBanned;Integrated Security=True.
         /// </summary>
         internal static string ConnectionKey {
             get {
@@ -97,7 +97,7 @@ namespace LegionKun.Base {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на 4.25.
+        ///   Ищет локализованную строку, похожую на 4.35.
         /// </summary>
         internal static string VersionBot {
             get {

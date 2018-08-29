@@ -54,11 +54,6 @@ namespace LegionKun.Module
             }
             public Rmessages RMessages = new Rmessages();
 
-            public CDiscord()
-            {
-
-            }
-
             ///<summary>возвращает class сервера</summary>
             public SocketGuild GetGuild()
             {
@@ -106,6 +101,7 @@ namespace LegionKun.Module
             new Commands( "ctinfo" , "ctinfo", true),
             new Commands( "cvinfo" , "cvinfo", true),
             new Commands( "ping" , "ping", true),
+            new Commands( "ban" , "ban [User Mention]", false),
             new Commands( "report" , "report [Name Command] [report text]", true),
             new Commands( "help" , "help", true),
         };
@@ -118,6 +114,9 @@ namespace LegionKun.Module
             new Commands( "status" , "status", true),
             new Commands( "debug" , "debug", true),
             new Commands( "flowcontrol" , "flowcontrol <number level>", true),
+            new Commands( "banlist" , "banlist <User Mention>", true),
+            new Commands( "banlistadmin" , "banlistadmin <Admin Mention>", true),
+            new Commands( "banlistadd" , "banlistadd [User Mention] <Comment>", true)
         };
 
         public struct Commands
@@ -365,4 +364,4 @@ namespace LegionKun.Module
             return result;
         }
     }
-}
+} 

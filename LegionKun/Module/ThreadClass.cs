@@ -129,11 +129,17 @@ namespace LegionKun.Module
                     if (SharonResponse.Items.Count != 0)
                     {
                         SharoHH = SharonResponse.Items[0];
+
+                        if(ConstVariables.Video1Id != SharoHH.Id.VideoId)
+                            ConstVariables.logger.Info("Стрим найден! Sharon: https://www.youtube.com/video/" + $"{SharoHH.Id.VideoId}");
                     }
 
                     if (DejzResponse.Items.Count != 0)
                     {
                         Dejz = DejzResponse.Items[0];
+
+                        if (ConstVariables.Video2Id != Dejz.Id.VideoId)
+                            ConstVariables.logger.Info("Стрим найден! Dejz: https://www.youtube.com/video/" + $"{Dejz.Id.VideoId}");
                     }
 
                     if (ConstVariables.ThisTest)
@@ -177,6 +183,8 @@ namespace LegionKun.Module
                                 await key.Value.GetDefaultNewsChannel().SendMessageAsync("https://www.youtube.com/video/" + Dejz.Id.VideoId);
                                 ConstVariables.Video2Id = Dejz.Id.VideoId;
                             }
+
+                            ConstVariables.logger.Info($"is guild {key.Value.Name} is channel {channel.Name}");
                         }
                     }
                 }

@@ -121,7 +121,7 @@
     <value>AIzaSyDIuH33zi6aod6jSHm31V1VIVKYIIGxvEo</value>
   </data>
   <data name="ConnectionKey" xml:space="preserve">
-    <value>Data Source=KIRILL\SQL_LEGIONKUN;Initial Catalog=UserId;Integrated Security=True</value>
+    <value>Data Source=KIRILL\SQL_LEGIONKUN;Initial Catalog=UserBanned;Integrated Security=True</value>
     <comment>строка подключения к БД</comment>
   </data>
   <data name="TestBotToken" xml:space="preserve">
@@ -133,7 +133,7 @@
     <comment>токен рабочего бота</comment>
   </data>
   <data name="VersionBot" xml:space="preserve">
-    <value>4.25</value>
+    <value>4.35</value>
     <comment>Версия бота</comment>
   </data>
 </root>

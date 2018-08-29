@@ -9,6 +9,7 @@ using System.Diagnostics;
 using Google.Apis.YouTube.v3;
 using Google.Apis.Services;
 using LegionKun.Module;
+using LegionKun.Attribute;
 
 namespace LegionKun.Module
 {
@@ -16,35 +17,37 @@ namespace LegionKun.Module
     {
         private async Task<bool> Access(string name)
         {
-            if (!Module.ConstVariables.ThisTest)
+            if (ConstVariables.ThisTest)
             {
-                if (!ConstVariables.CServer[Context.Guild.Id].IsOn)
-                {
-                    await ReplyAndDeleteAsync($"{Context.User.Mention}, все команды сейчас выключены!", timeout: TimeSpan.FromSeconds(5));
-                    return false;
-                }
+                await ReplyAndDeleteAsync($"{Context.User.Mention}, включен тестовый режим!", timeout: TimeSpan.FromSeconds(5));
+                return true;
+            }
 
-                bool isresult = false;
+            if (!ConstVariables.CServer[Context.Guild.Id].IsOn)
+            {
+                await ReplyAndDeleteAsync($"{Context.User.Mention}, все команды сейчас выключены!", timeout: TimeSpan.FromSeconds(5));
+                return false;
+            }
 
-                foreach (var key in ConstVariables.UserCommand)
+            bool isresult = false;
+
+            foreach (var key in ConstVariables.UserCommand)
+            {
+                if (key.ContainerName(name))
                 {
-                    if (key.ContainerName("report"))
+                    if (key.IsOn)
                     {
-                        if (key.IsOn)
-                        {
-                            isresult = true;
-                            break;
-                        }
+                        isresult = true;
+                        break;
                     }
                 }
-
-                if (!isresult)
-                {
-                    await ReplyAndDeleteAsync($"{Context.User.Mention}, это команда сейчас выключена!", timeout: TimeSpan.FromSeconds(5));
-                    return false;
-                }
             }
-            else await ReplyAndDeleteAsync($"{Context.User.Mention}, включен тестовый режим!", timeout: TimeSpan.FromSeconds(5));
+
+            if (!isresult)
+            {
+                await ReplyAndDeleteAsync($"{Context.User.Mention}, это команда сейчас выключена!", timeout: TimeSpan.FromSeconds(5));
+                return false;
+            }
 
             return true;
         }
@@ -119,7 +122,7 @@ namespace LegionKun.Module
             {
                 await Context.Message.DeleteAsync();
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.WriteLine("Ошибка доступа!" + e);
             }
@@ -130,7 +133,7 @@ namespace LegionKun.Module
 
                 errors.WithTitle("Ошибка!").WithDescription("нельзя жаловатся на бота!")
                     .WithFooter(Context.Guild.Name, Context.Guild.IconUrl)
-                    . WithColor(ConstVariables.InfoColor);
+                    .WithColor(ConstVariables.InfoColor);
 
                 await ReplyAndDeleteAsync("", embed: errors.Build(), timeout: TimeSpan.FromSeconds(5));
                 return;
@@ -154,7 +157,7 @@ namespace LegionKun.Module
             builder.WithTitle("Жалоба!").WithColor(ConstVariables.UserColor);
 
             if (user.Id == ConstVariables.CreatorId)
-            {                
+            {
                 mess = $"Пользователь {user.Mention} пожаловался на {Context.User.Mention}!";
             }
             else mess = $"Пользователь {Context.User.Mention} пожаловался на {user.Mention}!";
@@ -163,7 +166,7 @@ namespace LegionKun.Module
 
             if (coment != null)
             {
-                if(user.Id != ConstVariables.CreatorId)
+                if (user.Id != ConstVariables.CreatorId)
                     builder.AddField("Коментарий", coment);
             }
 
@@ -185,41 +188,68 @@ namespace LegionKun.Module
 
             EmbedBuilder builder = new EmbedBuilder();
 
-            int CountRole = Context.Guild.Roles.Count - 1;
+            int CountRole = 0;
+
+            foreach (var key in Context.Guild.Roles)
+            {
+                if (CountRole < key.Position)
+                    CountRole = key.Position;
+            }
 
             string roleinfo = "";
 
-            List<SocketRole> Inforole = new List<SocketRole>(CountRole + 1);
+            Dictionary<int, SocketRole> InfoRole = new Dictionary<int, SocketRole>();
+
+            if (ConstVariables.CServer[Context.Guild.Id].Debug || ConstVariables.ThisTest)
+            {
+                Console.WriteLine($"Полный список ролей сервера");
+                Console.WriteLine($"{CountRole}"); /*для отладки*/
+            }
 
             try
             {
-                for (int z = 0; z < CountRole; z++)
+                if (ConstVariables.CServer[Context.Guild.Id].Debug || ConstVariables.ThisTest)
                 {
-                    Inforole.Add(null);
+                    Console.WriteLine($"Загрузка ролей в базу данных по их номнерам");
                 }
 
                 foreach (var role in Context.Guild.Roles)
                     if (role.Id != Context.Guild.EveryoneRole.Id)
                     {
-                        if (ConstVariables.CServer[Context.Guild.Id].Debug || ConstVariables.ThisTest)
-                            Console.WriteLine($"{role.Name}, {role.Position}"); /*для отладки*/
+                        try
+                        {
+                            InfoRole.Add(role.Position - 1, role);
 
-                        Inforole.RemoveAt(role.Position - 1);
-                        Inforole.Insert(role.Position - 1, role);
+                            if (ConstVariables.CServer[Context.Guild.Id].Debug || ConstVariables.ThisTest)
+                            {
+                                Console.WriteLine($"{role.Name}, {role.Position}"); /*для отладки*/
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            if (ConstVariables.CServer[Context.Guild.Id].Debug || ConstVariables.ThisTest)
+                                Console.WriteLine($"{role.Name} {role.Position}({role.Position - 1}): {e.Message}");/*для отладки*/
+                            ConstVariables.logger.Error($"{role.Name} {role.Position}({role.Position - 1}): {e.Message}");
+                        }
                     }
 
                 for (int i = CountRole; i > 0; i--)
                 {
-                    if (Inforole[i - 1] == null)
-                        continue;
-
                     try
                     {
-                        roleinfo += $"{CountRole - i + 1}: **{Inforole[i - 1].Name}** ({Inforole[i - 1].CreatedAt:dd.MM.yyyy HH:mm})\r\n";
+                        if (!InfoRole.ContainsKey(i - 1))
+                            continue;
+
+                        if (InfoRole[i - 1] == null)
+                            continue;
+
+                        roleinfo += $"{CountRole - i + 1}: **{InfoRole[i - 1].Name}** ({InfoRole[i - 1].CreatedAt:dd.MM.yyyy HH:mm})\r\n";
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine($"{CountRole}, {i}:  {e.Message}");
+                        if (ConstVariables.CServer[Context.Guild.Id].Debug || ConstVariables.ThisTest)
+                            Console.WriteLine($"{CountRole}, {i}:  {e.Message}");/*для отладки*/
+                        ConstVariables.logger.Error($"{CountRole}, {i}:  {e.Message}");
                     }
                 }
 
@@ -306,7 +336,7 @@ namespace LegionKun.Module
             {
                 return;
             }
-            
+
             EmbedBuilder builder = new EmbedBuilder();
 
             string strock = "";
@@ -337,7 +367,7 @@ namespace LegionKun.Module
 
             await Context.Channel.SendMessageAsync("", embed: builder.Build());
         }
-        
+
         [Command("time")]
         public async Task TimeAsync()
         {
@@ -375,7 +405,7 @@ namespace LegionKun.Module
             EmbedBuilder builder = new EmbedBuilder();
             int ResultArray = 0;
 
-            for(int i = 0; i < count; i++)
+            for (int i = 0; i < count; i++)
             {
                 ResultArray += ran.Next(0, 2);
             }
@@ -444,7 +474,7 @@ namespace LegionKun.Module
                     }
                 }
 
-                if(ConstVariables.Perevorot)
+                if (ConstVariables.Perevorot)
                 {
                     await ReplyAndDeleteAsync("Этой командой можно пользоваться только один раз в день!", timeout: TimeSpan.FromSeconds(5));
                     return;
@@ -510,7 +540,7 @@ namespace LegionKun.Module
                 builder.AddField("Nickname", User.Nickname, true);
             }
 
-            if(User.Activity != null)
+            if (User.Activity != null)
             {
                 builder.AddField("Activity", User.Activity.Name, true);
             }
@@ -519,7 +549,7 @@ namespace LegionKun.Module
             .AddField("Дата присоединения", User.JoinedAt?.ToString("dd.MM.yyyy HH:mm"), true)
             .AddField("Кол-во ролей", User.RoleIds.Count - 1, true)
             .WithColor(ConstVariables.InfoColor);
-            
+
 
             string avatar = User.GetAvatarUrl();
 
@@ -527,13 +557,13 @@ namespace LegionKun.Module
             {
                 builder.WithThumbnailUrl(avatar);
             }
-            
+
             string role = "";
             int i = 1;
 
-            foreach(var key in User.RoleIds)
+            foreach (var key in User.RoleIds)
             {
-                if(!Context.Guild.GetRole(key).IsEveryone)
+                if (!Context.Guild.GetRole(key).IsEveryone)
                 {
                     role += $"{i++}: **{Context.Guild.GetRole(key).Name}** ({Context.Guild.GetRole(key).CreatedAt:dd.MM.yyyy HH:mm})\r\n";
                 }
@@ -549,7 +579,7 @@ namespace LegionKun.Module
         [Command("serverinfo")]
         public async Task ServerInfoAsync()
         {
-            if(!await Access("serverinfo"))
+            if (!await Access("serverinfo"))
             {
                 return;
             }
@@ -580,7 +610,7 @@ namespace LegionKun.Module
                 .AddField("Кол-во голосовых каналов", VoiseChan, true)
                 .WithColor(ConstVariables.InfoColor);
 
-            if(Uri.IsWellFormedUriString(Guild.IconUrl, UriKind.Absolute))
+            if (Uri.IsWellFormedUriString(Guild.IconUrl, UriKind.Absolute))
             {
                 builder.WithThumbnailUrl(Guild.IconUrl);
             }
@@ -689,7 +719,7 @@ namespace LegionKun.Module
         }
 
         [Command("ping")]
-        public async Task Ping()
+        public async Task PingAsync()
         {
             if (!(await Access("ping")))
             {
@@ -706,10 +736,30 @@ namespace LegionKun.Module
             await Context.Channel.SendMessageAsync($"{Context.User.Mention}, пинг составляет: {(int)sw.Elapsed.TotalMilliseconds}ms").ConfigureAwait(false);
         }
 
+        [Command("ban")]
+        [Admin]
+        public async Task BanAsync(SocketUser user)
+        {
+            if (!(await Access("ban")))
+            {
+                return;
+            }
+
+            EmbedBuilder builder = new EmbedBuilder();
+
+            builder.WithTitle("Очередь в бан")
+                .WithDescription($"Пользователь {user.Mention} добавлен в список на скорую блокировку")
+                .WithFooter(Context.Guild.Name, Context.Guild.IconUrl);
+
+            await ReplyAsync("", embed: builder.Build());
+
+            ConstVariables.logger.Info($"is guild '{Context.Guild.Name}' is command 'ban' is channel '{Context.Channel.Name}' is user '{Context.User.Username}'");
+        }
+         
         [Command("report")]
         public async Task ReportAsync(string command, [Remainder]string text)
         {
-            if(!(await Access("report")))
+            if (!(await Access("report")))
             {
                 return;
             }
@@ -723,7 +773,8 @@ namespace LegionKun.Module
             try
             {
                 await Context.Message.DeleteAsync();
-            }catch(Exception e)
+            }
+            catch (Exception e)
             {
                 Console.WriteLine("Ошибка доступа: " + e);
             }
@@ -734,7 +785,7 @@ namespace LegionKun.Module
         }
 
         [Command("help")]
-        public async Task HelpAsync() 
+        public async Task HelpAsync()
         {
             if (!(await Access("help")))
             {

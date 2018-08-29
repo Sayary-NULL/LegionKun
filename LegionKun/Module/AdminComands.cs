@@ -4,10 +4,11 @@ using Discord.Addons.Interactive;
 using System;
 using System.Threading.Tasks;
 using LegionKun.Attribute;
+using System.Data.SqlClient;
+using Discord.WebSocket;
 
 namespace LegionKun.Module
 {
-    [Group("admin")]
     [Admin]
     class AdminComands : InteractiveBase
     {
@@ -145,7 +146,6 @@ namespace LegionKun.Module
             ConstVariables.logger.Info($"is group 'Automatic' is command 'on' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is level {level}");
 
             ConstVariables.CServer[Context.Guild.Id].IsOn = true;
-
         }
 
         [Command("news", RunMode = RunMode.Async)]
@@ -246,7 +246,8 @@ namespace LegionKun.Module
             }
 
             builder.AddField("Roles", role, true)
-                .AddField("Channels", channel, true);
+                .AddField("Channels", channel, true)
+                .AddField("Версия бота", Base.Resource1.VersionBot, true);
 
             if (role != "")
                 builder.AddField("Defaul channel", Context.Guild.GetTextChannel(guild.DefaultChannelId).Mention, true);
@@ -257,7 +258,6 @@ namespace LegionKun.Module
             await Context.Channel.SendMessageAsync("", false, builder.Build());
 
             ConstVariables.logger.Info($"is group 'admin' is guild '{Context.Guild.Name}' is channel '{Context.Channel.Name}' is user '{Context.User.Username}'");
-
         }
 
         [Command("debug")]
@@ -278,9 +278,175 @@ namespace LegionKun.Module
             await ReplyAndDeleteAsync($"Режим дебага: {ConstVariables.CServer[Context.Guild.Id].Debug}", timeout: TimeSpan.FromSeconds(5));
 
             ConstVariables.logger.Info($"is group 'Admin' is command 'debug' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is result '{(ConstVariables.CServer[Context.Guild.Id].Debug ? "on" : "off")}'");
-
         }
 
+        [Command("banlist")]
+        public async Task BanListAsync(IUser User = null)
+        {
+            string SqlRequest = "SELECT TOP 20 [BannedId], [AdminId], [Comment] FROM [UserBanned].[dbo].[List_User_Banned]";
+            string TextRequest = "";
+
+            EmbedBuilder builder = new EmbedBuilder();
+
+            if (User != null)
+                SqlRequest += $" WHERE [BannedId] = {User.Id}";
+
+            builder.WithTitle($"Бан лист{(User != null? "(Выборка)":"")}");
+
+            using (SqlConnection conect = new SqlConnection(Base.Resource1.ConnectionKey))
+            {
+                try
+                {
+                    conect.Open();
+                    SqlCommand command = new SqlCommand(SqlRequest, conect);
+                    SqlDataReader reader = await command.ExecuteReaderAsync();
+
+                    if (reader.HasRows)
+                    {
+                        while (reader.Read())
+                        {
+                            ulong BannedId = (ulong)reader.GetInt64(0);
+                            ulong AdminId = (ulong)reader.GetInt64(1);
+                            string Comment = reader.GetString(2);
+                            
+                            TextRequest += $"**Пользователь:** {Context.Guild.GetUser(BannedId).Mention} **Администратор:** {Context.Guild.GetUser(AdminId).Mention}\r\n Заметка: {Comment}\r\n";
+                        }
+
+                        builder.WithDescription(TextRequest)
+                            .WithFooter(Context.Guild.Name, Context.Guild.IconUrl)
+                            .WithColor(ConstVariables.AdminColor);
+
+                        await ReplyAsync("", embed: builder.Build());
+                    }
+                    else await ReplyAndDeleteAsync("Данных в базе не обноружено!", timeout: TimeSpan.FromSeconds(5));
+
+                    ConstVariables.logger.Info($"is group 'admin' is command 'banlist 0' is guild '{Context.Guild.Name}' is command '{Context.Channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}' is userbanned '{User.Username}#{User.Discriminator}'");
+                }
+                catch (Exception e)
+                {
+                    ConstVariables.logger.Error($"is group 'admin' is command 'banlist 0' is guild '{Context.Guild.Name}' is command '{Context.Channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}' is errors {e}");
+                }
+            }
+        }
+
+        [Command("banlistadmin")]
+        public async Task BanListAdmAsync(IUser User = null)
+        {
+            string SqlRequest = "SELECT TOP 20 [BannedId], [AdminId], [Comment] FROM [UserBanned].[dbo].[List_User_Banned]";
+            string TextRequest = "";
+
+            EmbedBuilder builder = new EmbedBuilder();
+
+            if (User != null)
+                SqlRequest += $" WHERE [adminId] = {User.Id}";
+
+            builder.WithTitle($"Бан лист{(User != null ? "(Выборка)" : "")}");
+
+            using (SqlConnection conect = new SqlConnection(Base.Resource1.ConnectionKey))
+            {
+                try
+                {
+                    conect.Open();
+                    SqlCommand command = new SqlCommand(SqlRequest, conect);
+                    SqlDataReader reader = await command.ExecuteReaderAsync();
+
+                    if (reader.HasRows)
+                    {
+                        while (reader.Read())
+                        {
+                            ulong BannedId = (ulong)reader.GetInt64(0);
+                            ulong AdminId = (ulong)reader.GetInt64(1);
+                            string Comment = reader.GetString(2);
+
+                            TextRequest += $"**Пользователь:** {Context.Guild.GetUser(BannedId).Mention} **Администратор:** {Context.Guild.GetUser(AdminId).Mention}\r\n Заметка: {Comment}\r\n";
+                        }
+
+                        builder.WithDescription(TextRequest)
+                            .WithFooter(Context.Guild.Name, Context.Guild.IconUrl)
+                            .WithColor(ConstVariables.AdminColor);
+
+                        await ReplyAsync("", embed: builder.Build());
+                    }
+                    else await ReplyAndDeleteAsync("Данных в базе не обноружено!", timeout: TimeSpan.FromSeconds(5));
+
+                    ConstVariables.logger.Info($"is group 'admin' is command 'banlist 0' is guild '{Context.Guild.Name}' is command '{Context.Channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}' is userbanned '{User.Username}#{User.Discriminator}'");
+                }
+                catch (Exception e)
+                {
+                    ConstVariables.logger.Error($"is group 'admin' is command 'banlist 0' is guild '{Context.Guild.Name}' is command '{Context.Channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}' is errors {e}");
+                }
+            }
+        }
+
+        [Command("banlistadd")]
+        public async Task BanListAsync(IUser User, [Remainder]string comment = null)
+        {
+            EmbedBuilder builder = new EmbedBuilder();
+            string Ask;
+
+            if(Context.User.Id == User.Id)
+            {
+                await ReplyAndDeleteAsync("Банить самого себя нельзя! Но я очень хочу на это посмотреть!", timeout: TimeSpan.FromSeconds(5));
+                return;
+            }
+
+            if(User.IsBot)
+            {
+                switch (Context.Guild.Id)
+                {
+                    //шароновский легион
+                    case 461284473799966730:
+                        {
+                            await ReplyAndDeleteAsync($"Ботов банить нельзя! Но если вы удалите Monika, то я буду не против", timeout: TimeSpan.FromSeconds(5));
+                            return;
+                        }
+                    //[Legion Sharon'a]
+                    case 423154703354822668:
+                        {
+                            await ReplyAndDeleteAsync($"Ботов банить нельзя! Но если вы удалите Nadeko, то я буду не против", timeout: TimeSpan.FromSeconds(5));
+                            return;
+                        }
+
+                    default:
+                        {
+                            await ReplyAndDeleteAsync($"Ботов банить нельзя!", timeout: TimeSpan.FromSeconds(5));
+                            return;
+                        }
+                }
+            }
+
+            builder.WithTitle("Лист бана")
+                .WithDescription("Добавлен новый пользователь")
+                .AddField("Пользователь", User.Mention, true)
+                .AddField("Администратор", Context.User.Mention, true)
+                .WithColor(ConstVariables.AdminColor);
+
+            if (comment != null)
+                builder.AddField("Комментарий", comment);
+
+            if (comment != null)
+                Ask = $"INSERT INTO List_User_Banned (BannedId, AdminId, Comment) VALUES ({User.Id}, {Context.User.Id}, '{comment}')";
+            else Ask = $"INSERT INTO List_User_Banned (BannedId, AdminId, Comment) VALUES ({User.Id}, {Context.User.Id}, 'Отсутствует')";
+
+            using (SqlConnection conect = new SqlConnection(Base.Resource1.ConnectionKey))
+            {
+                try
+                {
+                    conect.Open();
+                    SqlCommand command = new SqlCommand(Ask, conect);
+                    int number = command.ExecuteNonQuery();
+                    await ReplyAsync("", embed: builder.Build());
+
+                    ConstVariables.logger.Info($"is group 'admin' is command 'banlist 1' is guild '{Context.Guild.Name}' is command '{Context.Channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}' is userbanned '{User.Username}#{User.Discriminator}'");
+                }
+                catch (Exception e)
+                {
+                    await ReplyAndDeleteAsync("Ошибка вставки! Обратитесь к администратору!", timeout: TimeSpan.FromSeconds(5));
+                    ConstVariables.logger.Error($"is group 'admin' is command 'banlist 1' is guild '{Context.Guild.Name}' is command '{Context.Channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}' is errors {e}");
+                }
+            }
+        }
+        
         [Command("flowcontrol")]
         public async Task FlowControlAsync(int name = 0)
         {

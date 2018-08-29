@@ -273,7 +273,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Base\Logger.txt" />
     <Content Include="Base\WiteListGuild.txt" />
     <Content Include="documents\Info.txt" />
     <Content Include="Pandoras+actor+comp_f52e69_6302345.ico" />

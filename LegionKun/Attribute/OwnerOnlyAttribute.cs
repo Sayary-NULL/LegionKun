@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Discord.Commands;
+using static LegionKun.Module.OverloadFunc;
 
 namespace LegionKun.Attribute
 {
@@ -15,7 +16,9 @@ namespace LegionKun.Attribute
             {
                 return Task.FromResult(PreconditionResult.FromSuccess());
             }
-            Module.ConstVariables.SendMessageAsync(Context.Channel,"Ошибка доступа!", deleteAfter: 5).GetAwaiter();
+
+            Module.OverloadFunc.SendMessageAsync(Context.Channel, "Ошибка доступа!", deleteAfter: 5).GetAwaiter();
+
             return Task.FromResult(PreconditionResult.FromError("Ошибка доступа"));
         }
     }

@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
@@ -9,6 +7,9 @@ using Discord.Addons.Interactive;
 using Microsoft.Extensions.DependencyInjection;
 using Discord.Rest;
 using NLog;
+using System.Data.SqlClient;
+using System.Threading;
+using System.Diagnostics;
 
 namespace LegionKun.Module
 {
@@ -25,9 +26,6 @@ namespace LegionKun.Module
         /// </summary>
         public class CDiscord
         {
-            //массив ролей и каналов для реакции бота
-            public Dictionary<ulong, string> _Channels = new Dictionary<ulong, string>();
-            public Dictionary<ulong, string> _Role = new Dictionary<ulong, string>();
             //id
             public ulong OwnerId;
             public ulong DefaultChannelId;
@@ -43,16 +41,6 @@ namespace LegionKun.Module
             public bool IsOn = false;
             public bool Trigger = false;
             public int NumberNewUser = 0;
-            //мини-класс для random
-            public class Rmessages
-            {
-                public int MinValue = 0;
-                public int MaxValue = 1;
-                public EmbedBuilder Embed = null;
-                public RestUserMessage RestUser = null;
-                public ulong UserId = 0;
-            }
-            public Rmessages RMessages = new Rmessages();
 
             ///<summary>возвращает class сервера</summary>
             public SocketGuild GetGuild()
@@ -74,11 +62,86 @@ namespace LegionKun.Module
                 else return null;
             }
             ///<summary>возвращает class канал с командами бота</summary>
-            public SocketTextChannel GetDefaultCommandChannel()
+            /*public SocketTextChannel GetDefaultCommandChannel()
             {
                 if (DefaultChannelId != 0)
                     return GetGuild().GetTextChannel(DefaultCommandChannel);
                 else return null;
+            }*/
+
+            public bool EntryRole(ulong RoleId)
+            {
+                string SqlRequest = $"SELECT [RoleId] FROM Role WHERE [GuildId] = {GuildId} AND [RoleId] = {RoleId}";
+
+                using (SqlConnection conect = new SqlConnection(@"Data Source=KIRILL\SQL_LEGIONKUN;Initial Catalog=TestServer;Integrated Security=True; User Id = LegeonKun; Password = Kun73$Kanti//"))
+                {
+                    try
+                    {
+                        conect.Open();
+                        SqlCommand command = new SqlCommand(SqlRequest, conect);
+                        SqlDataReader reader = command.ExecuteReader();
+
+                        if (reader.HasRows)
+                        {
+                            return true;
+                        }
+                        else return false;
+                    }
+                    catch (Exception e)
+                    {
+                        logger.Error($"is func 'EntryRole' is errors {e}");
+                        return false;
+                    }
+                }
+            }
+            
+            public bool IsEntryOrСategoryChannel(ulong ChannelId, bool IsDefault = false, bool IsNewsChannel = false, bool IsCommand = false)
+            {
+                string SqlRequest = $"SELECT [ChannelId] FROM [Channel] WHERE [GuildId] = {GuildId} AND [ChannelId] = {ChannelId}";
+
+                if (IsDefault)
+                    SqlRequest += " AND [IsDefault] = 'true'";
+                if (IsNewsChannel)
+                    SqlRequest += " AND [IsNewsChannel] = 'true'";
+                if (IsCommand)
+                    SqlRequest += " AND [IsCommand] = 'true'";
+
+                using (SqlConnection conect = new SqlConnection(@"Data Source=KIRILL\SQL_LEGIONKUN;Initial Catalog=TestServer;Integrated Security=True; User Id = LegeonKun; Password = Kun73$Kanti//"))
+                {
+                    try
+                    {
+                        conect.Open();
+                        SqlCommand command = new SqlCommand(SqlRequest, conect);
+                        SqlDataReader reader = command.ExecuteReader();
+
+                        if (reader.HasRows)
+                        {
+                            return true;
+                        }
+                        else return false;
+                    }
+                    catch (Exception e)
+                    {
+                        logger.Error($"is func 'IsPrefiчChannel' is id cannel: '{ChannelId}' is default: '{IsDefault}' is News Channel: '{IsNewsChannel}' is command: '{IsCommand}' is errors {e}");
+                        return false;
+                    }
+                }
+            }
+
+            public void ServerInfo(ISocketMessageChannel channel = null)
+            {
+                string TextInfo = "";
+
+                TextInfo += $"Guild Id: {GuildId}\r\n";
+                TextInfo += $"Owner Id: {OwnerId}\r\n";
+                TextInfo += $"Default Channel Id: {DefaultChannelId}\r\n";
+                TextInfo += $"Default Channel News Id: {DefaultChannelNewsId}\r\n";
+
+                if (channel == null)
+                {
+                    Console.WriteLine(TextInfo);
+                }
+                else channel.SendMessageAsync(TextInfo);
             }
         }
         
@@ -175,6 +238,8 @@ namespace LegionKun.Module
 
         public static bool ControlFlow { get; set; } = true;
 
+        public static bool IsDownloadGuild { get; private set; } = false;
+
         public delegate void DMessege(string str);
 
         public static DMessege Mess = null;
@@ -185,23 +250,9 @@ namespace LegionKun.Module
 
         public static Discord.Color AdminColor { get; private set; } = Color.Red;
 
-        public static Logger logger { get; private set; } = LogManager.GetCurrentClassLogger(); 
+        private static Thread DownloadetThread = new Thread(DownlodeGuildParams);
 
-        public static async Task<IUserMessage> SendMessageAsync(this IMessageChannel channel, string text, bool isTTS = false, Embed embed = null, uint deleteAfter = 0, RequestOptions options = null)
-        {
-            var message = await channel.SendMessageAsync(text, isTTS, embed, options);
-            if (deleteAfter > 0)
-            {
-                var _ = Task.Run(() => DeleteAfterAsync(message, deleteAfter));
-            }
-            return message;
-        }
-
-        private static async Task DeleteAfterAsync(IUserMessage message, uint deleteAfter)
-        {
-            await Task.Delay(TimeSpan.FromSeconds(deleteAfter));
-            await message.DeleteAsync();
-        }
+        public static Logger logger { get; private set; } = LogManager.GetCurrentClassLogger();
 
         public static void InstallationLists()
         {
@@ -242,126 +293,157 @@ namespace LegionKun.Module
             {
                 if (help.IsOn)
                     ATHelp += $"{i++}: {help.CommandName}\r\n";
-            }           
+            }
 
-            bool result = GuildDowload();
-            Mess($"GuildDowload: {result}");
+            DownloadetThread.Start();
+
+            while (!IsDownloadGuild)
+            {
+
+            }
         }
 
         public static void SetDelegate(DMessege fun)
         {
             Mess = fun;
         }
-         
-        private static bool GuildDowload()
+
+        public static void DownlodeGuildParams()
         {
-            bool result = false;
-            using (StreamReader read = File.OpenText(WiteListGuild))
+            Stopwatch sw = Stopwatch.StartNew();
+            string SqlExpressionCountGuild = "sp_GetCountGuild", 
+                SqlExpressionGuildId = "sp_GetGuildId", 
+                SqlExpressionOwnerId = "sp_GetOwnerId", 
+                SqlExpressionChannelId = "sp_GetChannelId", 
+                SqlExpressionChannelNewsId = "sp_GetChannelNewsId";
+
+            do
             {
-                string strock = "";
-                CDiscord discord = new CDiscord();
-
-                while ((strock = read.ReadLine()) != null)
+                using (SqlConnection connect = new SqlConnection(Base.Resource1.ConnectionKeyTestServer))
                 {
-                    strock.Trim();
-                    if (strock.IndexOf("Name: ") > -1)
+                    try
                     {
-                        Mess?.Invoke($"Name: {strock.Substring("Name: ".Length, strock.Length - "Name: ".Length)}");
-                        discord.Name = strock.Substring("Name: ".Length, strock.Length - "Name: ".Length);
-                    }
-                    else if (strock.IndexOf("Id: ") == 0)
-                    {
-                        //Mess?.Invoke($"{strock.Substring("Id: ".Length, strock.Length - "Id: ".Length)}");
-                        discord.GuildId = Convert.ToUInt64(strock.Substring("Id: ".Length, strock.Length - "Id: ".Length));
-                    }
-                    else if(strock.IndexOf("OwnerId: ") == 0)
-                    {
-                        discord.OwnerId = Convert.ToUInt64(strock.Substring("OwnerId: ".Length, strock.Length - "OwnerId: ".Length));
-                    }
-                    else if (strock.IndexOf("Defaultchannelid: ") > -1)
-                    {
-                        //Mess?.Invoke($"{guild.DefaultChannelId}");
-                        discord.DefaultChannelId = Convert.ToUInt64(strock.Substring("Defaultchannelid: ".Length, strock.Length - "Defaultchannelid: ".Length));
-                    }
-                    else if (strock.IndexOf("Restruction: ") > -1)
-                    {
-                        //Mess?.Invoke($"{guild.Restruction}");
-                        discord.Restruction = Convert.ToInt16(strock.Substring("Restruction: ".Length, strock.Length - "Restruction: ".Length));
-                    }
-                    else if (strock.IndexOf("ChannelNewsId: ") > -1)
-                    {
-                        //Mess?.Invoke($"{guild.DefaultChannelNewsId}");
-                        if (strock != "ChannelNewsId: -")
-                            discord.DefaultChannelNewsId = Convert.ToUInt64(strock.Substring("ChannelNewsId: ".Length, strock.Length - "ChannelNewsId: ".Length));
-                    }
-                    else if(strock.IndexOf("ChannelCommand: ") > -1)
-                    {
-                        discord.DefaultCommandChannel = Convert.ToUInt64(strock.Substring("ChannelCommand: ".Length, strock.Length - "ChannelCommand: ".Length));
-                    }
-                    else if (strock.IndexOf("RolesId: ") > -1)
-                    {
-                        while ((strock = read.ReadLine()) != null)
+                        connect.Open();
+                        List<ulong> ListGuildId = null;
+
+                        using (SqlCommand command = new SqlCommand(SqlExpressionCountGuild, connect){ CommandType = System.Data.CommandType.StoredProcedure })
                         {
-                            strock.Trim();
-                            string[] Role = strock.Split(new string[] { " - " }, StringSplitOptions.None);
+                            int Count = Convert.ToInt32(command.ExecuteScalar());
+                             
+                            ListGuildId = new List<ulong>(Count);
 
-                            if (strock.IndexOf(';') > -1)
+                            command.CommandText = SqlExpressionGuildId;
+                            SqlDataReader reader = command.ExecuteReader();
+
+                            if (reader.HasRows)
                             {
-                                Role[1].Trim(';');
+                                while (reader.Read())
+                                {
+                                    ListGuildId.Add((ulong)reader.GetInt64(0));
+                                }
+                                reader.Close();
                             }
-                            
-                            discord._Role.Add(Convert.ToUInt64(Role[0]), Role[1]);
-                            //Mess?.Invoke($"id: {Convert.ToUInt64(Role[0])}, Name: {Role[1]}");
+                            else throw new Exception($"Ошибка чтения GuildId");
+                        }
 
-                            if (strock.IndexOf(';') > -1)
+                        foreach (ulong key in ListGuildId)
+                        {
+                            try
                             {
-                                break;
+                                using (SqlCommand command = new SqlCommand(SqlExpressionOwnerId, connect) { CommandType = System.Data.CommandType.StoredProcedure })
+                                {
+                                    CDiscord discord = new CDiscord
+                                    {
+                                        GuildId = key
+                                    };
+
+                                    SqlParameter GuildidParameter = new SqlParameter
+                                    {
+                                        ParameterName = "@GuildId",
+                                        DbType = System.Data.DbType.Int64,
+                                        Value = key
+                                    };
+
+                                    command.Parameters.Add(GuildidParameter);
+                                    SqlDataReader reader = command.ExecuteReader();
+
+                                    if (reader.HasRows)
+                                    {
+                                        reader.Read();
+                                        discord.OwnerId = (ulong)reader.GetInt64(0);
+                                        reader.Close();
+                                    }
+                                    else throw new Exception($"Ошибка скачивания id владельца сервера: {key}");
+
+                                    command.CommandText = SqlExpressionChannelId;
+                                    reader = command.ExecuteReader();
+
+                                    if (reader.HasRows)
+                                    {
+                                        reader.Read();
+                                        discord.DefaultChannelId = (ulong)reader.GetInt64(0);
+                                        reader.Close();
+                                    }
+                                    else throw new Exception($"Ошибка скачивания канала по умолчанию сервера: {key}");
+
+                                    command.CommandText = SqlExpressionChannelNewsId;
+                                    reader = command.ExecuteReader();
+
+                                    if (reader.HasRows)
+                                    {
+                                        reader.Read();
+                                        discord.DefaultChannelNewsId = (ulong)reader.GetInt64(0);
+                                        reader.Close();
+                                    }
+                                    else throw new Exception($"Ошибка скачивания канала для новостей по умолчанию сервера: {key}");
+
+                                    if (CServer.ContainsKey(discord.GuildId))
+                                    {
+                                        discord.EndUser = CServer[discord.GuildId].EndUser;
+
+                                        discord.Debug = CServer[discord.GuildId].Debug;
+
+                                        discord.CountRes = CServer[discord.GuildId].CountRes;
+
+                                        discord.IsOn = CServer[discord.GuildId].IsOn;
+
+                                        discord.Trigger = CServer[discord.GuildId].Trigger;
+
+                                        discord.NumberNewUser = CServer[discord.GuildId].NumberNewUser;
+
+                                        CServer.Remove(discord.GuildId);
+                                        CServer.Add(discord.GuildId, discord);
+                                    }
+                                    else CServer.Add(discord.GuildId, discord);
+                                }                                
+                            }
+                            catch (Exception e)
+                            {
+                                logger.Error($"is func 'DownlodeGuildParams() -> download param' is guild: '{key}' is error {e}");
+
+                                if (ThisTest)
+                                    Console.WriteLine($"is func 'DownlodeGuildParams() -> download param' is guild: '{key}' is error {e}");
                             }
                         }
                     }
-                    else if (strock.IndexOf("ChannelsId: ") > -1)
+                    catch (Exception e)
                     {
-                        while ((strock = read.ReadLine()) != null)
-                        {
-                            strock.Trim();
-                            string[] Role = strock.Split(new string[] { " - " }, StringSplitOptions.None);
+                        logger.Error($"is func 'DownlodeGuildParams()' is error {e}");
 
-                            if (strock.IndexOf(';') > -1)
-                            {
-                                Role[1].Trim(';');
-                            }
-                            
-                            discord._Channels.Add(Convert.ToUInt64(Role[0]), Role[1]);
-                            //Mess?.Invoke($"id: {Convert.ToUInt64(Role[0])}, Name: {Role[1]}");
-
-                            if (strock.IndexOf(';') > -1)
-                            {
-                                break;
-                            }
-                        }
-                    }
-                    else if(strock == "------------------------------------------")
-                    {
-                        CServer.Add(discord.GuildId, discord);
-                        Mess?.Invoke($"Guild id: {discord.GuildId}\r\n" +
-                                     $"Default Channel Id: {discord.DefaultChannelId}\r\n" +
-                                     $"Channel News Id: {discord.DefaultChannelNewsId}\r\n" +
-                                     $"Channel Command Id: {discord.DefaultCommandChannel}\r\n" +
-                                     $"Restruction: {discord.Restruction}\r\n" +
-                                     $"RolesId.Count: {discord._Role.Count}\r\n" +
-                                     $"ChannelsId.Count: {discord._Channels.Count}\r\n");
-                        result = true;
-
-                        discord = new CDiscord
-                        {
-                            _Role = new Dictionary<ulong, string>(),
-                            _Channels = new Dictionary<ulong, string>()
-                        };
+                        if (ThisTest)
+                            Console.WriteLine($"is func 'DownlodeGuildParams()' is error {e}");
                     }
                 }
-            }
 
-            return result;
+                sw.Stop();
+                Mess($"DownlodeGuildParams; is time: {sw.Elapsed}");
+                IsDownloadGuild = true;
+
+                Thread.Sleep(900000);
+                Thread.Sleep(900000);
+                Thread.Sleep(900000);
+                Thread.Sleep(900000);
+            } while (true);
         }
-    }
-} 
+    }    
+}

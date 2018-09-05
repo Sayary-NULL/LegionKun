@@ -6,6 +6,7 @@ using Discord.Commands;
 using System.Windows.Forms;
 using LegionKun.Module;
 using Discord.Rest;
+using System.Threading;
 
 /*461284473799966730 - шароновский легион
  *423154703354822668 - [Legion Sharon'a]
@@ -21,10 +22,10 @@ namespace LegionKun
     { 
         static void Main(string[] args)
         {
-            Module.ConstVariables.SetDelegate(new Program().Messege);
+            ConstVariables.SetDelegate(new Program().Messege);
 
-            Module.ConstVariables.InstallationLists();
-
+            ConstVariables.InstallationLists();
+            
             new Program().MainTime();
 
             new Program().Youtube();
@@ -141,7 +142,7 @@ namespace LegionKun
                 case 423154703354822668:
                     {
                         var Guild = ConstVariables.CServer[461284473799966730];
-                        await Guild.GetDefaultChannel().SendMessageAsync($"С сервера [Legion Sharon'a] ушел 1 человек: '{user.Username}#{user.Discriminator}({user.Nickname})'");
+                        await Guild.GetDefaultChannel().SendMessageAsync($"С сервера [Legion Sharon'a] ушел 1 человек: '{user.Username}#{user.Discriminator}{(user.Nickname != null ? $"({user.Nickname})": "")}'");
 
                         builder.WithDescription($"'{user.Username}#{user.Discriminator}' - ушёл в последний бой");
                         builder.WithTitle("Мемориал памяти воинского трибунала");
@@ -237,15 +238,51 @@ namespace LegionKun
                     .WithColor(ConstVariables.InfoColor);
 
                 switch (arg2.Id)
-                {
-                    case 461284473799966730:
+                {    
+                    //[Legion Sharon'a]
+                    case 423154703354822668:
                         {
-                            var Guild = ConstVariables.CServer[461284473799966730];
-                            await Guild.GetDefaultChannel().SendMessageAsync($"На сервере [Legion Sharon'a] был забанен 1 человек: '{arg1.Username}#{arg1.Discriminator}({arg2.GetUser(arg1.Id).Nickname})'");
+                            ConstVariables.CDiscord Guild = ConstVariables.CServer[461284473799966730];
+
+                            SocketGuildUser user = arg2.GetUser(arg1.Id);
+
+                            await Guild.GetDefaultChannel().SendMessageAsync($"На сервере [Legion Sharon'a] был забанен 1 человек: '{arg1.Username}#{arg1.Discriminator}{(user.Nickname != null ? $"({user.Nickname})" : "")}'");
+                            break;
+                        }
+
+                    default:
+                        {
+                            break;
+                        }
+                }
+
+                switch (ran.Next(0, 5))
+                {
+                    case 0:
+                        {
+                            builder.WithImageUrl("https://www.tenor.co/wyBB.gif");
+                            break;
+                        }
+                    case 1:
+                        {
+                            builder.WithImageUrl("https://www.tenor.co/t0WP.gif");
+                            break;
+                        }
+                    case 2:
+                        {
+                            builder.WithImageUrl("https://www.tenor.co/xF6j.gif");
+                            break;
+                        }
+                    case 3:
+                        {
+                            builder.WithImageUrl("https://www.tenor.co/xNYY.gif");
                             break;
                         }
                     default:
-                        break;
+                        {
+                            builder.WithImageUrl("https://cdn.discordapp.com/attachments/462236317926031370/462236494459961344/Katyusha_2.gif");
+                            break;
+                        }
                 }
 
                 if (arg1.IsBot)
@@ -263,15 +300,13 @@ namespace LegionKun
                     ConstVariables.logger.Info($"is func 'Ban' is Guild '{arg2.Name}' is user '{arg1.Username}#{arg1.Discriminator}' is Admin '{banned.User}' is Reason '{banned.Reason}'");
 
                     ConstVariables.CServer[arg2.Id].EndUser = arg1.Id;
-                }
-
-                builder.WithImageUrl("https://cdn.discordapp.com/attachments/462236317926031370/462236494459961344/Katyusha_2.gif");
+                }                
 
                 await guild.GetDefaultChannel().SendMessageAsync("", false, builder.Build());
             }
             catch(Exception e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine("UserBaned" + e);
             }            
         }
 
@@ -279,6 +314,8 @@ namespace LegionKun
         {
             var guild = ConstVariables.CServer[user.Guild.Id];
 
+            RestInviteMetadata rest = null;
+            
             if(guild.Debug)
             {
                 Messege($"Запуск");
@@ -334,6 +371,9 @@ namespace LegionKun
                             }
                             await user.AddRoleAsync(role);
                             addrole = $" add role {role.Name}";
+
+                            builder.AddField("Пользователь давший ссылку", rest.Inviter);
+
                             break;
                         }
                     default: { addrole = " default id:" + user.Guild.Id + " Name:" + user.Guild.Name; break; }
@@ -454,7 +494,7 @@ namespace LegionKun
 
             ConstVariables.CDiscord guild = ConstVariables.CServer[Context.Guild.Id];
 
-            if(Context.Channel.Id == guild.DefaultCommandChannel)
+            if(!guild.IsEntryOrСategoryChannel(Context.Channel.Id, IsCommand: true))
             {
                 return;
             }
@@ -462,7 +502,7 @@ namespace LegionKun
             bool IsRole = false;
 
             foreach (var role in user.Roles)
-                if (guild._Role.ContainsKey(role.Id))
+                if (guild.EntryRole(role.Id))
                 {
                     IsRole = true;
                     break;

@@ -50,14 +50,14 @@ namespace LegionKun.Game.CrossZero
         {
             if (Context.User == User2)
             {
-                await Module.ConstVariables.SendMessageAsync(Context.Channel, "Самим с собой нельзя!", deleteAfter: 5);
+                await Module.OverloadFunc.SendMessageAsync(Context.Channel, "Самим с собой нельзя!", deleteAfter: 5);
 
                 return;
             }
 
             if (User2.IsBot)
             {
-                await Module.ConstVariables.SendMessageAsync(Context.Channel, "C ботом нельзя!", deleteAfter: 5);
+                await Module.OverloadFunc.SendMessageAsync(Context.Channel, "C ботом нельзя!", deleteAfter: 5);
                 return;
             }
 

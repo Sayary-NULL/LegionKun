@@ -5,8 +5,8 @@ using Discord;
 using Discord.Commands;
 using Discord.Addons.Interactive;
 using Discord.WebSocket;
-using System.Data.SqlClient;
 using LegionKun.Attribute;
+using System.Data.SqlClient;
 
 //UCDnNz_stjQqcikCvIF2NTAw - Kanade
 //UCScLnRAwAT2qyNcvaFSFvYA - Sharon
@@ -18,111 +18,59 @@ namespace LegionKun.Tests
     class TestClass : InteractiveBase
     {
         [Command("test")]/*Произведено исправление[100]*/
-        [Alias("задрал!")]
-        public async Task TestAsync(SocketUser text = null)
+        public async Task TestAsync()
         {
-            if(!Module.ConstVariables.ThisTest)
-            {
-                return;
-            }
-            
-            var user = Context.Guild.GetUser(Context.User.Id);
-
-            Module.ConstVariables.CDiscord guild = Module.ConstVariables.CServer[Context.Guild.Id];
-
-            bool IsRole = false;
-
-            foreach (var role in user.Roles)
-                if (guild._Role.ContainsKey(role.Id))
-                {
-                    IsRole = true;
-                    break;
-                }
-
-            if (IsRole)
-            {
-                var mess = await ReplyAsync($"{Context.User.Mention}, :grin:");
-                /*if (text == null)
-                    return;
-                
-                var client = new WebClient();
-                var res = client.DownloadData(text.GetAvatarUrl());
-
-                using (Image<Rgba32> img = new Image<Rgba32>(Configuration.Default, 500, 500, Rgba32.Black))
-                {
-                    int i = 1;
-                    var fam1 = SixLabors.Fonts.SystemFonts.Find("Arial");
-                    
-                    foreach (var fam in SixLabors.Fonts.SystemFonts.Families)
-                    {
-                        if (i < 2)
-                        {
-                            i++;
-                            continue;
-                        }
-
-                        SixLabors.Fonts.Font front = new SixLabors.Fonts.Font(fam, (float)20);
-
-                        img.Mutate(x => x.DrawText(text.Username, front, Rgba32.Pink, new SixLabors.Primitives.PointF(img.Height/2, img.Width/2)));
-                        break;
-                    }
-
-                    await Context.Channel.SendFileAsync(Module.ConstVariables.ToStream(img), $"{text.Username}.jpeg");
-                }*/
-
-                /*using (Image<Rgba32> img = new Image<Rgba32>(500,500))
-                {
-                    var bmp = new Bitmap(Module.ConstVariables.Filed);
-                    MemoryStream memory = new MemoryStream();
-                    bmp.Save(memory, System.Drawing.Imaging.ImageFormat.Png);
-                    var todraw = SixLabors.ImageSharp.Image.Load(memory.ToArray());
-
-
-                    img.Mutate(x => x.DrawImage(GraphicsOptions.Default, Module.ConstVariables.IFiled));
-                    img.Mutate(x => x.DrawImage(GraphicsOptions.Default, Module.ConstVariables.ICross, new SixLabors.Primitives.Point(0,0)));
-                    img.Mutate(x => x.DrawImage(GraphicsOptions.Default, Module.ConstVariables.IZero, new SixLabors.Primitives.Point(170, 0)));
-                    await Context.Channel.SendFileAsync(Module.ConstVariables.ToStream(img), "filed.png");
-                }*/
-            }
-            else await ReplyAsync($"{Context.User.Mention}, :sweat_smile:");
+            var mess = await ReplyAsync($"{Context.User.Mention}, :grin:");            
         }
 
         [Command("connect")]
-        public async Task ConnectAsync(IUser User, [Remainder]string comment = null)
+        [CategoryChannel(IC:true)]
+        public async Task ConnectAsync()
         {
-            //await ConstVariables.SendMessageAsync(Context.Channel, "Заморожено!", deleteAfter: 5);
-            //return;
+            string SqlExpression = "sp_GetUserBaned";
+            string TextRequest = "";
 
-            string Ask;
-
-            if (comment != null)
-                Ask = $"INSERT INTO List_User_Banned (BannedId, AdminId, Comment) VALUES ({User.Id}, {Context.User.Id}, '{comment}')";
-            else Ask = $"INSERT INTO List_User_Banned (BannedId, AdminId) VALUES ({User.Id}, {Context.User.Id})";
-
-            //string Ask = $"UPDATE Users Set Name = '{Context.User.Username}', UserId = {Context.User.Id} WHERE id = 1";
-            //string Ask = "DELETE  FROM Users WHERE Name='Sayary'";
-
-            //string ConnectionKey = Base.Resource1.ConnectionKey;
-
-            string ConnectionKey = @"Data Source=KIRILL\SQL_LEGIONKUN;Initial Catalog=UserBanned;Integrated Security=True";
-
-            using (SqlConnection conect = new SqlConnection(ConnectionKey))
+            using (SqlConnection connect = new SqlConnection(Base.Resource1.ConnectionKeyTestServer))
             {
-                conect.Open();
-                Console.WriteLine("Подключено!");
                 try
                 {
-                    SqlCommand command = new SqlCommand(Ask, conect);
-                    int number = command.ExecuteNonQuery();
-                    await Context.Channel.SendMessageAsync(conect.Database);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.Message);
-                }
-            }
+                    connect.Open();
+                    SqlCommand command = new SqlCommand(SqlExpression, connect)
+                    {
+                        CommandType = System.Data.CommandType.StoredProcedure
+                    };
 
-            Console.WriteLine("Отключено!");
+                    SqlParameter GuildIdParam = new SqlParameter
+                    {
+                        ParameterName = "@GuildId",
+                        DbType = System.Data.DbType.Int64,
+                        Value = Context.Guild.Id
+                    };
+
+                    command.Parameters.Add(GuildIdParam);
+                    
+                    var reader = command.ExecuteReader();
+
+                    if (reader.HasRows)
+                    {
+                        while (reader.Read())
+                        {
+                            ulong BannedId = (ulong)reader.GetInt64(0);
+                            ulong AdminId = (ulong)reader.GetInt64(1);
+                            string Comment = reader.GetString(2);
+
+                            TextRequest += $"**Пользователь:** {Context.Guild.GetUser(BannedId).Mention} **Администратор:** {Context.Guild.GetUser(AdminId).Mention}\r\n Заметка: {Comment}\r\n";
+                        }
+
+                        await ReplyAsync(TextRequest);
+                    }
+                }
+                catch(Exception e)
+                {
+                    Console.WriteLine("Connect: " + e);
+                }
+                
+            }
         }
 
         [Command("start")]
@@ -137,5 +85,5 @@ namespace LegionKun.Tests
                 Console.WriteLine(e);
             }
         }
-    }    
+    }
 }

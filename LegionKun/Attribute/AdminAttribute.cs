@@ -14,7 +14,7 @@ namespace LegionKun.Attribute
             var User = Guild.GetGuild().GetUser(Context.User.Id);
 
             foreach (var role in User.Roles)
-                if (Guild._Role.ContainsKey(role.Id))
+                if (Guild.EntryRole(role.Id))
                 {
                     return Task.FromResult(PreconditionResult.FromSuccess());
                 }

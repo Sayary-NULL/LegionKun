@@ -10,7 +10,7 @@
 
 #pragma warning disable 1591
 
-namespace LegionKun {
+namespace LegionKun.Base {
     
     
     /// <summary>

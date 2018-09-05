@@ -79,6 +79,15 @@ namespace LegionKun.Base {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Data Source=KIRILL\SQL_LEGIONKUN;Initial Catalog=TestServer;Integrated Security=True; User Id = LegeonKun; Password = Kun73$Kanti//.
+        /// </summary>
+        internal static string ConnectionKeyTestServer {
+            get {
+                return ResourceManager.GetString("ConnectionKeyTestServer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на NDU4Mjc2NjM2MDY0ODc0NDk3.DhZByw.dBlIP1itXd7XOjmVe59drPhkB7o.
         /// </summary>
         internal static string TestBotToken {

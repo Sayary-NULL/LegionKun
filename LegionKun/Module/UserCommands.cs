@@ -398,7 +398,7 @@ namespace LegionKun.Module
                 return;
             }
 
-            if ((count <= 0) && (count > 100))
+            if ((count <= 0) || (count > 100))
                 return;
 
             Random ran = new Random();
@@ -735,27 +735,14 @@ namespace LegionKun.Module
 
             await Context.Channel.SendMessageAsync($"{Context.User.Mention}, пинг составляет: {(int)sw.Elapsed.TotalMilliseconds}ms").ConfigureAwait(false);
         }
-
-        [Command("ban")]
-        [Admin]
-        public async Task BanAsync(SocketUser user)
-        {
-            if (!(await Access("ban")))
-            {
-                return;
-            }
-
-            EmbedBuilder builder = new EmbedBuilder();
-
-            builder.WithTitle("Очередь в бан")
-                .WithDescription($"Пользователь {user.Mention} добавлен в список на скорую блокировку")
-                .WithFooter(Context.Guild.Name, Context.Guild.IconUrl);
-
-            await ReplyAsync("", embed: builder.Build());
-
-            ConstVariables.logger.Info($"is guild '{Context.Guild.Name}' is command 'ban' is channel '{Context.Channel.Name}' is user '{Context.User.Username}'");
-        }
          
+        [Command("message")]
+        [Tests]
+        public async Task MessageInfoAsync(ulong id)
+        {
+
+        }
+
         [Command("report")]
         public async Task ReportAsync(string command, [Remainder]string text)
         {
@@ -799,7 +786,7 @@ namespace LegionKun.Module
             bool IsRole = false;
 
             foreach (var role in user.Roles)
-                if (guild._Role.ContainsKey(role.Id))
+                if (guild.EntryRole(role.Id))
                 {
                     IsRole = true;
                     break;

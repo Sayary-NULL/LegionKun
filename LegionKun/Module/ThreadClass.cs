@@ -78,7 +78,7 @@ namespace LegionKun.Module
             {
                 return;
             }
-
+           
             while(ConstVariables._Client.ConnectionState != ConnectionState.Connected)
             {
             }
@@ -145,7 +145,7 @@ namespace LegionKun.Module
                     if (ConstVariables.ThisTest)
                     {
                         ConstVariables.CDiscord guild = ConstVariables.CServer[435485527156981770];
-                        SocketTextChannel channel = guild.GetDefaultChannel();
+                        SocketTextChannel channel = guild.GetGuild().GetTextChannel(444152623319482378);
 
                         await channel.SendMessageAsync("", embed: Live.Build());
 
@@ -163,28 +163,44 @@ namespace LegionKun.Module
                     {
                         foreach (var key in ConstVariables.CServer)
                         {
-                            SocketTextChannel channel = null;
-                            if (key.Value.DefaultChannelNewsId == 0)
+                            try
                             {
-                                channel = key.Value.GetDefaultChannel();
-                            }
-                            else channel = key.Value.GetDefaultNewsChannel();
+                                SocketTextChannel channel = null;
+                                if (key.Value.DefaultChannelNewsId == 0)
+                                {
+                                    channel = key.Value.GetDefaultChannel();
+                                }
+                                else channel = key.Value.GetGuild().GetTextChannel(key.Value.DefaultChannelNewsId);
 
-                            if ((SharonResponse.Items.Count != 0) && (ConstVariables.Video1Id != SharoHH.Id.VideoId))
+                                if ((SharonResponse.Items.Count != 0) && (ConstVariables.Video1Id != SharoHH.Id.VideoId))
+                                {
+                                    await key.Value.GetDefaultNewsChannel().SendMessageAsync("@here", embed: Live.Build());
+                                    await key.Value.GetDefaultNewsChannel().SendMessageAsync("https://www.youtube.com/video/" + SharoHH.Id.VideoId);
+                                }
+
+                                if ((DejzResponse.Items.Count != 0) && (ConstVariables.Video2Id != Dejz.Id.VideoId))
+                                {
+                                    await key.Value.GetDefaultNewsChannel().SendMessageAsync("@here", embed: Live.Build());
+                                    await key.Value.GetDefaultNewsChannel().SendMessageAsync("https://www.youtube.com/video/" + Dejz.Id.VideoId);
+                                }
+
+                                ConstVariables.logger.Info($"is guild {key.Value.Name} is channel {channel.Name}");
+                            }
+                            catch(Exception e)
                             {
-                                await key.Value.GetDefaultNewsChannel().SendMessageAsync("", embed: Live.Build());
-                                await key.Value.GetDefaultNewsChannel().SendMessageAsync("https://www.youtube.com/video/" + SharoHH.Id.VideoId);
-                                ConstVariables.Video1Id = SharoHH.Id.VideoId;
+                                ConstVariables.logger.Info($"is guild {key.Value.Name} is error {e}");
+                                ConstVariables.Mess($"Youtube: is guild: {key.Key} {e}");
                             }
+                        }
 
-                            if ((DejzResponse.Items.Count != 0) && (ConstVariables.Video2Id != Dejz.Id.VideoId))
-                            {
-                                await key.Value.GetDefaultNewsChannel().SendMessageAsync("", embed: Live.Build());
-                                await key.Value.GetDefaultNewsChannel().SendMessageAsync("https://www.youtube.com/video/" + Dejz.Id.VideoId);
-                                ConstVariables.Video2Id = Dejz.Id.VideoId;
-                            }
+                        if((SharonResponse.Items.Count != 0) && (ConstVariables.Video1Id != SharoHH.Id.VideoId))
+                        {
+                            ConstVariables.Video1Id = SharoHH.Id.VideoId;
+                        }
 
-                            ConstVariables.logger.Info($"is guild {key.Value.Name} is channel {channel.Name}");
+                        if ((DejzResponse.Items.Count != 0) && (ConstVariables.Video2Id != Dejz.Id.VideoId))
+                        {
+                            ConstVariables.Video2Id = Dejz.Id.VideoId;
                         }
                     }
                 }

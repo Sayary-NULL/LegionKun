@@ -124,6 +124,9 @@
     <value>Data Source=KIRILL\SQL_LEGIONKUN;Initial Catalog=UserBanned;Integrated Security=True</value>
     <comment>строка подключения к БД</comment>
   </data>
+  <data name="ConnectionKeyTestServer" xml:space="preserve">
+    <value>Data Source=KIRILL\SQL_LEGIONKUN;Initial Catalog=TestServer;Integrated Security=True; User Id = LegeonKun; Password = Kun73$Kanti//</value>
+  </data>
   <data name="TestBotToken" xml:space="preserve">
     <value>NDU4Mjc2NjM2MDY0ODc0NDk3.DhZByw.dBlIP1itXd7XOjmVe59drPhkB7o</value>
     <comment>Токен тестового бота</comment>

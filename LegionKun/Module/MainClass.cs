@@ -59,7 +59,7 @@ namespace LegionKun.Module
                 }
             }
 
-            if (((guild._Channels.ContainsKey(channel.Id)) || (guild._Channels.Count == 0)) && (!Context.User.IsBot))
+            if (((guild.IsEntryOrСategoryChannel(channel.Id)) && (!Context.User.IsBot)) || ConstVariables.ThisTest)
             {
                 if ((mess == "спокойной ночи") || (mess == "я спать"))
                 {
@@ -176,9 +176,10 @@ namespace LegionKun.Module
                     ConstVariables.CServer[Context.Guild.Id].Trigger = true;
                     new Program().OneMin(Context.Guild.Id);
                 }
-                else if ((mess.IndexOf("Sayary") > -1) || (mess.IndexOf("Сайяри") > -1))
+                else if ((mess.IndexOf("в чем смысл жизни?") > -1) && MentionUser(Context, ConstVariables._Client.CurrentUser.Id))
                 {
-
+                   await Context.Channel.SendMessageAsync("Смысл жизни: 42");
+                    IsTrigger = true;
                 }
 
                 if (IsTrigger)

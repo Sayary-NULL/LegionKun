@@ -18,9 +18,15 @@ namespace LegionKun.Tests
     class TestClass : InteractiveBase
     {
         [Command("test")]/*Произведено исправление[100]*/
-        public async Task TestAsync()
+        public async Task TestAsync([Remainder]string URL)
         {
-            var mess = await ReplyAsync($"{Context.User.Mention}, :grin:");            
+            EmbedBuilder builder = new EmbedBuilder();
+
+            builder.WithImageUrl(URL);
+
+            //var mess = await ReplyAsync($"{Context.User.Mention}, :grin:");
+
+            await Context.Channel.SendMessageAsync("", false, builder.Build());
         }
 
         [Command("connect")]
@@ -73,17 +79,10 @@ namespace LegionKun.Tests
             }
         }
 
-        [Command("start")]
-        public async Task Async(IGuildUser user)
+        [Command("stop")]
+        public async Task StopAsync()
         {
-            try
-            {
-                await user.ModifyAsync(u => u.Nickname = "string").ConfigureAwait(false);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
+            await Module.ConstVariables._Client.StopAsync();
         }
     }
 }

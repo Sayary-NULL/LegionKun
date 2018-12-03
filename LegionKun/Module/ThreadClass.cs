@@ -184,11 +184,11 @@ namespace LegionKun.Module
                                     await key.Value.GetDefaultNewsChannel().SendMessageAsync("https://www.youtube.com/video/" + Dejz.Id.VideoId);
                                 }
 
-                                ConstVariables.logger.Info($"is guild {key.Value.Name} is channel {channel.Name}");
+                                //ConstVariables.logger.Info($"is guild {key.Value.Name} is channel {channel.Name}");
                             }
                             catch(Exception e)
                             {
-                                ConstVariables.logger.Info($"is guild {key.Value.Name} is error {e}");
+                                ConstVariables.logger.Error($"is guild {key.Value.Name} is error {e}");
                                 ConstVariables.Mess($"Youtube: is guild: {key.Key} {e}");
                             }
                         }

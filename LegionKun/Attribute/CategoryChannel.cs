@@ -10,11 +10,9 @@ namespace LegionKun.Attribute
 {
     class CategoryChannel : PreconditionAttribute
     {
-        bool IsDefault = false;
-
-        bool IsNews = false;
-
-        bool IsCommand = false;
+        readonly bool IsDefault = false;
+        readonly bool IsNews = false;
+        readonly bool IsCommand = false;
 
         public CategoryChannel(bool ID = false, bool IN = false, bool IC = false)
         {
@@ -29,11 +27,8 @@ namespace LegionKun.Attribute
                 return Task.FromResult(PreconditionResult.FromError("Не найдена гильдия"));
 
             if (ConstVariables.CServer[Context.Guild.Id].IsEntryOrСategoryChannel(Context.Channel.Id, IsDefault, IsNews, IsCommand))
-            {
-                Console.WriteLine("start");
                 return Task.FromResult(PreconditionResult.FromSuccess());
-            }
-
+            
             return Task.FromResult(PreconditionResult.FromError($"Не найден или отсутствует данная категория"));
         }
     }

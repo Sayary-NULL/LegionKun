@@ -178,7 +178,7 @@ namespace LegionKun.Module
         }
 
         [Command("roleinfo")]
-        [Priority(0)]
+        [Priority(0), CategoryChannel(IC:true)]
         public async Task RoleIhfoAsync()
         {
             if (!(await Access("roleinfo")))
@@ -269,7 +269,7 @@ namespace LegionKun.Module
         }
 
         [Command("roleinfo")]
-        [Priority(1)]
+        [Priority(1), CategoryChannel(IC: true)]
         public async Task InfoRoleAsync([Remainder]string message)
         {
             if (!(await Access("roleinfo")))
@@ -329,7 +329,7 @@ namespace LegionKun.Module
         }
 
         [Command("roleinfo")]
-        [Priority(2)]
+        [Priority(2), CategoryChannel(IC: true)]
         public async Task RoleInfoAsync(SocketRole Role)
         {
             if (!(await Access("roleinfo")))
@@ -418,7 +418,7 @@ namespace LegionKun.Module
             ConstVariables.logger.Info($"is Guid '{Context.Guild.Name}' is command 'coin' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
         }
 
-        [Command("search")]
+        [Command("search"), CategoryChannel(IC: true)]
         public async Task SearchAsync([Remainder]string video)
         {
             if (!(await Access("search")))
@@ -480,7 +480,8 @@ namespace LegionKun.Module
                     return;
                 }
 
-                ConstVariables.Perevorot = true;
+                if(!(Context.User.Id == ConstVariables.CreatorId))
+                    ConstVariables.Perevorot = true;
 
                 DateTimeOffset time = Context.Message.CreatedAt;
 
@@ -511,12 +512,13 @@ namespace LegionKun.Module
 
                 await ReplyAndDeleteAsync("Тихо! Об этом никто не должен знать!", timeout: TimeSpan.FromSeconds(5));
 
+                await Context.Message.DeleteAsync();
+
                 ConstVariables.logger.Info($"is Guid '{Context.Guild.Name}' is command 'perevorot' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
             }
-
         }
 
-        [Command("userinfo")]
+        [Command("userinfo"), CategoryChannel(IC: true)]
         public async Task UserInfoAsync(IGuildUser user = null)
         {
             if (!(await Access("userinfo")))
@@ -576,7 +578,7 @@ namespace LegionKun.Module
             ConstVariables.logger.Info($"is Guid '{Context.Guild.Name}' is command 'userinfo' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
         }
 
-        [Command("serverinfo")]
+        [Command("serverinfo"), CategoryChannel(IC: true)]
         public async Task ServerInfoAsync()
         {
             if (!await Access("serverinfo"))
@@ -620,7 +622,7 @@ namespace LegionKun.Module
             ConstVariables.logger.Info($"is Guid '{Context.Guild.Name}' is command 'perevorot' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
         }
 
-        [Command("ctinfo")]
+        [Command("ctinfo"), CategoryChannel(IC: true)]
         public async Task CTIhfoAsync()
         {
             if (!(await Access("ctinfo")))
@@ -675,7 +677,7 @@ namespace LegionKun.Module
 
         }
 
-        [Command("cvinfo")]
+        [Command("cvinfo"), CategoryChannel(IC: true)]
         public async Task CVIhfoAsync()
         {
             if (!(await Access("cvinfo")))
@@ -718,7 +720,7 @@ namespace LegionKun.Module
             await Context.Channel.SendMessageAsync("", false, builder.Build());
         }
 
-        [Command("ping")]
+        [Command("ping"), CategoryChannel(IC: true)]
         public async Task PingAsync()
         {
             if (!(await Access("ping")))
@@ -736,14 +738,7 @@ namespace LegionKun.Module
             await Context.Channel.SendMessageAsync($"{Context.User.Mention}, пинг составляет: {(int)sw.Elapsed.TotalMilliseconds}ms").ConfigureAwait(false);
         }
          
-        [Command("message")]
-        [Tests]
-        public async Task MessageInfoAsync(ulong id)
-        {
-
-        }
-
-        [Command("report")]
+        [Command("report"), CategoryChannel(IC: true)]
         public async Task ReportAsync(string command, [Remainder]string text)
         {
             if (!(await Access("report")))
@@ -771,7 +766,7 @@ namespace LegionKun.Module
             ConstVariables.logger.Info($"is Guid '{Context.Guild.Name}' is command 'report' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
         }
 
-        [Command("help")]
+        [Command("help"), CategoryChannel(IC: true)]
         public async Task HelpAsync()
         {
             if (!(await Access("help")))

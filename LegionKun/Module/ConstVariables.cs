@@ -149,6 +149,8 @@ namespace LegionKun.Module
 
         public static Dictionary<ulong, ulong> DMessage = new Dictionary<ulong, ulong>();
 
+        public static Dictionary<char, char> Code = new Dictionary<char, char>();
+
         public static List<Commands> UserCommand { get; private set; } = new List<Commands>()
         {
             //UserCommands
@@ -161,8 +163,8 @@ namespace LegionKun.Module
             new Commands( "search" , "search [Seearch text]", true),
             new Commands( "userinfo" , "userinfo <User Mention>", true),
             new Commands( "serverinfo" , "serverinfo", true),
-            new Commands( "ctinfo" , "ctinfo", true),
-            new Commands( "cvinfo" , "cvinfo", true),
+            new Commands( "ctinfo" , "ctinfo", false),
+            new Commands( "cvinfo" , "cvinfo", false),
             new Commands( "ping" , "ping", true),
             new Commands( "ban" , "ban [User Mention]", false),
             new Commands( "report" , "report [Name Command] [report text]", true),
@@ -208,6 +210,8 @@ namespace LegionKun.Module
             public static Emoji EReturn = new Emoji("🔄");
 
             public static Emoji EDelete = new Emoji("❎");
+
+            public static Emoji ERemuv = new Emoji("💢");
         }
 
         public static ulong CreatorId { get; private set; } = 329653972728020994;
@@ -256,7 +260,7 @@ namespace LegionKun.Module
 
         public static void InstallationLists()
         {
-            if(ThisTest)
+            if (ThisTest)
             {
                 WiteListGuild = @"C:\Users\shlia\source\repos\LegionKun\LegionKun\Base\WiteListGuild.txt";
                 Filed = @"C:\Users\shlia\source\repos\LegionKun\LegionKun\Base\filed.jpg";
@@ -282,17 +286,98 @@ namespace LegionKun.Module
             _GameService = new ServiceCollection().AddSingleton(_Client).AddSingleton(_GameCommand).AddSingleton<InteractiveService>().BuildServiceProvider();
 
             int i = 1;
-            foreach(var help in UserCommand)
+            foreach (var help in UserCommand)
             {
                 if (help.IsOn)
                     UTHelp += $"{i++}: {help.CommandName}\r\n";
             }
 
             i = 1;
-            foreach(var help in AdminCommand)
+            foreach (var help in AdminCommand)
             {
                 if (help.IsOn)
                     ATHelp += $"{i++}: {help.CommandName}\r\n";
+            }
+
+            {
+                //1
+                Code.Add('q', 'й');
+                Code.Add('w', 'ц');
+                Code.Add('e', 'у');
+                Code.Add('r', 'к');
+                Code.Add('t', 'е');
+                Code.Add('y', 'н');
+                Code.Add('u', 'г');
+                Code.Add('i', 'ш');
+                Code.Add('o', 'щ');
+                Code.Add('p', 'з');
+                Code.Add('[', 'х');
+                Code.Add(']', 'ъ');
+                //2
+                Code.Add('a', 'ф');
+                Code.Add('s', 'ы');
+                Code.Add('d', 'в');
+                Code.Add('f', 'а');
+                Code.Add('g', 'п');
+                Code.Add('h', 'р');
+                Code.Add('j', 'о');
+                Code.Add('k', 'л');
+                Code.Add('l', 'д');
+                Code.Add(';', 'ж');
+                Code.Add('\'', 'э');
+                //3
+                Code.Add('z', 'я');
+                Code.Add('x', 'ч');
+                Code.Add('c', 'с');
+                Code.Add('v', 'м');
+                Code.Add('b', 'и');
+                Code.Add('n', 'т');
+                Code.Add('m', 'ь');
+                Code.Add(',', 'б');
+                Code.Add('.', 'ю');
+                Code.Add('/', '.');
+                Code.Add('`', 'ё');
+                //+shift
+                //1
+                Code.Add('Q', 'й');
+                Code.Add('W', 'ц');
+                Code.Add('E', 'у');
+                Code.Add('R', 'к');
+                Code.Add('T', 'е');
+                Code.Add('Y', 'н');
+                Code.Add('U', 'г');
+                Code.Add('I', 'ш');
+                Code.Add('O', 'щ');
+                Code.Add('P', 'з');
+                Code.Add('{', 'Х');
+                Code.Add('}', 'Ъ');
+                //2
+                Code.Add('A', 'Ф');
+                Code.Add('S', 'Ы');
+                Code.Add('D', 'В');
+                Code.Add('F', 'А');
+                Code.Add('G', 'П');
+                Code.Add('H', 'Р');
+                Code.Add('J', 'О');
+                Code.Add('K', 'Л');
+                Code.Add('L', 'Д');
+                Code.Add(':', 'Ж');
+                Code.Add('\"', 'Э');
+                //3
+                Code.Add('Z', 'Я');
+                Code.Add('X', 'Ч');
+                Code.Add('C', 'С');
+                Code.Add('V', 'М');
+                Code.Add('B', 'И');
+                Code.Add('N', 'Т');
+                Code.Add('M', 'Ь');
+                Code.Add('<', 'Б');
+                Code.Add('>', 'Ю');
+                Code.Add('?', ',');
+                Code.Add('~', 'Ё');
+                //
+                Code.Add('&', '?');
+                Code.Add(' ', ' ');
             }
 
             DownloadetThread.Start();
@@ -310,7 +395,6 @@ namespace LegionKun.Module
 
         public static void DownlodeGuildParams()
         {
-            Stopwatch sw = Stopwatch.StartNew();
             string SqlExpressionCountGuild = "sp_GetCountGuild", 
                 SqlExpressionGuildId = "sp_GetGuildId", 
                 SqlExpressionOwnerId = "sp_GetOwnerId", 
@@ -319,6 +403,7 @@ namespace LegionKun.Module
 
             do
             {
+                Stopwatch sw = Stopwatch.StartNew();
                 using (SqlConnection connect = new SqlConnection(Base.Resource1.ConnectionKeyTestServer))
                 {
                     try

@@ -19,29 +19,29 @@ using System.Threading;
 namespace LegionKun
 {
     public class Program : Module.MainClass
-    { 
+    {
         static void Main(string[] args)
         {
             ConstVariables.SetDelegate(new Program().Messege);
 
             ConstVariables.InstallationLists();
-            
+
             new Program().MainTime();
 
             new Program().Youtube();
 
             int i = 0;
-           
+
             do
             {
-                ConstVariables.logger.Info(i == 0 ? "Запуск программы":"Повторный запуск программы");
+                ConstVariables.logger.Info(i == 0 ? "Запуск программы" : "Повторный запуск программы");
 
                 i = 1;
                 try
                 {
                     new Program().RunBotAsync().GetAwaiter().GetResult();
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     Console.WriteLine(e);
                 }
@@ -50,7 +50,7 @@ namespace LegionKun
         }
 
         private async Task RunBotAsync()
-        { 
+        {
             Module.ConstVariables._Client.Log += Log;
 
             Module.ConstVariables._Client.MessageReceived += MessageRec;
@@ -61,8 +61,8 @@ namespace LegionKun
 
             Module.ConstVariables._Client.UserUnbanned += UserUnbaned;
 
-            Module.ConstVariables._Client.UserUpdated += UserUp;
-            
+            //Module.ConstVariables._Client.UserUpdated += UserUp;
+
             Module.ConstVariables._Client.UserLeft += UserLeft;
 
             Module.ConstVariables._Client.ReactionAdded += AddReaction;
@@ -102,12 +102,98 @@ namespace LegionKun
                 return;
             }
 
+            var mess = await channel.GetMessageAsync(message.Id);
+            IUserMessage Mess1 = mess as IUserMessage;
+
             if ((reaction.Emote.Name == ConstVariables.DEmoji.EDelete.Name) && (reaction.UserId == ConstVariables.CreatorId))
             {
-                var mess = await channel.GetMessageAsync(message.Id);
                 await mess.DeleteAsync();
 
                 ConstVariables.logger.Info($"is grout 'automatic' is func 'AddReaction' is punkt 'delete message' is guild '--' is channel '{channel.Name}' is user '{reaction.User.Value.Username}#{reaction.User.Value.Discriminator}'");
+            }
+            else if (reaction.Emote.Name == ConstVariables.DEmoji.ERemuv.Name)
+            {
+                foreach (var react in Mess1.Reactions)
+                {
+                    if (react.Key.Name == ConstVariables.DEmoji.ERemuv.Name)
+                        if (react.Value.ReactionCount > 1)
+                            return;
+                        else break;
+                }
+
+                String str = mess.Content,
+                    copy = "";
+                int index = 0;
+
+                while (str[index] == '<' && (str[index + 1] == '!' || str[index + 1] == '@'))
+                {
+                    bool isflag = false;
+                    for (; index < str.Length; index++)
+                        if (str[index] == '>')
+                            break;
+                    index++;
+                    for (; index < str.Length; index++)
+                    {
+                        if (str[index] == ' ' || str[index] == '?')
+                            continue;
+                        if (str[index] == '<' && (str[index + 1] == '!' || str[index + 1] == '@'))
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            isflag = true;
+                            break;
+                        }
+                    }
+
+                    if (isflag)
+                        break;
+                }
+
+                for (int i = 0; i < index; i++)
+                    if (str[i] != '?')
+                        copy += str[i];
+                    else copy += ',';
+
+                try
+                {
+                    for (; index < str.Length; index++)
+                    {
+                        if (str[index] == '<' && str[index + 1] == ':')
+                        {
+                            while (str[index] != '>')
+                            {
+                                copy += str[index];
+                                index++;
+                                if (index == str.Length)
+                                    break;
+                            }
+                            copy += str[index];
+                            index++;
+                        }
+                        if (index == str.Length)
+                            break;
+                        if (ConstVariables.Code.ContainsKey(str[index]))
+                            copy += ConstVariables.Code[str[index]];
+                        else copy += str[index];
+                    }
+
+                    EmbedBuilder builder = new EmbedBuilder();
+
+                    builder.WithColor(ConstVariables.UserColor);
+                    builder.WithDescription(copy);
+                    builder.WithAuthor(mess.Author);
+                    builder.WithTimestamp(mess.CreatedAt);
+
+                    await channel.SendMessageAsync("", false, builder.Build());
+
+                    ConstVariables.logger.Info($"is grout 'automatic' is func 'AddReaction' is punkt 'remuv' is guild '--' is channel '{channel.Name}' is user '{reaction.User.Value.Username}#{reaction.User.Value.Discriminator}'");
+                }
+                catch (Exception e)
+                {
+                    ConstVariables.logger.Error($"ошибка в переводе: {e}");
+                }
             }
         }
 
@@ -161,9 +247,9 @@ namespace LegionKun
             await guild.GetDefaultChannel().SendMessageAsync("", false, builder.Build());
         }
 
-        private async Task UserUp(SocketUser arg1, SocketUser arg2)
+        /*private async Task UserUp(SocketUser arg1, SocketUser arg2)
         {
-            if((arg1.Username == arg2.Username) || (arg1.Id == 356145518444806144) || (arg1.IsBot))
+            if ((arg1.Username == arg2.Username) || (arg1.Id == 356145518444806144) || (arg1.IsBot))
             {
                 return;
             }
@@ -173,14 +259,14 @@ namespace LegionKun
             builder.WithDescription($"Пользователь: {arg1.Username}. Сменил имя на: {arg2.Username}")
                 .WithTitle("Пользователь обновлен");
 
-            foreach(var guild in ConstVariables._Client.Guilds)
+            foreach (var guild in ConstVariables._Client.Guilds)
             {
-                if(guild.Id == 461284473799966730)
+                if (guild.Id == 461284473799966730)
                 {
                     continue;
                 }
 
-                if((guild.GetUser(arg2.Id) != null))
+                if (guild.GetUser(arg2.Id) != null)
                 {
                     var dguild = ConstVariables.CServer[guild.Id];
 
@@ -191,7 +277,7 @@ namespace LegionKun
             }
 
             ConstVariables.logger.Info($"is func 'UserUp' is user  1:'{arg1.Username}#{arg1.Discriminator}'; 2:'{arg2.Username}#{arg2.Discriminator}';");
-        }
+        }*/
 
         private async Task UserUnbaned(SocketUser arg1, SocketGuild arg2)
         {
@@ -260,27 +346,22 @@ namespace LegionKun
                 {
                     case 0:
                         {
-                            builder.WithImageUrl("https://www.tenor.co/wyBB.gif");
+                            builder.WithImageUrl("https://media.discordapp.net/attachments/462236317926031370/517352024640323584/ban_2.gif");
                             break;
                         }
                     case 1:
                         {
-                            builder.WithImageUrl("https://www.tenor.co/t0WP.gif");
+                            builder.WithImageUrl("https://media.discordapp.net/attachments/462236317926031370/517352068328194059/ban_3.gif?width=405&height=475");
                             break;
                         }
                     case 2:
                         {
-                            builder.WithImageUrl("https://www.tenor.co/xF6j.gif");
-                            break;
-                        }
-                    case 3:
-                        {
-                            builder.WithImageUrl("https://www.tenor.co/xNYY.gif");
+                            builder.WithImageUrl("https://media.discordapp.net/attachments/462236317926031370/517352083226230794/ban_1.gif");
                             break;
                         }
                     default:
                         {
-                            builder.WithImageUrl("https://cdn.discordapp.com/attachments/462236317926031370/462236494459961344/Katyusha_2.gif");
+                            builder.WithImageUrl("https://media.discordapp.net/attachments/462236317926031370/464149984619528193/tumblr_oda2o7m3NR1tydz8to1_500.gif");
                             break;
                         }
                 }
@@ -313,8 +394,6 @@ namespace LegionKun
         private async Task Userjoin(SocketGuildUser user)
         {
             var guild = ConstVariables.CServer[user.Guild.Id];
-
-            RestInviteMetadata rest = null;
             
             if(guild.Debug)
             {
@@ -353,7 +432,7 @@ namespace LegionKun
                             var role = user.Guild.GetRole(435486930885672970);
                             if (role == null)
                             {
-                                await guild.GetDefaultChannel().SendMessageAsync("Такой роли не существет!");
+                                ConstVariables.logger.Error("Роль не найдена! 435486930885672970");
                                 break;
                             }
                             await user.AddRoleAsync(role);
@@ -366,14 +445,11 @@ namespace LegionKun
                             var role = user.Guild.GetRole(463829025169604630);
                             if(role == null)
                             {
-                                await guild.GetDefaultChannel().SendMessageAsync("Такой роли не существет!");
+                                ConstVariables.logger.Error("Роль не найдена! 463829025169604630");
                                 break;
                             }
                             await user.AddRoleAsync(role);
                             addrole = $" add role {role.Name}";
-
-                            builder.AddField("Пользователь давший ссылку", rest.Inviter);
-
                             break;
                         }
                     default: { addrole = " default id:" + user.Guild.Id + " Name:" + user.Guild.Name; break; }
@@ -397,6 +473,8 @@ namespace LegionKun
             ConstVariables.CServer[user.Guild.Id].NumberNewUser++;
 
             builder.WithFooter($"Вы {guild.NumberNewUser} который к нам сегодня зашел. Сегодня на сервере {user.Guild.MemberCount} пользователей", user.Guild.IconUrl);
+
+            builder.WithImageUrl("https://media.discordapp.net/attachments/462236317926031370/517355054341292032/hi.gif");
 
             await guild.GetDefaultChannel().SendMessageAsync("", false, builder.Build());
         }

@@ -67,6 +67,21 @@ namespace LegionKun.Module
 
                         break;
                     }
+                case 3:
+                    {
+                        EmbedBuilder builder = new EmbedBuilder();
+                        builder.WithTitle("!!!Внимание!!!").WithDescription("бот будет выключен на обновление :stuck_out_tongue_winking_eye:").WithColor(Discord.Color.Magenta);
+                        foreach (var key in Module.ConstVariables.CServer)
+                        {
+                            ConstVariables.CServer[key.Key].IsOn = true;
+                        }
+
+                        var result = await ConstVariables.CServer[Context.Guild.Id].GetDefaultChannel().SendMessageAsync("", false, builder.Build());
+                        IEmote em = new Emoji("😜");
+                        await result.AddReactionAsync(em);
+
+                        break;
+                    }
                 default: { break; }
             }
 
@@ -134,6 +149,22 @@ namespace LegionKun.Module
                         {
                             ConstVariables.CServer[key.Key].IsOn = true;
                         }
+                        break;
+                    }
+                case 3:
+                    {
+                        EmbedBuilder builder = new EmbedBuilder();
+                        builder.WithTitle("Ура").WithDescription("Я снова в строю").WithColor(Discord.Color.Magenta);
+
+                        foreach (var key in Module.ConstVariables.CServer)
+                        {
+                            ConstVariables.CServer[key.Key].IsOn = true;
+                        }
+
+                        var result = await ConstVariables.CServer[Context.Guild.Id].GetDefaultChannel().SendMessageAsync("", false, builder.Build());
+                        IEmote em = new Emoji("💗");
+                        await result.AddReactionAsync(em);
+
                         break;
                     }
                 default: { break; }
@@ -632,6 +663,8 @@ namespace LegionKun.Module
         public async Task InfoServerAsync()
         {
             ConstVariables.CServer[Context.Guild.Id].ServerInfo(Context.Channel);
+
+            await Context.Channel.SendMessageAsync("Ok");
         }
     }
 }

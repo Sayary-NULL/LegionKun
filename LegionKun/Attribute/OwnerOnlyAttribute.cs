@@ -17,8 +17,6 @@ namespace LegionKun.Attribute
                 return Task.FromResult(PreconditionResult.FromSuccess());
             }
 
-            Module.OverloadFunc.SendMessageAsync(Context.Channel, "Ошибка доступа!", deleteAfter: 5).GetAwaiter();
-
             return Task.FromResult(PreconditionResult.FromError("Ошибка доступа"));
         }
     }

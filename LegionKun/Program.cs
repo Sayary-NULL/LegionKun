@@ -30,23 +30,16 @@ namespace LegionKun
 
             new Program().Youtube();
 
-            int i = 0;
-
-            do
+            try
             {
-                ConstVariables.logger.Info(i == 0 ? "Запуск программы" : "Повторный запуск программы");
+                new Program().RunBotAsync().GetAwaiter().GetResult();
+            }
+            catch (Exception e)
+            {
+                ConstVariables.logger.Error(e.Message);
+            }
 
-                i = 1;
-                try
-                {
-                    new Program().RunBotAsync().GetAwaiter().GetResult();
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                }
-
-            } while (MessageBox.Show(null, "Повторный запуск?", "Сообщение", MessageBoxButtons.YesNo, MessageBoxIcon.Asterisk) != DialogResult.No);
+            Console.ReadKey();
         }
 
         private async Task RunBotAsync()
@@ -61,11 +54,17 @@ namespace LegionKun
 
             Module.ConstVariables._Client.UserUnbanned += UserUnbaned;
 
-            //Module.ConstVariables._Client.UserUpdated += UserUp;
-
             Module.ConstVariables._Client.UserLeft += UserLeft;
 
             Module.ConstVariables._Client.ReactionAdded += AddReaction;
+
+            Module.ConstVariables._Client.MessageUpdated += MessageUpdate;
+
+            Module.ConstVariables._Client.Ready += BotReady;
+
+            Module.ConstVariables._Client.Disconnected += BotDisconnected;
+
+            Module.ConstVariables._Client.Connected += BotConnected;
 
             await Module.ConstVariables._Client.SetGameAsync("sh!help");
 
@@ -93,6 +92,33 @@ namespace LegionKun
             await Module.ConstVariables._Client.StartAsync();
 
             await Task.Delay(-1);
+        }
+
+        private Task BotConnected()
+        {
+            Messege("Bot: Connected!");
+
+            ConstVariables.logger.Info("Bot: Connected!");
+
+            throw new NotImplementedException();
+        }
+
+        private Task BotDisconnected(Exception arg)
+        {
+            Messege(" Bot: Disconnected!");
+
+            ConstVariables.logger.Error("Bot: Disconnected!");
+
+            return Task.CompletedTask;
+        }
+
+        private Task BotReady()
+        {
+            Messege("Bot: ready!");
+
+            ConstVariables.logger.Info("Bot: ready!");
+
+            return Task.CompletedTask;
         }
 
         private async Task AddReaction(Cacheable<IUserMessage, ulong> message, ISocketMessageChannel channel, SocketReaction reaction)
@@ -246,38 +272,6 @@ namespace LegionKun
 
             await guild.GetDefaultChannel().SendMessageAsync("", false, builder.Build());
         }
-
-        /*private async Task UserUp(SocketUser arg1, SocketUser arg2)
-        {
-            if ((arg1.Username == arg2.Username) || (arg1.Id == 356145518444806144) || (arg1.IsBot))
-            {
-                return;
-            }
-
-            EmbedBuilder builder = new EmbedBuilder();
-
-            builder.WithDescription($"Пользователь: {arg1.Username}. Сменил имя на: {arg2.Username}")
-                .WithTitle("Пользователь обновлен");
-
-            foreach (var guild in ConstVariables._Client.Guilds)
-            {
-                if (guild.Id == 461284473799966730)
-                {
-                    continue;
-                }
-
-                if (guild.GetUser(arg2.Id) != null)
-                {
-                    var dguild = ConstVariables.CServer[guild.Id];
-
-                    builder.WithFooter(guild.Name, guild.IconUrl);
-
-                    await dguild.GetDefaultChannel().SendMessageAsync("", false, builder.Build());
-                }
-            }
-
-            ConstVariables.logger.Info($"is func 'UserUp' is user  1:'{arg1.Username}#{arg1.Discriminator}'; 2:'{arg2.Username}#{arg2.Discriminator}';");
-        }*/
 
         private async Task UserUnbaned(SocketUser arg1, SocketGuild arg2)
         {
@@ -480,9 +474,7 @@ namespace LegionKun
         }
 
         private Task Log(LogMessage arg)
-        {
-            Console.WriteLine(arg);
-            
+        {            
             ConstVariables.logger.Error(arg);
 
             return Task.CompletedTask;
@@ -499,112 +491,6 @@ namespace LegionKun
             await Module.ConstVariables._Command.AddModuleAsync<Tests.TestClass>(Module.ConstVariables._UserService);
 
             await Module.ConstVariables._GameCommand.AddModuleAsync<Game.CrossZero.CrossZeroModule>(Module.ConstVariables._GameService);
-        }
-
-        private async Task HandleCommandAsync(SocketMessage arg)
-        {
-            SocketUserMessage Messeg = arg as SocketUserMessage;
-
-            if (Messeg is null || Messeg.Author.IsBot)
-                return;
-            int argPos = 0;
-            
-            if (Messeg.HasStringPrefix("sh!", ref argPos) || Messeg.HasStringPrefix("Sh!", ref argPos))
-            {
-                SocketCommandContext contex = new SocketCommandContext(ConstVariables._Client, Messeg);
-                
-                IResult result = await ConstVariables._Command.ExecuteAsync(contex, argPos, ConstVariables._UserService);
-
-                if (!result.IsSuccess)
-                {
-                    switch (result.Error.Value)
-                    {
-                        case CommandError.BadArgCount: { ConstVariables.logger.Error($"is errors 'BadArgCount' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); contex.Channel.SendMessageAsync($"{contex.User.Mention}, неверные параметры команды").GetAwaiter(); break; }
-                        case CommandError.UnknownCommand: { ConstVariables.logger.Error($"is errors 'UnknownCommand' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); contex.Channel.SendMessageAsync($"{contex.User.Mention}, неизвестная команда").GetAwaiter(); Help(contex); break; }
-                        case CommandError.ObjectNotFound: { ConstVariables.logger.Error($"is errors 'ObjectNotFound' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                        case CommandError.ParseFailed: { ConstVariables.logger.Error($"is errors 'ParseFailed' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                        case CommandError.MultipleMatches: { ConstVariables.logger.Error($"is errors 'MultipleMatches' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                        case CommandError.UnmetPrecondition: { ConstVariables.logger.Error($"is errors 'UnmetPrecondition' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                        case CommandError.Exception: { ConstVariables.logger.Error($"is errors 'Exception' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                        case CommandError.Unsuccessful: { ConstVariables.logger.Error($"is errors 'Unsuccessful' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                        default: { ConstVariables.logger.Error($"is errors 'Default' is channel '{arg.Channel.Name}' is param {result.ErrorReason} is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                    }
-                }
-            }
-            else if(Messeg.HasStringPrefix("c!", ref argPos) || Messeg.HasStringPrefix("с!", ref argPos))
-            {
-                SocketCommandContext contex = new SocketCommandContext(ConstVariables._Client, Messeg);
-
-                IResult result = await ConstVariables._GameCommand.ExecuteAsync(contex, argPos, ConstVariables._GameService);
-
-                if (!result.IsSuccess)
-                {
-                    switch (result.Error.Value)
-                    {
-                        case CommandError.BadArgCount: { ConstVariables.logger.Error($"is errors 'BadArgCount' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); contex.Channel.SendMessageAsync($"{contex.User.Mention}, неверные параметры команды").GetAwaiter(); break; }
-                        case CommandError.UnknownCommand: { ConstVariables.logger.Error($"is errors 'UnknownCommand' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); contex.Channel.SendMessageAsync($"{contex.User.Mention}, неизвестная команда").GetAwaiter(); break; }
-                        case CommandError.ObjectNotFound: { ConstVariables.logger.Error($"is errors 'ObjectNotFound' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                        case CommandError.ParseFailed: { ConstVariables.logger.Error($"is errors 'ParseFailed' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                        case CommandError.MultipleMatches: { ConstVariables.logger.Error($"is errors 'MultipleMatches' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                        case CommandError.UnmetPrecondition: { ConstVariables.logger.Error($"is errors 'UnmetPrecondition' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                        case CommandError.Exception: { ConstVariables.logger.Error($"is errors 'Exception' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                        case CommandError.Unsuccessful: { ConstVariables.logger.Error($"is errors 'Unsuccessful' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                        default: { ConstVariables.logger.Error($"is errors 'Default' is channel '{arg.Channel.Name}' is param {result.ErrorReason} is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                    }
-                }
-            }
-        }
-
-        private void Help(SocketCommandContext Context)
-        {
-            if (!ConstVariables.CServer[Context.Guild.Id].IsOn)
-            {
-                if (!ConstVariables.ThisTest)
-                    return;
-            }
-
-            if (!ConstVariables.UserCommand[6].IsOn)
-            {
-                return;
-            }
-
-            SocketGuildUser user = Context.Guild.GetUser(Context.User.Id);
-
-            ConstVariables.CDiscord guild = ConstVariables.CServer[Context.Guild.Id];
-
-            if(!guild.IsEntryOrСategoryChannel(Context.Channel.Id, IsCommand: true))
-            {
-                return;
-            }
-
-            bool IsRole = false;
-
-            foreach (var role in user.Roles)
-                if (guild.EntryRole(role.Id))
-                {
-                    IsRole = true;
-                    break;
-                }
-
-            EmbedBuilder builder = new EmbedBuilder();
-
-            string TitlList = "Префикс команд для бота 'sh!' или 'Sh!'";
-
-            builder.AddField("Параметры", "[] - обязательно \r\n<> - не обязательно")
-                .WithTitle(TitlList)
-                .AddField("Group: Default", ConstVariables.UTHelp, true);
-
-            if (IsRole)
-            {
-                builder.AddField("Group: Admin", ConstVariables.ATHelp, true);
-            }
-
-            builder.WithColor(Color.Orange)
-                .WithFooter(Context.Guild.Name, Context.Guild.IconUrl);
-
-            ConstVariables.logger.Info($"is Guid {Context.Guild.Name} is command 'help' is user '{user.Username}' is channel '{Context.Channel.Name}' is IsRole '{IsRole}'");
-
-            Context.Channel.SendMessageAsync("", false, builder.Build());
         }
     }
 }

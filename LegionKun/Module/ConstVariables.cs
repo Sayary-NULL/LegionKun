@@ -122,7 +122,7 @@ namespace LegionKun.Module
                     }
                     catch (Exception e)
                     {
-                        logger.Error($"is func 'IsPrefiчChannel' is id cannel: '{ChannelId}' is default: '{IsDefault}' is News Channel: '{IsNewsChannel}' is command: '{IsCommand}' is errors {e}");
+                        logger.Error($"is func 'IsPrefixChannel' is id cannel: '{ChannelId}' is default: '{IsDefault}' is News Channel: '{IsNewsChannel}' is command: '{IsCommand}' is errors {e}");
                         return false;
                     }
                 }
@@ -144,13 +144,17 @@ namespace LegionKun.Module
                 else channel.SendMessageAsync(TextInfo);
             }
         }
-        
+
         public static Dictionary<ulong, CDiscord> CServer = new Dictionary<ulong, CDiscord>();
 
         public static Dictionary<ulong, ulong> DMessage = new Dictionary<ulong, ulong>();
 
         public static Dictionary<char, char> Code = new Dictionary<char, char>();
-
+#if DEBUG
+        public static bool ThisTest { get; private set; } = true;
+#else 
+        public static bool ThisTest { get; private set; } = false;
+#endif 
         public static List<Commands> UserCommand { get; private set; } = new List<Commands>()
         {
             //UserCommands
@@ -163,11 +167,10 @@ namespace LegionKun.Module
             new Commands( "search" , "search [Seearch text]", true),
             new Commands( "userinfo" , "userinfo <User Mention>", true),
             new Commands( "serverinfo" , "serverinfo", true),
-            new Commands( "ctinfo" , "ctinfo", false),
-            new Commands( "cvinfo" , "cvinfo", false),
             new Commands( "ping" , "ping", true),
             new Commands( "ban" , "ban [User Mention]", false),
             new Commands( "report" , "report [Name Command] [report text]", true),
+            new Commands( "banlistuser" , "banlistuser", true),
             new Commands( "help" , "help", true),
         };
 
@@ -228,19 +231,9 @@ namespace LegionKun.Module
 
         public static string ATHelp { get; private set; } = "";
 
-        public static string Video1Id { get; set; } = "";
-
-        public static string Video2Id { get; set; } = "";
-#if DEBUG
-        public static bool ThisTest { get; private set; } = true;
-#else 
-        public static bool ThisTest { get; private set; } = false;
-#endif 
-        public static bool Sharon { get; set; } = false;
-
         public static bool Perevorot { get; set; } = false;
 
-        public static bool ControlFlow { get; set; } = true;
+        public static bool ControlFlow { get; set; } = false;
 
         public static bool IsDownloadGuild { get; private set; } = false;
 
@@ -257,6 +250,211 @@ namespace LegionKun.Module
         private static Thread DownloadetThread = new Thread(DownlodeGuildParams);
 
         public static Logger logger { get; private set; } = LogManager.GetCurrentClassLogger();
+
+        public struct ResultIndexOfText
+        {
+            public ulong GuildID;
+            public string TextRequest;
+            public string TextAnswer;
+            public string Condition;
+            public bool isSearch;
+        }
+        
+        ///<summary>NCR = Not a Correct Result</summary>
+        public const string NCR = "NCR";
+
+        public static ResultIndexOfText IndexOfText(string text)
+        {
+            string SqlExpression = "sp_GetIndexOfText";
+            ResultIndexOfText result = new ResultIndexOfText
+            {
+                isSearch = false
+            };
+
+            try
+            {
+                using (SqlConnection connect = new SqlConnection(Base.Resource1.ConnectionKeyTestServer))
+                {
+                    connect.Open();
+                    using (SqlCommand command = new SqlCommand(SqlExpression, connect) { CommandType = System.Data.CommandType.StoredProcedure })
+                    {
+                        var reader = command.ExecuteReader();
+
+                        if (reader.HasRows)
+                        {
+                            while (reader.Read())
+                            {
+                                result.GuildID = (ulong)reader.GetInt64(1);
+                                result.TextRequest = reader.GetString(2);
+                                result.TextAnswer = reader.GetString(3);
+                                result.Condition = reader.GetString(4);
+                                result.isSearch = false;
+
+                                if (text.IndexOf(result.TextRequest) > -1)
+                                {
+                                    result.isSearch = true;
+                                    break;
+                                }
+                            }
+
+                            reader.Close();
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"IndexOfText: is errors {e.Message}");
+            }
+
+            return result;
+        }
+
+        public static string GetVideo1(int id)
+        {
+            string str = "_NO_";
+
+            if ((id != 1) && (id != 2))
+                return str;
+
+            using (SqlConnection connect = new SqlConnection(Base.Resource1.ConnectionKeyTestServer))
+            {
+                connect.Open();
+
+                using (SqlCommand command = new SqlCommand("sp_GetVideoId", connect) { CommandType = System.Data.CommandType.StoredProcedure })
+                {
+                    command.CommandText = "sp_GetVideoId";
+                    SqlParameter IdParam = new SqlParameter()
+                    {
+                        ParameterName = "@Id",
+                        DbType = System.Data.DbType.Int16,
+                        Value = id
+                    };
+
+                    command.Parameters.Add(IdParam);
+
+                    SqlDataReader reader = command.ExecuteReader();
+
+                    if (reader.HasRows)
+                    {
+                        reader.Read();
+                        str =  reader.GetString(0);
+                        reader.Close();
+                    }
+                }
+            }
+            return str;
+        }
+
+        public static bool UpdVideo(int id, string strock)
+        {
+            int result = 0;
+
+            if ((id != 1) && (id != 2))
+                return false;
+
+            using (SqlConnection connect = new SqlConnection(Base.Resource1.ConnectionKeyTestServer))
+            {
+                connect.Open();
+
+                using (SqlCommand command = new SqlCommand("sp_UpdateVideoId", connect) { CommandType = System.Data.CommandType.StoredProcedure })
+                {
+                    SqlParameter IdParam = new SqlParameter()
+                    {
+                        ParameterName = "@Id",
+                        DbType = System.Data.DbType.Int16,
+                        Value = id
+                    };
+
+                    SqlParameter Vparam = new SqlParameter()
+                    {
+                        ParameterName = "@VId",
+                        DbType = System.Data.DbType.String,
+                        Value = strock
+                    };
+
+                    command.Parameters.Add(IdParam);
+                    command.Parameters.Add(Vparam);
+
+                    result = command.ExecuteNonQuery();
+                }
+            }
+            return result != 0;
+        }
+
+        public static string TextRequst(string text, ulong serverid)
+        {
+            ulong server = 0;
+            List<string> list = new List<string>();
+            int count = 0;
+            Random ran = new Random();            
+
+            using (SqlConnection connect = new SqlConnection(Base.Resource1.ConnectionKeyTestServer))
+            {
+                connect.Open();
+
+                using (SqlCommand command = new SqlCommand("sp_CountTextTrigger", connect) { CommandType = System.Data.CommandType.StoredProcedure })
+                {
+                    SqlParameter Vparam = new SqlParameter()
+                    {
+                        ParameterName = "@TextRequest",
+                        DbType = System.Data.DbType.String,
+                        Value = text
+                    };
+
+                    command.Parameters.Add(Vparam);
+                    count = Convert.ToInt32(command.ExecuteScalar());
+
+                    if (count == 0)
+                        return NCR;
+
+                    command.CommandText = "sp_TextTrigger";
+
+                    SqlDataReader reader = command.ExecuteReader();
+
+                    if (reader.HasRows)
+                    {
+                        while(reader.Read())
+                        {
+                            server = (ulong)reader.GetInt64(0);
+                            list.Add(reader.GetString(1));
+                        }
+                        reader.Close();
+                    }
+                }
+            }
+
+            if (server != serverid && server != 0)
+                return NCR;
+            if (count == 1)
+                return list[0];
+
+            return list[ran.Next(0, count)];
+        }
+
+        public static int CountTextRequst(string text, ulong serverid)
+        {
+            int count = 0;
+            using(SqlConnection connect = new SqlConnection(Base.Resource1.ConnectionKeyTestServer))
+            {
+                connect.Open();
+
+                using (SqlCommand command = new SqlCommand("sp_CountTextTrigger", connect) { CommandType = System.Data.CommandType.StoredProcedure })
+                {
+                    SqlParameter Vparam = new SqlParameter()
+                    {
+                        ParameterName = "@TextRequest",
+                        DbType = System.Data.DbType.String,
+                        Value = text
+                    };
+
+                    command.Parameters.Add(Vparam);
+                    count = Convert.ToInt32(command.ExecuteScalar());
+                }
+            }
+
+            return count;
+        }
 
         public static void InstallationLists()
         {
@@ -276,28 +474,21 @@ namespace LegionKun.Module
             }
 
             _Client = new DiscordSocketClient();
-
             _Command = new CommandService();
-
             _GameCommand = new CommandService();
 
             _UserService = new ServiceCollection().AddSingleton(_Client).AddSingleton(_Command).AddSingleton<InteractiveService>().BuildServiceProvider();
-
             _GameService = new ServiceCollection().AddSingleton(_Client).AddSingleton(_GameCommand).AddSingleton<InteractiveService>().BuildServiceProvider();
 
             int i = 1;
             foreach (var help in UserCommand)
-            {
                 if (help.IsOn)
-                    UTHelp += $"{i++}: {help.CommandName}\r\n";
-            }
+                    UTHelp += $"{i++}: {help.CommandName}\r\n";            
 
             i = 1;
             foreach (var help in AdminCommand)
-            {
                 if (help.IsOn)
-                    ATHelp += $"{i++}: {help.CommandName}\r\n";
-            }
+                    ATHelp += $"{i++}: {help.CommandName}\r\n";            
 
             {
                 //1
@@ -382,10 +573,7 @@ namespace LegionKun.Module
 
             DownloadetThread.Start();
 
-            while (!IsDownloadGuild)
-            {
-
-            }
+            while (!IsDownloadGuild);
         }
 
         public static void SetDelegate(DMessege fun)

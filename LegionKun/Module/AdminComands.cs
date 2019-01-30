@@ -13,19 +13,54 @@ namespace LegionKun.Module
     [Admin]
     class AdminComands : InteractiveBase
     {
-        [Command("off", RunMode = RunMode.Async)]
-        public async Task OffBotAsync(byte level = 0)
+        private async Task<bool> Access(string name)
         {
-            if (!ConstVariables.CServer[Context.Guild.Id].IsOn)
+            if(name == "off" || name == "on" || name == "news")
             {
-                await ReplyAndDeleteAsync("Бот выключен!", timeout: TimeSpan.FromSeconds(5));
-                return;
+                await ReplyAndDeleteAsync($"{Context.User.Mention}, Эти команды недоступны в тестовом режиме!", timeout: TimeSpan.FromSeconds(5));
+                return false;
             }
 
             if (ConstVariables.ThisTest)
             {
-                return;
+                await ReplyAndDeleteAsync($"{Context.User.Mention}, включен тестовый режим!", timeout: TimeSpan.FromSeconds(5));
+                return true;
             }
+
+            if (!ConstVariables.CServer[Context.Guild.Id].IsOn)
+            {
+                await ReplyAndDeleteAsync($"{Context.User.Mention}, все команды сейчас выключены!", timeout: TimeSpan.FromSeconds(5));
+                return false;
+            }
+
+            bool isresult = false;
+
+            foreach (var key in ConstVariables.AdminCommand)
+            {
+                if (key.ContainerName(name))
+                {
+                    if (key.IsOn)
+                    {
+                        isresult = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!isresult)
+            {
+                await ReplyAndDeleteAsync($"{Context.User.Mention}, это команда сейчас выключена!", timeout: TimeSpan.FromSeconds(5));
+                return false;
+            }
+
+            return true;
+        }
+
+        [Command("off", RunMode = RunMode.Async)]
+        public async Task OffBotAsync(byte level = 2)
+        {
+            if (!(await Access("off")))
+                return;
 
             await ConstVariables._Client.SetStatusAsync(UserStatus.DoNotDisturb);
 
@@ -73,7 +108,7 @@ namespace LegionKun.Module
                         builder.WithTitle("!!!Внимание!!!").WithDescription("бот будет выключен на обновление :stuck_out_tongue_winking_eye:").WithColor(Discord.Color.Magenta);
                         foreach (var key in Module.ConstVariables.CServer)
                         {
-                            ConstVariables.CServer[key.Key].IsOn = true;
+                            ConstVariables.CServer[key.Key].IsOn = false;
                         }
 
                         var result = await ConstVariables.CServer[Context.Guild.Id].GetDefaultChannel().SendMessageAsync("", false, builder.Build());
@@ -95,22 +130,13 @@ namespace LegionKun.Module
             }
 
             ConstVariables.logger.Info($"is group 'Automatic' is command 'off' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is level '{level}'");
-
-            ConstVariables.CServer[Context.Guild.Id].IsOn = false;
         }
 
         [Command("on", RunMode = RunMode.Async)]
-        public async Task OnBotAsync(byte level = 0)
+        public async Task OnBotAsync(byte level = 2)
         {
-            if (ConstVariables.CServer[Context.Guild.Id].IsOn)
-            {
+            if (!(await Access("on")))
                 return;
-            }
-
-            if (ConstVariables.ThisTest)
-            {
-                return;
-            }
 
             await ConstVariables._Client.SetStatusAsync(UserStatus.Online);
 
@@ -180,25 +206,47 @@ namespace LegionKun.Module
             }
 
             ConstVariables.logger.Info($"is group 'Automatic' is command 'on' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is level {level}");
-
-            ConstVariables.CServer[Context.Guild.Id].IsOn = true;
         }
 
         [Command("news", RunMode = RunMode.Async)]
         public async Task NewsAsync([Remainder]string mess)
         {
-            if (ConstVariables.ThisTest)
-            {
+            if (!(await Access("news")))
                 return;
+
+            string URL = "Base/news26052017.jpg";
+            bool isfalg = false;
+            string text = "";
+            int index = 0;
+
+            if (mess.IndexOf("image:") > -1)
+            {
+                URL = "";
+                isfalg = true;
+                index = mess.IndexOf("image:") + 6;
+                if (mess[index] == ' ')
+                    index++;
+
+                while (mess[index] != ';' && mess[index] != '\n')
+                {
+                    URL += mess[index];
+                    index++;
+                    if (index >= mess.Length)
+                        break;
+                }
             }
 
-            EmbedBuilder builder = new EmbedBuilder();
+            if (mess.IndexOf("text:") > -1)
+            {
+                index = mess.IndexOf("text:") + 5;
+                if (mess[index] == ' ')
+                    index++;
 
-            builder.WithTitle($"Новости бота")
-                .WithDescription(mess)
-                .WithColor(ConstVariables.InfoColor)
-                .WithFooter(Context.Guild.Name, Context.Guild.IconUrl)
-                .WithImageUrl("https://media.discordapp.net/attachments/462236317926031370/464447806887690240/news26052017.jpg?width=841&height=474");
+                for (; index < mess.Length; index++)
+                    text += mess[index];
+            }
+
+            var result = await Context.Channel.SendMessageAsync("Начата рассылка!\n Ждите, если это сообщение не проподет, то напишите Sayary.");
 
             foreach (var server in ConstVariables.CServer)
             {
@@ -207,39 +255,77 @@ namespace LegionKun.Module
                     continue;
                 }
 
-                if ((Context.User.Id == ConstVariables.CreatorId))
+                try
                 {
-                    ConstVariables.CDiscord guild = server.Value;
+                    ConstVariables.CDiscord guild = server.Value; 
 
-                    await guild.GetDefaultNewsChannel().SendMessageAsync("", false, builder.Build());
-                }
-                else
-                {
-                    if (Context.Guild.Id == server.Value.GuildId)
+                    if (ConstVariables.ThisTest)
                     {
-                        ConstVariables.CDiscord guild = server.Value;
+                        if (server.Value.GuildId != 435485527156981770)
+                            continue;
 
-                        await guild.GetDefaultNewsChannel().SendMessageAsync("", false, builder.Build());
+                        if (isfalg)
+                        {
+                            await guild.GetDefaultNewsChannel().SendMessageAsync(URL);
+                        }
+                        else await guild.GetDefaultNewsChannel().SendFileAsync(URL, " ");
+
+                        await guild.GetDefaultNewsChannel().SendMessageAsync(text);
+                        await guild.GetDefaultNewsChannel().SendMessageAsync("Автор: " + Context.User.Mention);
                         break;
                     }
+                    else if (Context.User.Id == ConstVariables.CreatorId)
+                    {
+                        if (isfalg)
+                        {
+                            await guild.GetDefaultNewsChannel().SendMessageAsync(URL);
+                        }
+                        else await guild.GetDefaultNewsChannel().SendFileAsync(URL, " ");
+
+                        await guild.GetDefaultNewsChannel().SendMessageAsync(text);
+                        await guild.GetDefaultNewsChannel().SendMessageAsync("Автор: " + Context.User.Mention);
+                    }
+                    else
+                    {
+                        if (Context.Guild.Id == server.Value.GuildId)
+                        {
+                            if (isfalg)
+                                await guild.GetDefaultNewsChannel().SendMessageAsync(URL);
+
+                            await guild.GetDefaultNewsChannel().SendFileAsync("Base/LegioNews2.png", " ");
+                            await guild.GetDefaultNewsChannel().SendMessageAsync(text);
+                            await guild.GetDefaultNewsChannel().SendMessageAsync("Автор: " + Context.User.Mention);
+                            break;
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    ConstVariables.logger.Error($"is group 'Automatic' is command 'news' is user '{Context.User.Username}#{Context.User.Discriminator}' is guild '{Context.Guild.Name}' is channel '{Context.Channel.Name}' is errors '{e.Message}'");
+                    throw;
                 }
             }
 
             try
             {
                 await Context.Message.DeleteAsync();
+                await result.DeleteAsync();
             }
             catch
             {
                 Console.WriteLine("Ошибка доступа!");
             }
 
-            ConstVariables.logger.Info($"is group 'Automatic' is command 'news' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
+            ConstVariables.logger.Info($"is group 'Automatic' is command 'news' is user '{Context.User.Username}#{Context.User.Discriminator}' is guild '{Context.Guild.Name}' is channel '{Context.Channel.Name}'");
         }
 
         [Command("status")]
+        [CategoryChannel(IC: true)]
         public async Task StatusAsync()
         {
+            if (!(await Access("status")))
+                return;
+
             try
             {
                 await Context.Message.DeleteAsync();
@@ -337,6 +423,9 @@ namespace LegionKun.Module
         [Command("banlist")]
         public async Task BanListAsync(IUser User = null)
         {
+            if (!(await Access("banlist")))
+                return;
+
             string SqlExpression = "sp_SelectBanList";
             string TextRequest = "";
 
@@ -386,7 +475,11 @@ namespace LegionKun.Module
                                 string Comment = reader.GetString(2);
                                 DateTime Date = reader.GetDateTime(3);
 
-                                TextRequest += $"**Пользователь:** {Context.Guild.GetUser(BannedId).Mention} **Администратор:** {Context.Guild.GetUser(AdminId).Mention}\r\nЗаметка: {Comment}\r\nДата: {Date}\r\n";
+                                var banned = Context.Guild.GetUser(BannedId);
+
+                                var admin = Context.Guild.GetUser(AdminId);
+
+                                TextRequest += $"**Пользователь:** {(banned == null ? "----" : banned.Mention)}\r\n**Администратор:** {(admin == null ? "----" : admin.Mention)}\r\nЗаметка: {Comment}\r\nДата: {Date}\r\n";
                             }
 
                             builder.WithDescription(TextRequest)
@@ -397,20 +490,23 @@ namespace LegionKun.Module
                         }
                         else await ReplyAndDeleteAsync("Данных в базе не обнаружено!", timeout: TimeSpan.FromSeconds(5));
 
-                        ConstVariables.logger.Info($"is group 'admin' is command 'BanList' is guild '{Context.Guild.Name}' is command '{Context.Channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}' is UserBanned '{User.Username}#{User.Discriminator}'");
+                        ConstVariables.logger.Info($"is group 'admin' is command 'BanList' is guild '{Context.Guild.Name}' is command '{Context.Channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}'");
                     }
                 }
                 catch (Exception e)
                 {
                     ConstVariables.logger.Error($"is group 'admin' is command 'BanList' is guild '{Context.Guild.Name}' is command '{Context.Channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}' is errors {e}");
+                    await ReplyAndDeleteAsync("Произошла ошибка! Обратитесь к администратору.", timeout: TimeSpan.FromSeconds(5));
                 }
-            }
-            
+            }            
         }
 
         [Command("banlistadmin")]
         public async Task BanListAdmAsync(IUser User)
         {
+            if (!(await Access("banlistadmin")))
+                return;
+
             string SqlExpression = "sp_SelectBanListAdmin";
             string TextRequest = "";
 
@@ -476,6 +572,9 @@ namespace LegionKun.Module
         [Command("banlistadd")]
         public async Task BanListAsync(IUser User, [Remainder]string comment = null)
         {
+            if (!(await Access("banlistadd")))
+                return;
+
             Stopwatch sw = Stopwatch.StartNew();
             EmbedBuilder builder = new EmbedBuilder();
             string SqlExpression = "sp_InsertUsersBan";
@@ -584,6 +683,9 @@ namespace LegionKun.Module
         [Command("banlistdelete")]
         public async Task DeleteUSersListAsync(IUser User)
         {
+            if (!(await Access("banlistdelete")))
+                return;
+
             string SqlExpression = "sp_DeletUsersBan";
 
             SqlParameter GuildIdParam = new SqlParameter
@@ -624,8 +726,12 @@ namespace LegionKun.Module
         }
         
         [Command("flowcontrol")]
+        [CategoryChannel(IC: true)]
         public async Task FlowControlAsync(int name = 0)
         {
+            if (!(await Access("flowcontrol")))
+                return;
+
             switch (name)
             {
                 case 0:
@@ -654,17 +760,20 @@ namespace LegionKun.Module
                         break;
                     }
             }
+            bool flag = false;
+            string error = "";
 
-            ConstVariables.logger.Info($"is group 'admin' is guild '{Context.Guild.Name}' is channel '{Context.Channel.Name}' is user '{Context.User.Username}' is status '{ConstVariables.ControlFlow}'");
+            try
+            {
+                await Context.Message.DeleteAsync();
+            }
+            catch(Exception e)
+            {
+                flag = true;
+                error = e.Message;
+            }
 
-        }
-
-        [Command("serveri")]
-        public async Task InfoServerAsync()
-        {
-            ConstVariables.CServer[Context.Guild.Id].ServerInfo(Context.Channel);
-
-            await Context.Channel.SendMessageAsync("Ok");
+            ConstVariables.logger.Info($"is group 'admin' is guild '{Context.Guild.Name}' is channel '{Context.Channel.Name}' is user '{Context.User.Username}' is status '{ConstVariables.ControlFlow}' {(flag? $"is error: '{error}'" : "")}");
         }
     }
 }

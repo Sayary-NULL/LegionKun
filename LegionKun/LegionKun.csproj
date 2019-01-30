@@ -214,11 +214,6 @@
     <Compile Include="Game\CrossZero\CrossZeroGame.cs" />
     <Compile Include="Game\CrossZero\CrossZeroModule.cs" />
     <Compile Include="Game\CrossZero\CrossZeroBase.cs" />
-    <Compile Include="Base\masterDataSet.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>masterDataSet.xsd</DependentUpon>
-    </Compile>
     <Compile Include="Module\ConstVariables.cs" />
     <Compile Include="Module\MainClass.cs" />
     <Compile Include="Module\OverloadFunc.cs" />
@@ -241,17 +236,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="Base\masterDataSet.xsc">
-      <DependentUpon>masterDataSet.xsd</DependentUpon>
-    </None>
-    <None Include="Base\masterDataSet.xsd">
-      <Generator>MSDataSetGenerator</Generator>
-      <LastGenOutput>masterDataSet.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Base\masterDataSet.xss">
-      <DependentUpon>masterDataSet.xsd</DependentUpon>
-    </None>
     <Content Include="NLog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

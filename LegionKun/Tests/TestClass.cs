@@ -7,6 +7,8 @@ using Discord.Addons.Interactive;
 using Discord.WebSocket;
 using LegionKun.Attribute;
 using System.Data.SqlClient;
+using System.Collections.Generic;
+using LegionKun.Module;
 
 //UCDnNz_stjQqcikCvIF2NTAw - Kanade
 //UCScLnRAwAT2qyNcvaFSFvYA - Sharon
@@ -17,72 +19,66 @@ namespace LegionKun.Tests
     [Tests, OwnerOnly]
     class TestClass : InteractiveBase
     {
-        [Command("test")]/*Произведено исправление[100]*/
-        public async Task TestAsync([Remainder]string URL)
+        public struct MyStruct
         {
-            EmbedBuilder builder = new EmbedBuilder();
+            public ulong GuildID;
+            public string TextRequest;
+            public string TextAnswer;
+            public string Condition;
+        }
 
-            builder.WithImageUrl(URL);
-
-            //var mess = await ReplyAsync($"{Context.User.Mention}, :grin:");
-
-            await Context.Channel.SendMessageAsync("", false, builder.Build());
+        [Command]/*Произведено исправление[100]*/
+        public async Task TestAsync(int msec = 1)
+        {
+            for(int i = 0; i < msec; i++)
+                await Context.Channel.TriggerTypingAsync();
+            await Context.Channel.SendMessageAsync("Ok");
         }
 
         [Command("connect")]
-        [CategoryChannel(IC:true)]
-        public async Task ConnectAsync()
+        public async Task ConnectAsync([Remainder]string words)
         {
-            string SqlExpression = "sp_GetUserBaned";
-            string TextRequest = "";
+            string SqlExpression = "sp_GetIndexOfText";
+            MyStruct result = new MyStruct();
+            bool isflag = false;
 
-            using (SqlConnection connect = new SqlConnection(Base.Resource1.ConnectionKeyTestServer))
+            try
             {
-                try
+                using (SqlConnection connect = new SqlConnection(Base.Resource1.ConnectionKeyTestServer))
                 {
                     connect.Open();
-                    SqlCommand command = new SqlCommand(SqlExpression, connect)
-                    {
-                        CommandType = System.Data.CommandType.StoredProcedure
-                    };
+                    using (SqlCommand command = new SqlCommand(SqlExpression, connect) { CommandType = System.Data.CommandType.StoredProcedure })
+                    {                        
+                        var reader = command.ExecuteReader();
 
-                    SqlParameter GuildIdParam = new SqlParameter
-                    {
-                        ParameterName = "@GuildId",
-                        DbType = System.Data.DbType.Int64,
-                        Value = Context.Guild.Id
-                    };
-
-                    command.Parameters.Add(GuildIdParam);
-                    
-                    var reader = command.ExecuteReader();
-
-                    if (reader.HasRows)
-                    {
-                        while (reader.Read())
+                        if (reader.HasRows)
                         {
-                            ulong BannedId = (ulong)reader.GetInt64(0);
-                            ulong AdminId = (ulong)reader.GetInt64(1);
-                            string Comment = reader.GetString(2);
+                            while (reader.Read())
+                            {
+                                result.GuildID = (ulong)reader.GetInt64(1);
+                                result.TextRequest = reader.GetString(2);
+                                result.TextAnswer = reader.GetString(3);
+                                result.Condition = reader.GetString(4);
 
-                            TextRequest += $"**Пользователь:** {Context.Guild.GetUser(BannedId).Mention} **Администратор:** {Context.Guild.GetUser(AdminId).Mention}\r\n Заметка: {Comment}\r\n";
+                                if(words.IndexOf(result.TextRequest) > -1)
+                                {
+                                    isflag = true;
+                                    break;
+                                }
+                            }
+                            reader.Close();
                         }
 
-                        await ReplyAsync(TextRequest);
+                        if (isflag)
+                            await Context.Channel.SendMessageAsync($"'{result.GuildID}' '{result.TextRequest}' '{result.TextAnswer}' '{result.Condition}'");
+                        else await Context.Channel.SendMessageAsync($"Not result");
                     }
                 }
-                catch(Exception e)
-                {
-                    Console.WriteLine("Connect: " + e);
-                }
-                
             }
-        }
-
-        [Command("stop")]
-        public async Task StopAsync()
-        {
-            await Module.ConstVariables._Client.StopAsync();
-        }
+            catch (Exception e)
+            {
+                Console.WriteLine("Connect: " + e);
+            }
+        }        
     }
 }

@@ -10,6 +10,7 @@ using Google.Apis.YouTube.v3;
 using Google.Apis.Services;
 using LegionKun.Module;
 using LegionKun.Attribute;
+using System.Data.SqlClient;
 
 namespace LegionKun.Module
 {
@@ -90,20 +91,26 @@ namespace LegionKun.Module
         public async Task SayMessAsync([Remainder] string mess)
         {
             if (!(await Access("say")))
-            {
-                return;
-            }
+                return;            
 
             EmbedBuilder builder = new EmbedBuilder();
 
             if (Context.User.Id != ConstVariables.CreatorId)
-            {
                 builder.WithAuthor(Context.User.Username, Context.User.GetAvatarUrl());
-            }
 
             builder.WithFooter(Context.Guild.Name, Context.Guild.IconUrl)
                 .WithDescription(mess)
                 .WithColor(ConstVariables.UserColor);
+
+            if(Context.User.Id == ConstVariables.CreatorId)
+                try
+                {
+                   await Context.Message.DeleteAsync();
+                }
+                catch (Exception e)
+                {
+                    ConstVariables.logger.Error($"is error '{e.Message}' is guild '{Context.Guild.Id}' is channel '{Context.Channel.Id}' is user '{Context.User.Username}#{Context.User.Discriminator}'");
+                }
 
             ConstVariables.logger.Info($"is Guid '{Context.Guild.Name}' is command 'say' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is mess '{mess}'");
 
@@ -390,6 +397,92 @@ namespace LegionKun.Module
             await Context.Channel.SendMessageAsync("", embed: builder.Build());
         }
 
+        [Command("banlistuser")]
+        public async Task UserBanList()
+        {
+            if (!(await Access("banlistuser")))
+            {
+                return;
+            }
+
+            string SqlExpression = "sp_SelectBanListAnd";
+            string TextRequest = "";
+
+            EmbedBuilder builder = new EmbedBuilder();
+
+            var User = Context.User;
+
+            builder.WithTitle($"Бан лист(Выборка)");
+
+            using (SqlConnection conect = new SqlConnection(Base.Resource1.ConnectionKeyTestServer))
+            {
+                try
+                {
+                    conect.Open();
+                    using (SqlCommand command = new SqlCommand(SqlExpression, conect) { CommandType = System.Data.CommandType.StoredProcedure })
+                    {
+                        SqlParameter BannedParam = new SqlParameter()
+                        {
+                            ParameterName = "@BannedId",
+                            DbType = System.Data.DbType.Int64,
+                            Value = User.Id
+                        };
+
+                        command.Parameters.Add(BannedParam);                        
+
+                        SqlParameter GuildIdParam = new SqlParameter()
+                        {
+                            ParameterName = "@GuildId",
+                            DbType = System.Data.DbType.Int64,
+                            Value = Context.Guild.Id
+                        };
+
+                        command.Parameters.Add(GuildIdParam);
+
+                        SqlDataReader reader = await command.ExecuteReaderAsync();
+
+                        if (reader.HasRows)
+                        {
+                            while (reader.Read())
+                            {
+                                ulong BannedId = (ulong)reader.GetInt64(0);
+                                ulong AdminId = (ulong)reader.GetInt64(1);
+                                string Comment = reader.GetString(2);
+                                DateTime Date = reader.GetDateTime(3);
+
+                                var banned = Context.Guild.GetUser(BannedId);
+
+                                var admin = Context.Guild.GetUser(AdminId);
+
+                                TextRequest += $"**Пользователь:** {(banned == null ? "----" : banned.Mention)} **Администратор:** {(admin == null ? "----" : admin.Mention)}\r\nЗаметка: {Comment}\r\nДата: {Date}\r\n";
+                            }
+
+                            builder.WithDescription(TextRequest)
+                                .WithFooter(Context.Guild.Name, Context.Guild.IconUrl)
+                                .WithColor(ConstVariables.UserColor);
+
+                            await ReplyAsync("", embed: builder.Build());
+                        }
+                        else
+                        {
+                            builder.WithDescription("Данных в базе не обнаружено!")
+                                .WithFooter(Context.Guild.Name, Context.Guild.IconUrl)
+                                .WithColor(ConstVariables.UserColor);
+
+                            await ReplyAsync("", embed: builder.Build());
+                        }                   
+
+                        ConstVariables.logger.Info($"is group 'admin' is command 'BanList' is guild '{Context.Guild.Name}' is command '{Context.Channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}' is UserBanned '{User.Username}#{User.Discriminator}'");
+                    }
+                }
+                catch (Exception e)
+                {
+                    ConstVariables.logger.Error($"is group 'admin' is command 'BanList' is guild '{Context.Guild.Name}' is command '{Context.Channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}' is errors {e}");
+                    await ReplyAndDeleteAsync("Произошла ошибка! Обратитесь к администратору.", timeout: TimeSpan.FromSeconds(5));
+                }
+            }
+        }
+
         [Command("coin")]
         public async Task ThrowACoinAsync(int count = 1)
         {
@@ -398,20 +491,21 @@ namespace LegionKun.Module
                 return;
             }
 
-            if ((count <= 0) || (count > 100))
-                return;
-
             Random ran = new Random();
+
+            if ((count <= 0) || (count > 100))
+                count = ran.Next(0, 101);
+
             EmbedBuilder builder = new EmbedBuilder();
             int ResultArray = 0;
 
             for (int i = 0; i < count; i++)
             {
-                ResultArray += ran.Next(0, 2);
+                ResultArray += ran.Next(0, 2);//[0;2)
             }
 
             builder.WithTitle("Результаты броска монеты")
-                .WithDescription($"Орел: {ResultArray}\r\nРешка:{count - ResultArray}");
+                .WithDescription($"Орел: {ResultArray}\r\nРешка: {count - ResultArray}");
 
             await ReplyAsync("", embed: builder.Build());
 
@@ -465,22 +559,19 @@ namespace LegionKun.Module
         {
             if ((Context.User.Id == 252459542057713665) || (Context.User.Id == ConstVariables.CreatorId))//Костя
             {
-                if (!ConstVariables.CServer[Context.Guild.Id].IsOn)
+                if (!ConstVariables.CServer[Context.Guild.Id].IsOn && !ConstVariables.ThisTest)
                 {
-                    if (!ConstVariables.ThisTest)
-                    {
-                        await ReplyAndDeleteAsync($"{Context.User.Mention}, все команды сейчас выключены!", timeout: TimeSpan.FromSeconds(5));
-                        return;
-                    }
+                    await ReplyAndDeleteAsync($"{Context.User.Mention}, все команды сейчас выключены!", timeout: TimeSpan.FromSeconds(5));
+                    return;
                 }
 
-                if (ConstVariables.Perevorot)
+                if (ConstVariables.Perevorot && Context.User.Id != ConstVariables.CreatorId)
                 {
                     await ReplyAndDeleteAsync("Этой командой можно пользоваться только один раз в день!", timeout: TimeSpan.FromSeconds(5));
                     return;
                 }
 
-                if(!(Context.User.Id == ConstVariables.CreatorId))
+                if(Context.User.Id != ConstVariables.CreatorId)
                     ConstVariables.Perevorot = true;
 
                 DateTimeOffset time = Context.Message.CreatedAt;
@@ -489,15 +580,13 @@ namespace LegionKun.Module
 
                 int year = time.Year;
 
-                int month = ran.Next(1, 13);
+                int month = ran.Next(1, 12);
 
                 int day = ran.Next(1, 31);
 
                 time = time.AddDays(day).AddMonths(month);
 
                 await Context.Channel.SendMessageAsync($"{Context.User.Mention}, переворот назначен на {time.Day}.{time.Month}.{time.Year}");
-
-                ConstVariables.logger.Info($"is Guid '{Context.Guild.Name}' is command 'perevorot' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
             }
             else
             {
@@ -507,15 +596,13 @@ namespace LegionKun.Module
                 }
                 catch (Exception e)
                 {
-                    ConstVariables.Mess?.Invoke("Ошибка доступа:" + e.Message);
+                    ConstVariables.logger.Error("Ошибка доступа:" + e.Message);
                 }
 
                 await ReplyAndDeleteAsync("Тихо! Об этом никто не должен знать!", timeout: TimeSpan.FromSeconds(5));
-
-                await Context.Message.DeleteAsync();
-
-                ConstVariables.logger.Info($"is Guid '{Context.Guild.Name}' is command 'perevorot' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
             }
+
+            ConstVariables.logger.Info($"is Guid '{Context.Guild.Name}' is command 'perevorot' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
         }
 
         [Command("userinfo"), CategoryChannel(IC: true)]
@@ -621,105 +708,7 @@ namespace LegionKun.Module
 
             ConstVariables.logger.Info($"is Guid '{Context.Guild.Name}' is command 'perevorot' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
         }
-
-        [Command("ctinfo"), CategoryChannel(IC: true)]
-        public async Task CTIhfoAsync()
-        {
-            if (!(await Access("ctinfo")))
-            {
-                return;
-            }
-
-            EmbedBuilder builder = new EmbedBuilder();
-
-            int CountChannels = Context.Guild.TextChannels.Count;
-
-            string chanel = "";
-
-            List<SocketTextChannel> Channels = new List<SocketTextChannel>(CountChannels);
-
-            try
-            {
-                for (int z = 0; z < CountChannels; z++)
-                {
-                    Channels.Add(null);
-                }
-
-                foreach (var chan in Context.Guild.TextChannels)
-                {
-                    Channels.RemoveAt(chan.Position);
-                    Channels.Insert(chan.Position, chan);
-                    // Console.WriteLine($"{chan.Position}: {chan.Id} {chan.Name}");/*для отладки*/
-                }
-
-                for (int i = 0; i < CountChannels; i++)
-                {
-                    if (Channels[i] == null)
-                        continue;
-                    //Console.WriteLine($"{i + 1}: {Channels[i].Name}");/*для отладки*/
-                    chanel += $"{ i + 1 }: **{Channels[i]}** ({Channels[i].CreatedAt:dd.MM.yyyy HH:mm})\r\n";
-                }
-
-                builder.WithTitle($"Количество текстовых каналов на сервере: {CountChannels}")
-                    .WithDescription(chanel)
-                    .WithFooter(Context.Guild.Name, Context.Guild.IconUrl)
-                    .WithColor(ConstVariables.UserColor);
-
-                ConstVariables.logger.Info($" is command 'cvinfo' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
-
-                await Context.Channel.SendMessageAsync("", false, builder.Build());
-            }
-            catch (Exception e)
-            {
-                ConstVariables.logger.Error($"is guild '{Context.Guild.Name}' is command 'ctinfo' is channel '{Context.Channel.Name}' is user '{Context.User.Username}' is param '{CountChannels}, {Channels.Capacity}, {e.Message}'");
-                await ReplyAndDeleteAsync("Ошибка получения информации!", timeout: TimeSpan.FromSeconds(5));
-            }
-
-        }
-
-        [Command("cvinfo"), CategoryChannel(IC: true)]
-        public async Task CVIhfoAsync()
-        {
-            if (!(await Access("cvinfo")))
-            {
-                return;
-            }
-
-            EmbedBuilder builder = new EmbedBuilder();
-
-            int CountChannel = Context.Guild.VoiceChannels.Count;
-
-            List<SocketVoiceChannel> channels = new List<SocketVoiceChannel>(CountChannel);
-
-            string chanel = "";
-
-            for (int i = 0; i < CountChannel; i++)
-            {
-                channels.Add(null);
-            }
-
-            foreach (var chan in Context.Guild.VoiceChannels)
-            {
-                // Console.WriteLine($"{chan.Position}: {chan.Name}, {channels.Count}");/*для отладки*/
-                channels.RemoveAt(chan.Position);
-                channels.Insert(chan.Position, chan);
-            }
-
-            for (int i = 0; i < CountChannel; i++)
-            {
-                chanel += $"{i + 1}: **{channels[i]}** ({channels[i].CreatedAt:dd.MM.yyyy HH:mm})\r\n";
-            }
-
-            builder.WithTitle($"Количество голосовых каналов на сервере: {CountChannel}")
-                .WithDescription(chanel)
-                .WithFooter(Context.Guild.Name, Context.Guild.IconUrl)
-                .WithColor(ConstVariables.UserColor);
-
-            ConstVariables.logger.Info($" is command 'cvinfo' is user '{Context.User.Username}' is channel '{Context.Channel.Name}'");
-
-            await Context.Channel.SendMessageAsync("", false, builder.Build());
-        }
-
+       
         [Command("ping"), CategoryChannel(IC: true)]
         public async Task PingAsync()
         {

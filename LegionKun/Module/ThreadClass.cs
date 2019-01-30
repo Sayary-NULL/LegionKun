@@ -74,14 +74,10 @@ namespace LegionKun.Module
 
         private static async void Youtube(object obj)
         {
-            if(ConstVariables.ThisTest)
-            {
+            if (ConstVariables.ThisTest)
                 return;
-            }
-           
-            while(ConstVariables._Client.ConnectionState != ConnectionState.Connected)
-            {
-            }
+
+            while (ConstVariables._Client.ConnectionState != ConnectionState.Connected);
 
             Thread.Sleep(2000);
 
@@ -96,15 +92,15 @@ namespace LegionKun.Module
             {
                 ApiKey = Base.Resource1.ApiKeyToken,
                 ApplicationName = "Legion-kun"
-            });            
+            });
 
-            var SharonRequest = youtubeService.Search.List("snippet");
+            SearchResource.ListRequest SharonRequest = youtubeService.Search.List("snippet");
             SharonRequest.Type = "video";
             SharonRequest.EventType = SearchResource.ListRequest.EventTypeEnum.Live;
             SharonRequest.ChannelId = "UCScLnRAwAT2qyNcvaFSFvYA";
             SharonRequest.MaxResults = 1;
 
-            var DejzRequest = youtubeService.Search.List("snippet");
+            SearchResource.ListRequest DejzRequest = youtubeService.Search.List("snippet");
             DejzRequest.Type = "video";
             DejzRequest.EventType = SearchResource.ListRequest.EventTypeEnum.Live;
             DejzRequest.ChannelId = "UCbGMUOX-6gsC2q75x3YS0gw";
@@ -112,14 +108,50 @@ namespace LegionKun.Module
 
             do
             {
-                if(!ConstVariables.ControlFlow)
+                if(ConstVariables.ControlFlow)
                 {
                     Thread.Sleep(60000);
                     continue;
                 }
 
-                SearchListResponse SharonResponse = await SharonRequest.ExecuteAsync();
-                SearchListResponse DejzResponse = await DejzRequest.ExecuteAsync();
+                string SSharoHH = "-", SDejz = "-";
+
+                try
+                {
+                    SSharoHH = ConstVariables.GetVideo1(1);
+                }
+                catch (Exception e)
+                {
+                    ConstVariables.logger.Error(e.Message);
+                    Thread.Sleep(60000);
+                    continue;
+                }
+
+                try
+                {
+                    SDejz = ConstVariables.GetVideo1(2);
+                }
+                catch (Exception e)
+                {
+                    ConstVariables.logger.Error(e.Message);
+                    Thread.Sleep(60000);
+                    continue;
+                }
+
+                SearchListResponse SharonResponse = null;
+                SearchListResponse DejzResponse = null;
+
+                try
+                {
+                    SharonResponse = await SharonRequest.ExecuteAsync();
+                    DejzResponse = await DejzRequest.ExecuteAsync();
+                }
+                catch (Exception e)
+                {
+                    ConstVariables.logger.Error(e.Message);
+                    Thread.Sleep(60000);
+                    continue;
+                }
 
                 SearchResult SharoHH = null;
                 SearchResult Dejz = null;
@@ -130,7 +162,7 @@ namespace LegionKun.Module
                     {
                         SharoHH = SharonResponse.Items[0];
 
-                        if(ConstVariables.Video1Id != SharoHH.Id.VideoId)
+                        if(SSharoHH != SharoHH.Id.VideoId)
                             ConstVariables.logger.Info("Стрим найден! Sharon: https://www.youtube.com/video/" + $"{SharoHH.Id.VideoId}");
                     }
 
@@ -138,7 +170,7 @@ namespace LegionKun.Module
                     {
                         Dejz = DejzResponse.Items[0];
 
-                        if (ConstVariables.Video2Id != Dejz.Id.VideoId)
+                        if (SDejz != Dejz.Id.VideoId)
                             ConstVariables.logger.Info("Стрим найден! Dejz: https://www.youtube.com/video/" + $"{Dejz.Id.VideoId}");
                     }
 
@@ -149,14 +181,16 @@ namespace LegionKun.Module
 
                         await channel.SendMessageAsync("", embed: Live.Build());
 
-                        if (SharonResponse.Items.Count != 0)
+                        if ((SharonResponse.Items.Count != 0) && (SSharoHH != SharoHH.Id.VideoId))
                         {
                             await channel.SendMessageAsync("https://www.youtube.com/video/" + SharoHH.Id.VideoId);
+                            ConstVariables.UpdVideo(1, SharoHH.Id.VideoId);
                         }
 
-                        if (DejzResponse.Items.Count != 0)
+                        if ((DejzResponse.Items.Count != 0) && (SDejz != Dejz.Id.VideoId))
                         {
                             await channel.SendMessageAsync("https://www.youtube.com/video/" + Dejz.Id.VideoId);
+                            ConstVariables.UpdVideo(2, Dejz.Id.VideoId);
                         }
                     }
                     else
@@ -167,18 +201,16 @@ namespace LegionKun.Module
                             {
                                 SocketTextChannel channel = null;
                                 if (key.Value.DefaultChannelNewsId == 0)
-                                {
                                     channel = key.Value.GetDefaultChannel();
-                                }
                                 else channel = key.Value.GetGuild().GetTextChannel(key.Value.DefaultChannelNewsId);
 
-                                if ((SharonResponse.Items.Count != 0) && (ConstVariables.Video1Id != SharoHH.Id.VideoId))
+                                if ((SharonResponse.Items.Count != 0) && (SSharoHH != SharoHH.Id.VideoId))
                                 {
                                     await key.Value.GetDefaultNewsChannel().SendMessageAsync("@here", embed: Live.Build());
                                     await key.Value.GetDefaultNewsChannel().SendMessageAsync("https://www.youtube.com/video/" + SharoHH.Id.VideoId);
                                 }
 
-                                if ((DejzResponse.Items.Count != 0) && (ConstVariables.Video2Id != Dejz.Id.VideoId))
+                                if ((DejzResponse.Items.Count != 0) && (SDejz != Dejz.Id.VideoId))
                                 {
                                     await key.Value.GetDefaultNewsChannel().SendMessageAsync("@here", embed: Live.Build());
                                     await key.Value.GetDefaultNewsChannel().SendMessageAsync("https://www.youtube.com/video/" + Dejz.Id.VideoId);
@@ -193,19 +225,19 @@ namespace LegionKun.Module
                             }
                         }
 
-                        if((SharonResponse.Items.Count != 0) && (ConstVariables.Video1Id != SharoHH.Id.VideoId))
+                        if((SharonResponse.Items.Count != 0) && (SSharoHH != SharoHH.Id.VideoId))
                         {
-                            ConstVariables.Video1Id = SharoHH.Id.VideoId;
+                            ConstVariables.UpdVideo(1, SharoHH.Id.VideoId);
                         }
 
-                        if ((DejzResponse.Items.Count != 0) && (ConstVariables.Video2Id != Dejz.Id.VideoId))
+                        if ((DejzResponse.Items.Count != 0) && (SDejz != Dejz.Id.VideoId))
                         {
-                            ConstVariables.Video2Id = Dejz.Id.VideoId;
+                            ConstVariables.UpdVideo(2, Dejz.Id.VideoId);
                         }
                     }
                 }
 
-                Thread.Sleep(60000);
+                Thread.Sleep(30000);
             } while (true);
         }
     }

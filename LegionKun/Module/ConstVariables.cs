@@ -183,7 +183,8 @@ namespace LegionKun.Module
             new Commands( "flowcontrol" , "flowcontrol <number level>", true),
             new Commands( "banlist" , "banlist <User Mention>", true),
             new Commands( "banlistadmin" , "banlistadmin <Admin Mention>", true),
-            new Commands( "banlistadd" , "banlistadd [User Mention] <Comment>", true)
+            new Commands( "banlistadd" , "banlistadd [User Mention] <Comment>", true),
+            new Commands( "triggeradd" , "triggeradd \"Text Search\" \"Text Otvet\"", true)
         };
 
         public struct Commands

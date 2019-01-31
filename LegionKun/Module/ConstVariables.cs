@@ -5,7 +5,6 @@ using Discord.Commands;
 using Discord.WebSocket;
 using Discord.Addons.Interactive;
 using Microsoft.Extensions.DependencyInjection;
-using Discord.Rest;
 using NLog;
 using System.Data.SqlClient;
 using System.Threading;
@@ -473,7 +472,10 @@ namespace LegionKun.Module
                 Zero = @"Base\zero.png";
             }
 
-            _Client = new DiscordSocketClient();
+            var _config = new DiscordSocketConfig();
+            _config.LogLevel = LogSeverity.Debug;
+
+            _Client = new DiscordSocketClient(_config);
             _Command = new CommandService();
             _GameCommand = new CommandService();
 

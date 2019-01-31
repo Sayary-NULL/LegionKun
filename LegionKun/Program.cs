@@ -100,7 +100,7 @@ namespace LegionKun
 
             ConstVariables.logger.Info("Bot: Connected!");
 
-            throw new NotImplementedException();
+            return Task.CompletedTask;
         }
 
         private Task BotDisconnected(Exception arg)
@@ -128,12 +128,11 @@ namespace LegionKun
                 return;
             }
 
-            var mess = await channel.GetMessageAsync(message.Id);
-            IUserMessage Mess1 = mess as IUserMessage;
+            IUserMessage Mess1 = await message.GetOrDownloadAsync();
 
             if ((reaction.Emote.Name == ConstVariables.DEmoji.EDelete.Name) && (reaction.UserId == ConstVariables.CreatorId))
             {
-                await mess.DeleteAsync();
+                await Mess1.DeleteAsync();
 
                 ConstVariables.logger.Info($"is grout 'automatic' is func 'AddReaction' is punkt 'delete message' is guild '--' is channel '{channel.Name}' is user '{reaction.User.Value.Username}#{reaction.User.Value.Discriminator}'");
             }
@@ -147,7 +146,7 @@ namespace LegionKun
                         else break;
                 }
 
-                String str = mess.Content,
+                String str = Mess1.Content,
                     copy = "";
                 int index = 0;
 
@@ -209,8 +208,8 @@ namespace LegionKun
 
                     builder.WithColor(ConstVariables.UserColor);
                     builder.WithDescription(copy);
-                    builder.WithAuthor(mess.Author);
-                    builder.WithTimestamp(mess.CreatedAt);
+                    builder.WithAuthor(Mess1.Author);
+                    builder.WithTimestamp(Mess1.CreatedAt);
 
                     await channel.SendMessageAsync("", false, builder.Build());
 

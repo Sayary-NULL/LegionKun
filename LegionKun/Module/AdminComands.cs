@@ -775,5 +775,29 @@ namespace LegionKun.Module
 
             ConstVariables.logger.Info($"is group 'admin' is guild '{Context.Guild.Name}' is channel '{Context.Channel.Name}' is user '{Context.User.Username}' is status '{ConstVariables.ControlFlow}' {(flag? $"is error: '{error}'" : "")}");
         }
+
+        [Command("botstop")]
+        [OwnerOnly]
+        public async Task StopBotAsync()
+        {
+            try
+            {
+                await Context.Message.DeleteAsync();
+            }catch(Exception e)
+            {
+                ConstVariables.logger.Error($"Нет прав доступа! is channel {Context.Channel.Name} is error '{e}'");
+            }
+            await ConstVariables._Client.StopAsync();
+            ConstVariables.logger.Info($"Bot stop");
+        }
+
+        [Command("triggeradd")]
+        [CategoryChannel(IC: true)]
+        public async Task TriggerAdd(string trigger1, string trigger2)
+        {
+            ulong guildid = Context.Guild.Id;
+
+
+        }
     }
 }

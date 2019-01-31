@@ -20,12 +20,10 @@ namespace LegionKun.Module
         protected async Task MessageUpdate(Cacheable<IMessage, ulong> arg1, SocketMessage arg2, ISocketMessageChannel arg3)
         {
             try
-            {                
-                var dat1 = arg2.Timestamp;
-                var dat2 = DateTime.Today;
-                var time = DateTime.Now.TimeOfDay;
+            {
+                var mess = await arg1.GetOrDownloadAsync();
 
-                if (dat2.Year == dat1.Year && dat2.Month == dat1.Month && dat2.Day == dat1.Day && time.Hours - 3 == dat1.Hour && Math.Abs(time.Minutes - dat1.Minute) < 5)
+                if( mess.CreatedAt.Year == mess.EditedTimestamp.Value.Year && mess.CreatedAt.Month == mess.EditedTimestamp.Value.Month && mess.CreatedAt.Day == mess.EditedTimestamp.Value.Day && mess.CreatedAt.Hour - 3 == mess.EditedTimestamp.Value.Hour && Math.Abs(mess.CreatedAt.Minute - mess.EditedTimestamp.Value.Minute) < 5)
                 {
                     await MessageRec(arg2);
                     await HandleCommandAsync(arg2);

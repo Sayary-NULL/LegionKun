@@ -61,7 +61,7 @@ namespace LegionKun.Module
 
                     ConstVariables.Perevorot = false;
 
-                    Module.ConstVariables.Mess?.Invoke($"[{time.Hours}:{time.Minutes}:{time.Seconds}] произведен сброс!");
+                    Module.ConstVariables.Mess?.Invoke($" произведен сброс!");
                     ConstVariables.logger.Info("произведен сброс!");
                 }
 

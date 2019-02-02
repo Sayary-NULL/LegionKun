@@ -14,6 +14,31 @@ namespace LegionKun.Module
     [Admin]
     class AdminComands : InteractiveBase
     {
+        private struct SLog
+        {
+            string _group;
+            string _command;
+            SocketCommandContext Context;
+            public Exception _exception;
+            public string _addcondition;
+
+            public SLog(string command, SocketCommandContext context)
+            {
+                _group = "Admin";
+                _command = command;
+                Context = context;
+                _exception = null;
+                _addcondition = "";
+            }
+
+            public void PrintLog()
+            {
+                if (_exception == null)
+                    ConstVariables.logger.Info($"is group '{_group}' is command '{_command}' is guild '{Context.Guild.Name}' is channel '{Context.Channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}'{_addcondition}");
+                else ConstVariables.logger.Error($"is group '{_group}' is command '{_command}' is guild '{Context.Guild.Name}' is channel '{Context.Channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}'{_addcondition} is errors {_exception}");
+            }
+        };
+
         private async Task<bool> Access(string name)
         {
             if ((name == "off" || name == "on" || name == "news") && ConstVariables.ThisTest)
@@ -62,10 +87,13 @@ namespace LegionKun.Module
         }
 
         [Command("off", RunMode = RunMode.Async)]
+        [OwnerOnly]
         public async Task OffBotAsync(byte level = 2)
         {
             if (!(await Access("off")))
                 return;
+
+            SLog logger = new SLog("Off", Context);
 
             await ConstVariables._Client.SetStatusAsync(UserStatus.DoNotDisturb);
 
@@ -133,14 +161,17 @@ namespace LegionKun.Module
                 Console.WriteLine("Ошибка доступа!");
             }
 
-            ConstVariables.logger.Info($"is group 'Automatic' is command 'off' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is level '{level}'");
+            logger.PrintLog();
         }
 
         [Command("on", RunMode = RunMode.Async)]
+        [OwnerOnly]
         public async Task OnBotAsync(byte level = 2)
         {
             if (!(await Access("on")))
                 return;
+
+            SLog logger = new SLog("On", Context);
 
             await ConstVariables._Client.SetStatusAsync(UserStatus.Online);
 
@@ -209,7 +240,7 @@ namespace LegionKun.Module
                 Console.WriteLine("Ошибка доступа!");
             }
 
-            ConstVariables.logger.Info($"is group 'Automatic' is command 'on' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is level {level}");
+            logger.PrintLog();
         }
 
         [Command("news", RunMode = RunMode.Async)]
@@ -217,6 +248,8 @@ namespace LegionKun.Module
         {
             if (!(await Access("news")))
                 return;
+
+            SLog logger = new SLog("News", Context);
 
             string URL = "Base/news26052017.jpg";
             bool isfalg = false;
@@ -305,8 +338,7 @@ namespace LegionKun.Module
                 }
                 catch (Exception e)
                 {
-                    ConstVariables.logger.Error($"is group 'Automatic' is command 'news' is user '{Context.User.Username}#{Context.User.Discriminator}' is guild '{Context.Guild.Name}' is channel '{Context.Channel.Name}' is errors '{e.Message}'");
-                    throw;
+                    logger._exception = e;
                 }
             }
 
@@ -320,7 +352,7 @@ namespace LegionKun.Module
                 Console.WriteLine("Ошибка доступа!");
             }
 
-            ConstVariables.logger.Info($"is group 'Automatic' is command 'news' is user '{Context.User.Username}#{Context.User.Discriminator}' is guild '{Context.Guild.Name}' is channel '{Context.Channel.Name}'");
+            logger.PrintLog();
         }
 
         [Command("status")]
@@ -330,14 +362,7 @@ namespace LegionKun.Module
             if (!(await Access("status")))
                 return;
 
-            try
-            {
-                await Context.Message.DeleteAsync();
-            }
-            catch
-            {
-                Console.WriteLine("Ошибка доступа!");
-            }
+            SLog logger = new SLog("Status", Context);
 
             string SqlRequestRole = $"SELECT [RoleId] FROM [Role] WHERE [GuildId] = {Context.Guild.Id}";
             string SqlRequestChannel = $"SELECT [ChannelId] FROM [Channel] WHERE [GuildId] = {Context.Guild.Id}";
@@ -359,55 +384,64 @@ namespace LegionKun.Module
                 .WithColor(ConstVariables.AdminColor);
 
             int i = 1;
-
-            using (SqlConnection connect = new SqlConnection(Base.Resource1.ConnectionKeyTestServer))
+            try
             {
-                connect.Open();
-                SqlCommand command = new SqlCommand(SqlRequestRole, connect);
-                using (SqlDataReader reader = command.ExecuteReader())
+                using (SqlConnection connect = new SqlConnection(Base.Resource1.ConnectionKeyTestServer))
                 {
-                    if (reader.HasRows)
+                    connect.Open();
+                    SqlCommand command = new SqlCommand(SqlRequestRole, connect);
+                    using (SqlDataReader reader = command.ExecuteReader())
                     {
-                        while (reader.Read())
+                        if (reader.HasRows)
                         {
-                            role += $"{i++}: **{Context.Guild.GetRole((ulong)reader.GetInt64(0)).Name}**\r\n";
+                            while (reader.Read())
+                            {
+                                role += $"{i++}: **{Context.Guild.GetRole((ulong)reader.GetInt64(0)).Name}**\r\n";
+                            }
                         }
+                        else throw new Exception($"Ошибка в чтении ролей сервера: {Context.Guild.Id}");
                     }
-                    else throw new Exception($"Ошибка в чтении ролей сервера: {Context.Guild.Id}");
+
+                    i = 1;
+
+                    command.CommandText = SqlRequestChannel;
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        if (reader.HasRows)
+                        {
+                            while (reader.Read())
+                            {
+                                channel += $"{i++}: **{Context.Guild.GetChannel((ulong)reader.GetInt64(0)).Name}**\r\n";
+                            }
+                        }
+                        else throw new Exception($"Ошибка в чтении каналов сервера: {Context.Guild.Id}");
+                    }
                 }
 
-                i = 1;
+                builder.AddField("Roles", role, true)
+                       .AddField("Channels", channel, true)
+                       .AddField("Версия бота", Base.Resource1.VersionBot, true)
+                       .AddField("Defaul channel", Context.Guild.GetTextChannel(guild.DefaultChannelId).Mention, true)
+                       .AddField("Default channel for news", Context.Guild.GetTextChannel(guild.DefaultChannelNewsId).Mention, true)
+                       .AddField("Guild Id", guild.GuildId, true);
 
-                command.CommandText = SqlRequestChannel;
-                using (SqlDataReader reader = command.ExecuteReader())
-                {
-                    if (reader.HasRows)
-                    {
-                        while (reader.Read())
-                        {
-                            channel += $"{i++}: **{Context.Guild.GetChannel((ulong)reader.GetInt64(0)).Name}**\r\n";
-                        }
-                    }
-                    else throw new Exception($"Ошибка в чтении каналов сервера: {Context.Guild.Id}");
-                }
+                await Context.Channel.SendMessageAsync("", false, builder.Build());
+
             }
-
-            builder.AddField("Roles", role, true)
-                   .AddField("Channels", channel, true)
-                   .AddField("Версия бота", Base.Resource1.VersionBot, true)
-                   .AddField("Defaul channel", Context.Guild.GetTextChannel(guild.DefaultChannelId).Mention, true)
-                   .AddField("Default channel for news", Context.Guild.GetTextChannel(guild.DefaultChannelNewsId).Mention, true)
-                   .AddField("Guild Id", guild.GuildId, true);
-
-            await Context.Channel.SendMessageAsync("", false, builder.Build());
-
-            ConstVariables.logger.Info($"is group 'admin' is guild '{Context.Guild.Name}' is channel '{Context.Channel.Name}' is user '{Context.User.Username}'");
+            catch(Exception e)
+            {
+                await ReplyAndDeleteAsync("Ошибка чтения! Обратитесь к администратору!", timeout: TimeSpan.FromSeconds(5));
+                logger._exception = e;
+            }
+            logger.PrintLog();
         }
 
         [Command("debug")]
         [OwnerOnly]
         public async Task DebugAsync()
         {
+            SLog logger = new SLog("Debug", Context);
+
             try
             {
                 await Context.Message.DeleteAsync();
@@ -421,7 +455,8 @@ namespace LegionKun.Module
 
             await ReplyAndDeleteAsync($"Режим дебага: {ConstVariables.CServer[Context.Guild.Id].Debug}", timeout: TimeSpan.FromSeconds(5));
 
-            ConstVariables.logger.Info($"is group 'Admin' is command 'debug' is user '{Context.User.Username}' is channel '{Context.Channel.Name}' is result '{(ConstVariables.CServer[Context.Guild.Id].Debug ? "on" : "off")}'");
+            logger._addcondition = $" is result '{(ConstVariables.CServer[Context.Guild.Id].Debug ? "on" : "off")}'";
+            logger.PrintLog();
         }
 
         [Command("banlist")]
@@ -429,6 +464,8 @@ namespace LegionKun.Module
         {
             if (!(await Access("banlist")))
                 return;
+
+            SLog logger = new SLog("BanList", Context);
 
             string SqlExpression = "sp_SelectBanList";
             string TextRequest = "";
@@ -494,14 +531,15 @@ namespace LegionKun.Module
                         }
                         else await ReplyAndDeleteAsync("Данных в базе не обнаружено!", timeout: TimeSpan.FromSeconds(5));
 
-                        ConstVariables.logger.Info($"is group 'admin' is command 'BanList' is guild '{Context.Guild.Name}' is command '{Context.Channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}'");
+                        logger._addcondition = $"is user '{Context.User.Username}#{Context.User.Discriminator}'";
                     }
                 }
                 catch (Exception e)
                 {
-                    ConstVariables.logger.Error($"is group 'admin' is command 'BanList' is guild '{Context.Guild.Name}' is command '{Context.Channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}' is errors {e}");
                     await ReplyAndDeleteAsync("Произошла ошибка! Обратитесь к администратору.", timeout: TimeSpan.FromSeconds(5));
+                    logger._exception = e;
                 }
+                logger.PrintLog();
             }
         }
 
@@ -510,6 +548,8 @@ namespace LegionKun.Module
         {
             if (!(await Access("banlistadmin")))
                 return;
+
+            SLog logger = new SLog("BanListAdmin", Context);
 
             string SqlExpression = "sp_SelectBanListAdmin";
             string TextRequest = "";
@@ -564,12 +604,14 @@ namespace LegionKun.Module
                     }
                     else await ReplyAndDeleteAsync("Данных в базе не обноружено!", timeout: TimeSpan.FromSeconds(5));
 
-                    ConstVariables.logger.Info($"is group 'admin' is command 'BanListAdmin' is guild '{Context.Guild.Name}' is command '{Context.Channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}' is Admin '{User.Username}#{User.Discriminator}'");
+                    logger._addcondition = $"is Admin '{User.Username}#{User.Discriminator}'";
                 }
                 catch (Exception e)
                 {
-                    ConstVariables.logger.Error($"is group 'admin' is command 'BanListAdmin' is guild '{Context.Guild.Name}' is command '{Context.Channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}' is errors {e}");
+                    await ReplyAndDeleteAsync("Ошибка чтения! Обратитесь к администратору!", timeout: TimeSpan.FromSeconds(5));
+                    logger._exception = e;
                 }
+                logger.PrintLog();
             }
         }
 
@@ -578,6 +620,9 @@ namespace LegionKun.Module
         {
             if (!(await Access("banlistadd")))
                 return;
+
+            SLog logger = new SLog("BanListAdd", Context);
+
             EmbedBuilder builder = new EmbedBuilder();
             string SqlExpression = "sp_InsertUsersBan";
 
@@ -591,12 +636,6 @@ namespace LegionKun.Module
             {
                 switch (Context.Guild.Id)
                 {
-                    //шароновский легион
-                    case 461284473799966730:
-                        {
-                            await ReplyAndDeleteAsync($"Ботов банить нельзя! Но если вы удалите Monika, то я буду не против", timeout: TimeSpan.FromSeconds(5));
-                            return;
-                        }
                     //[Legion Sharon'a]
                     case 423154703354822668:
                         {
@@ -668,13 +707,14 @@ namespace LegionKun.Module
 
                     await ReplyAsync("", embed: builder.Build());
 
-                    ConstVariables.logger.Info($"is group 'admin' is command 'BanListAdd' is guild '{Context.Guild.Name}' is command '{Context.Channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}' is UserBanned '{User.Username}#{User.Discriminator}'");
+                    logger._addcondition = $"is UserBanned '{User.Username}#{User.Discriminator}'";
                 }
                 catch (Exception e)
                 {
-                    ConstVariables.logger.Error($"is group 'admin' is command 'BanListAdd' is guild '{Context.Guild.Name}' is command '{Context.Channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}' is errors {e}");
                     await ReplyAndDeleteAsync("Ошибка вставки! Обратитесь к администратору!", timeout: TimeSpan.FromSeconds(5));
+                    logger._exception = e;
                 }
+                logger.PrintLog();
             }
         }
 
@@ -683,6 +723,8 @@ namespace LegionKun.Module
         {
             if (!(await Access("banlistdelete")))
                 return;
+
+            SLog logger = new SLog("BanListDelete", Context);
 
             string SqlExpression = "sp_DeletUsersBan";
 
@@ -713,13 +755,15 @@ namespace LegionKun.Module
                     int number = command.ExecuteNonQuery();
                     await ReplyAsync($"Удалено записей: {number}");
 
-                    ConstVariables.logger.Info($"is group 'admin' is command 'BanListDelete' is guild '{Context.Guild.Name}' is command '{Context.Channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}' is userdelete '{User.Username}#{User.Discriminator}'");
+                    logger._addcondition = $"is userdelete '{User.Username}#{User.Discriminator}'";
                 }
                 catch (Exception e)
                 {
                     await ReplyAndDeleteAsync("Ошибка вставки! Обратитесь к администратору!", timeout: TimeSpan.FromSeconds(5));
-                    ConstVariables.logger.Error($"is group 'admin' is command 'BanListDelete' is guild '{Context.Guild.Name}' is command '{Context.Channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}' is errors {e}");
+                    logger._exception = e;
                 }
+
+                logger.PrintLog();
             }
         }
 
@@ -729,6 +773,8 @@ namespace LegionKun.Module
         {
             if (!(await Access("flowcontrol")))
                 return;
+
+            SLog logger = new SLog("FlowControl", Context);
 
             switch (name)
             {
@@ -758,8 +804,6 @@ namespace LegionKun.Module
                         break;
                     }
             }
-            bool flag = false;
-            string error = "";
 
             try
             {
@@ -767,27 +811,29 @@ namespace LegionKun.Module
             }
             catch (Exception e)
             {
-                flag = true;
-                error = e.Message;
+                logger._exception = e;
             }
 
-            ConstVariables.logger.Info($"is group 'admin' is guild '{Context.Guild.Name}' is channel '{Context.Channel.Name}' is user '{Context.User.Username}' is status '{ConstVariables.ControlFlow}' {(flag ? $"is error: '{error}'" : "")}");
+            logger.PrintLog();
         }
 
         [Command("botstop")]
         [OwnerOnly]
         public async Task StopBotAsync()
         {
+            SLog logger = new SLog("BotStop", Context);
+
             try
             {
                 await Context.Message.DeleteAsync();
             }
             catch (Exception e)
             {
-                ConstVariables.logger.Error($"Нет прав доступа! is channel {Context.Channel.Name} is error '{e}'");
+                logger._exception = e;
             }
+
             await ConstVariables._Client.StopAsync();
-            ConstVariables.logger.Info($"Bot stop");
+            logger.PrintLog();
         }
 
         [Command("addtrigger")]
@@ -796,6 +842,8 @@ namespace LegionKun.Module
         {
             if (!(await Access("addtrigger")))
                 return;
+
+            SLog logger = new SLog("AddTrigger", Context);
 
             string SqlExpression = "sp_AddTrigger";
 
@@ -832,15 +880,15 @@ namespace LegionKun.Module
                     command.Parameters.Add(TextRes);
 
                     int number = command.ExecuteNonQuery();
-                    await ReplyAndDeleteAsync((number == 0 ? $"{Context.User.Mention}, возникла ошибка при добавлении!" : "добавлнеа новая запись!"), timeout: TimeSpan.FromSeconds(5));
-
-                    ConstVariables.logger.Info($"is group 'admin' is command 'AddTrigger' is guild '{Context.Guild.Name}' is channel '{Context.Channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}'");
+                    await ReplyAsync((number == 0 ? $"{Context.User.Mention}, возникла ошибка при добавлении!" : "добавлнеа новая запись!"));
                 }
                 catch (Exception e)
                 {
                     await ReplyAndDeleteAsync("Ошибка вставки! Обратитесь к администратору!", timeout: TimeSpan.FromSeconds(5));
-                    ConstVariables.logger.Error($"is group 'admin' is command 'AddTrigger' is guild '{Context.Guild.Name}' is channel '{Context.Channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}' is errors {e}");
+                    logger._exception = e;
                 }
+
+                logger.PrintLog();
             }
         }
 
@@ -850,6 +898,8 @@ namespace LegionKun.Module
         {
             if (!(await Access("selecttrigger")))
                 return;
+
+            SLog logger = new SLog("SelectTrigger", Context);
 
             string SqlExpression = "sp_SelectTriggers";
 
@@ -891,13 +941,14 @@ namespace LegionKun.Module
                         }
                         else await ReplyAsync("триггеров не найдено!");
                     }
-                    ConstVariables.logger.Info($"is group 'admin' is command 'SelectTrigger' is guild '{Context.Guild.Name}' is channel '{Context.Channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}'");
                 }
                 catch (Exception e)
                 {
                     await ReplyAndDeleteAsync("Ошибка чтения! Обратитесь к администратору!", timeout: TimeSpan.FromSeconds(5));
-                    ConstVariables.logger.Error($"is group 'admin' is command 'SelectTrigger' is guild '{Context.Guild.Name}' is channel '{Context.Channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}' is errors {e}");
+                    logger._exception = e;
                 }
+
+                logger.PrintLog();
             }
         }
 
@@ -907,6 +958,8 @@ namespace LegionKun.Module
         {
             if (!(await Access("deletetrigger")))
                 return;
+
+            SLog logger = new SLog("DeleteTrigger", Context);
 
             string SqlExpression = "sp_DeleteTrigger";
 
@@ -935,21 +988,21 @@ namespace LegionKun.Module
                         command.Parameters.Add(GuildIdParam);
                         command.Parameters.Add(IdTrigger);
 
-                        int result = await command.ExecuteNonQueryAsync();     
-                        if(result == 0)
+                        int result = await command.ExecuteNonQueryAsync();
+                        if (result == 0)
                         {
                             await ReplyAsync("Не удален не одн триггер!");
                         }
                         else await ReplyAsync("Удален 1 триггер.");
                     }
-
-                    ConstVariables.logger.Info($"is group 'admin' is command 'DeleteTrigger' is guild '{Context.Guild.Name}' is channel '{Context.Channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}'");
                 }
                 catch (Exception e)
                 {
                     await ReplyAndDeleteAsync("Ошибка чтения! Обратитесь к администратору!", timeout: TimeSpan.FromSeconds(5));
-                    ConstVariables.logger.Error($"is group 'admin' is command 'DeleteTrigger' is guild '{Context.Guild.Name}' is channel '{Context.Channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}' is errors {e}");
+                    logger._exception = e;
                 }
+
+                logger.PrintLog();
             }
         }
 

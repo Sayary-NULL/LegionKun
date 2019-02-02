@@ -24,12 +24,12 @@ namespace LegionKun.Attribute
         public override Task<PreconditionResult> CheckPermissionsAsync(ICommandContext Context, CommandInfo command, IServiceProvider services)
         {
             if (!ConstVariables.CServer.ContainsKey(Context.Guild.Id))
-                return Task.FromResult(PreconditionResult.FromError("Не найдена гильдия"));
+                return Task.FromResult(PreconditionResult.FromError("Ошибка! Сервер не найден в БД."));
 
             if (ConstVariables.CServer[Context.Guild.Id].IsEntryOrСategoryChannel(Context.Channel.Id, IsDefault, IsNews, IsCommand))
                 return Task.FromResult(PreconditionResult.FromSuccess());
             
-            return Task.FromResult(PreconditionResult.FromError($"Не найден или отсутствует данная категория"));
+            return Task.FromResult(PreconditionResult.FromError($"Канал не соответствует условиям!"));
         }
     }
 }

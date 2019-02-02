@@ -19,7 +19,7 @@ namespace LegionKun.Attribute
                     return Task.FromResult(PreconditionResult.FromSuccess());
                 }
 
-            return Task.FromResult(PreconditionResult.FromError("Нет доступа"));
+            return Task.FromResult(PreconditionResult.FromError("У вас не достаточно прав доступа!"));
         }
     }
 }

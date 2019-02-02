@@ -18,8 +18,7 @@ namespace LegionKun.Attribute
             }
             else
             {
-                Module.OverloadFunc.SendMessageAsync(context.Channel, "Выполняется только во время тестов", deleteAfter: 5).GetAwaiter();
-                return Task.FromResult(PreconditionResult.FromError("Выполняется только во время тестов"));
+                return Task.FromResult(PreconditionResult.FromError("Выполняется только во время тестов!"));
             }
         }
     }

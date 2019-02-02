@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Discord.Commands;
-using static LegionKun.Module.OverloadFunc;
 
 namespace LegionKun.Attribute
 {
@@ -17,7 +16,7 @@ namespace LegionKun.Attribute
                 return Task.FromResult(PreconditionResult.FromSuccess());
             }
 
-            return Task.FromResult(PreconditionResult.FromError("Ошибка доступа"));
+            return Task.FromResult(PreconditionResult.FromError("Эта команда только для Sayary!"));
         }
     }
 }

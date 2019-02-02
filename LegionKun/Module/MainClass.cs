@@ -125,7 +125,7 @@ namespace LegionKun.Module
 
                 if (IsTrigger)
                 {
-                    ConstVariables.logger.Info($" Сработал тригер: {mess}! is Guid '{guild.GetGuild().Name}' is channel '{channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}'");
+                    ConstVariables.logger.Info($" Сработал тригер: '{mess}'! is Guid '{guild.GetGuild().Name}' is channel '{channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}'");
                 }
             }
         }
@@ -138,51 +138,64 @@ namespace LegionKun.Module
                 return;
             int argPos = 0;
 
+            SocketCommandContext contex = new SocketCommandContext(ConstVariables._Client, Messeg);
+
+            SLog logger = new SLog(contex);
+
+            IResult result = null;
+
             if (Messeg.HasStringPrefix("sh!", ref argPos) || Messeg.HasStringPrefix("Sh!", ref argPos))
             {
-                SocketCommandContext contex = new SocketCommandContext(ConstVariables._Client, Messeg);
-
-                IResult result = await ConstVariables._Command.ExecuteAsync(contex, argPos, ConstVariables._UserService);
-
-                if (!result.IsSuccess)
-                {
-                    switch (result.Error.Value)
-                    {
-                        case CommandError.BadArgCount: { ConstVariables.logger.Error($"is errors 'BadArgCount' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); contex.Channel.SendMessageAsync($"{contex.User.Mention}, неверные параметры команды").GetAwaiter(); break; }
-                        case CommandError.UnknownCommand: { ConstVariables.logger.Error($"is errors 'UnknownCommand' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); contex.Channel.SendMessageAsync($"{contex.User.Mention}, неизвестная команда").GetAwaiter(); Help(contex); break; }
-                        case CommandError.ObjectNotFound: { ConstVariables.logger.Error($"is errors 'ObjectNotFound' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                        case CommandError.ParseFailed: { ConstVariables.logger.Error($"is errors 'ParseFailed' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                        case CommandError.MultipleMatches: { ConstVariables.logger.Error($"is errors 'MultipleMatches' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                        case CommandError.UnmetPrecondition: { ConstVariables.logger.Error($"is errors 'UnmetPrecondition' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                        case CommandError.Exception: { ConstVariables.logger.Error($"is errors 'Exception' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                        case CommandError.Unsuccessful: { ConstVariables.logger.Error($"is errors 'Unsuccessful' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                        default: { ConstVariables.logger.Error($"is errors 'Default' is channel '{arg.Channel.Name}' is param {result.ErrorReason} is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                    }
-                }
+                result = await ConstVariables._Command.ExecuteAsync(contex, argPos, ConstVariables._UserService);               
             }
             else if (Messeg.HasStringPrefix("c!", ref argPos) || Messeg.HasStringPrefix("с!", ref argPos))
             {
-                SocketCommandContext contex = new SocketCommandContext(ConstVariables._Client, Messeg);
+                result = await ConstVariables._GameCommand.ExecuteAsync(contex, argPos, ConstVariables._GameService);                
+            }
 
-                IResult result = await ConstVariables._GameCommand.ExecuteAsync(contex, argPos, ConstVariables._GameService);
-
-                if (!result.IsSuccess)
+            if (!result.IsSuccess)
+            {
+                switch (result.Error.Value)
                 {
-                    switch (result.Error.Value)
-                    {
-                        case CommandError.BadArgCount: { ConstVariables.logger.Error($"is errors 'BadArgCount' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); contex.Channel.SendMessageAsync($"{contex.User.Mention}, неверные параметры команды").GetAwaiter(); break; }
-                        case CommandError.UnknownCommand: { ConstVariables.logger.Error($"is errors 'UnknownCommand' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); contex.Channel.SendMessageAsync($"{contex.User.Mention}, неизвестная команда").GetAwaiter(); break; }
-                        case CommandError.ObjectNotFound: { ConstVariables.logger.Error($"is errors 'ObjectNotFound' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                        case CommandError.ParseFailed: { ConstVariables.logger.Error($"is errors 'ParseFailed' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                        case CommandError.MultipleMatches: { ConstVariables.logger.Error($"is errors 'MultipleMatches' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                        case CommandError.UnmetPrecondition: { ConstVariables.logger.Error($"is errors 'UnmetPrecondition' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                        case CommandError.Exception: { ConstVariables.logger.Error($"is errors 'Exception' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                        case CommandError.Unsuccessful: { ConstVariables.logger.Error($"is errors 'Unsuccessful' is param {result.ErrorReason} is channel '{arg.Channel.Name}' is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                        default: { ConstVariables.logger.Error($"is errors 'Default' is channel '{arg.Channel.Name}' is param {result.ErrorReason} is user '{arg.Author.Username}#{arg.Author.Discriminator}' is context '{arg.Content}'"); break; }
-                    }
+                    case CommandError.BadArgCount: { logger.SetParam("BadArgCount", result.ErrorReason); contex.Channel.SendMessageAsync($"{contex.User.Mention}, неверные параметры команды").GetAwaiter(); break; }
+                    case CommandError.UnknownCommand: { logger.SetParam("UnknownCommand", result.ErrorReason); contex.Channel.SendMessageAsync($"{contex.User.Mention}, неизвестная команда").GetAwaiter(); Help(contex); break; }
+                    case CommandError.ObjectNotFound: { logger.SetParam("ObjectNotFound", result.ErrorReason); break; }
+                    case CommandError.ParseFailed: { logger.SetParam("ParseFailed", result.ErrorReason); break; }
+                    case CommandError.MultipleMatches: { logger.SetParam("MultipleMatches", result.ErrorReason); break; }
+                    case CommandError.UnmetPrecondition: { logger.SetParam("UnmetPrecondition", result.ErrorReason); contex.Channel.SendMessageAsync(result.ErrorReason).GetAwaiter(); break; }
+                    case CommandError.Exception: { logger.SetParam("Exception", result.ErrorReason); break; }
+                    case CommandError.Unsuccessful: { logger.SetParam("Unsuccessful", result.ErrorReason); break; }
+                    default: { logger.SetParam("Default", result.ErrorReason); break; }
                 }
+
+                logger.PrintLog();
             }
         }
+
+        private struct SLog
+        {
+            string _error;
+            string _errorrreason;
+            SocketCommandContext Context;
+
+            public SLog(SocketCommandContext context)
+            {
+                _error = "";
+                _errorrreason = "";
+                Context = context;
+            }
+
+            public void SetParam(string error, string errorrreason)
+            {
+                _error = error;
+                _errorrreason = errorrreason;
+            }
+
+            public void PrintLog()
+            {
+                ConstVariables.logger.Error($"is errors '{_error}' is param {_errorrreason} is guild '{Context.Guild.Name}' is channel '{Context.Channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}' is context '{Context.Message.Content}'");
+            }
+        };
 
         public bool MentionUser(ICommandContext Context, params ulong[] Id)
         {

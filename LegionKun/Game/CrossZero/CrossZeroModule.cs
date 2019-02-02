@@ -14,7 +14,6 @@ using SixLabors.ImageSharp.Processing.Drawing;
 
 namespace LegionKun.Game.CrossZero
 {
-
     sealed class CrossZeroModule : CrossZeroGame
     {
         [Command("help")]
@@ -50,14 +49,14 @@ namespace LegionKun.Game.CrossZero
         {
             if (Context.User == User2)
             {
-                await Module.OverloadFunc.SendMessageAsync(Context.Channel, "Самим с собой нельзя!", deleteAfter: 5);
+                await ReplyAndDeleteAsync("Самим с собой нельзя!", timeout: TimeSpan.FromSeconds(5));
 
                 return;
             }
 
             if (User2.IsBot)
             {
-                await Module.OverloadFunc.SendMessageAsync(Context.Channel, "C ботом нельзя!", deleteAfter: 5);
+                await ReplyAndDeleteAsync("C ботом нельзя!", timeout: TimeSpan.FromSeconds(5));
                 return;
             }
 

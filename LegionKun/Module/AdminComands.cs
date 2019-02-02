@@ -7,6 +7,7 @@ using LegionKun.Attribute;
 using System.Data.SqlClient;
 using Discord.WebSocket;
 using System.Diagnostics;
+using System.Collections.Generic;
 
 namespace LegionKun.Module
 {
@@ -15,7 +16,7 @@ namespace LegionKun.Module
     {
         private async Task<bool> Access(string name)
         {
-            if (name == "off" || name == "on" || name == "news")
+            if ((name == "off" || name == "on" || name == "news") && ConstVariables.ThisTest)
             {
                 await ReplyAndDeleteAsync($"{Context.User.Mention}, Эти команды недоступны в тестовом режиме!", timeout: TimeSpan.FromSeconds(5));
                 return false;
@@ -27,7 +28,7 @@ namespace LegionKun.Module
                 return true;
             }
 
-            if (!ConstVariables.CServer[Context.Guild.Id].IsOn)
+            if (!ConstVariables.CServer[Context.Guild.Id].IsOn && name != "on")
             {
                 await ReplyAndDeleteAsync($"{Context.User.Mention}, все команды сейчас выключены!", timeout: TimeSpan.FromSeconds(5));
                 return false;
@@ -47,7 +48,11 @@ namespace LegionKun.Module
                 }
             }
 
-            if (!isresult)
+            if(name == "on" || name == "off")
+            {
+                return true;
+            }
+            else if (!isresult)
             {
                 await ReplyAndDeleteAsync($"{Context.User.Mention}, это команда сейчас выключена!", timeout: TimeSpan.FromSeconds(5));
                 return false;
@@ -114,12 +119,11 @@ namespace LegionKun.Module
                         var result = await ConstVariables.CServer[Context.Guild.Id].GetDefaultChannel().SendMessageAsync("", false, builder.Build());
                         IEmote em = new Emoji("😜");
                         await result.AddReactionAsync(em);
-
                         break;
                     }
                 default: { break; }
             }
-
+            
             try
             {
                 await Context.Message.DeleteAsync();
@@ -786,14 +790,12 @@ namespace LegionKun.Module
             ConstVariables.logger.Info($"Bot stop");
         }
 
-        [Command("triggeradd")]
+        [Command("addtrigger")]
         [CategoryChannel(IC: true)]
-        public async Task TriggerAdd(string trigger1, string trigger2)
+        public async Task TriggerAddAsync(string trigger1, string trigger2)
         {
-            if (!(await Access("triggeradd")))
+            if (!(await Access("addtrigger")))
                 return;
-
-            ulong guildid = Context.Guild.Id;
 
             string SqlExpression = "sp_AddTrigger";
 
@@ -808,7 +810,7 @@ namespace LegionKun.Module
             {
                 ParameterName = "@TextRec",
                 DbType = System.Data.DbType.String,
-                Value = trigger1
+                Value = trigger1.ToLower()
             };
 
             SqlParameter TextOtv = new SqlParameter
@@ -840,6 +842,127 @@ namespace LegionKun.Module
                     ConstVariables.logger.Error($"is group 'admin' is command 'AddTrigger' is guild '{Context.Guild.Name}' is channel '{Context.Channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}' is errors {e}");
                 }
             }
+        }
+
+        [Command("selecttrigger")]
+        [CategoryChannel(IC: true)]
+        public async Task SelectTriggerAsync()
+        {
+            if (!(await Access("selecttrigger")))
+                return;
+
+            string SqlExpression = "sp_SelectTriggers";
+
+            string answer = ConstVariables.NCR;
+            int count = 1;
+
+            SqlParameter GuildIdParam = new SqlParameter
+            {
+                ParameterName = "@GuildID",
+                DbType = System.Data.DbType.Int64,
+                Value = Context.Guild.Id
+            };
+
+            using (SqlConnection conect = new SqlConnection(Base.Resource1.ConnectionKeyTestServer))
+            {
+                try
+                {
+                    conect.Open();
+
+                    using (SqlCommand command = new SqlCommand(SqlExpression, conect) { CommandType = System.Data.CommandType.StoredProcedure })
+                    {
+                        command.Parameters.Add(GuildIdParam);
+
+                        SqlDataReader reader = await command.ExecuteReaderAsync();
+
+                        if(reader.HasRows)
+                        {
+                            answer = "";
+                            while(reader.Read())
+                            {
+                                int id = reader.GetInt32(0);
+                                string textsec = reader.GetString(1);
+                                string textanswer = reader.GetString(2);
+
+                                answer += $"{count++}) **id trigger**: {id}\r\n{CountInterval(count)}**text search**: '{textsec}'\r\n{CountInterval(count)}**text anwser**: '{textanswer}'\r\n";
+                            }
+                            reader.Close();
+                            await ReplyAsync(answer);
+                        }
+                        else await ReplyAsync("триггеров не найдено!");
+                    }
+                    ConstVariables.logger.Info($"is group 'admin' is command 'SelectTrigger' is guild '{Context.Guild.Name}' is channel '{Context.Channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}'");
+                }
+                catch (Exception e)
+                {
+                    await ReplyAndDeleteAsync("Ошибка чтения! Обратитесь к администратору!", timeout: TimeSpan.FromSeconds(5));
+                    ConstVariables.logger.Error($"is group 'admin' is command 'SelectTrigger' is guild '{Context.Guild.Name}' is channel '{Context.Channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}' is errors {e}");
+                }
+            }
+        }
+
+        [Command("deletetrigger")]
+        [CategoryChannel(IC: true)]
+        public async Task DeleteTriggerAsync(int id)
+        {
+            if (!(await Access("deletetrigger")))
+                return;
+
+            string SqlExpression = "sp_DeleteTrigger";
+
+            SqlParameter GuildIdParam = new SqlParameter
+            {
+                ParameterName = "@GuildID",
+                DbType = System.Data.DbType.Int64,
+                Value = Context.Guild.Id
+            };
+
+            SqlParameter IdTrigger = new SqlParameter
+            {
+                ParameterName = "@ID",
+                DbType = System.Data.DbType.Int32,
+                Value = id
+            };
+
+            using (SqlConnection conect = new SqlConnection(Base.Resource1.ConnectionKeyTestServer))
+            {
+                try
+                {
+                    conect.Open();
+
+                    using (SqlCommand command = new SqlCommand(SqlExpression, conect) { CommandType = System.Data.CommandType.StoredProcedure })
+                    {
+                        command.Parameters.Add(GuildIdParam);
+                        command.Parameters.Add(IdTrigger);
+
+                        int result = await command.ExecuteNonQueryAsync();     
+                        if(result == 0)
+                        {
+                            await ReplyAsync("Не удален не одн триггер!");
+                        }
+                        else await ReplyAsync("Удален 1 триггер.");
+                    }
+
+                    ConstVariables.logger.Info($"is group 'admin' is command 'DeleteTrigger' is guild '{Context.Guild.Name}' is channel '{Context.Channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}'");
+                }
+                catch (Exception e)
+                {
+                    await ReplyAndDeleteAsync("Ошибка чтения! Обратитесь к администратору!", timeout: TimeSpan.FromSeconds(5));
+                    ConstVariables.logger.Error($"is group 'admin' is command 'DeleteTrigger' is guild '{Context.Guild.Name}' is channel '{Context.Channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}' is errors {e}");
+                }
+            }
+        }
+
+        private string CountInterval(int number)
+        {
+            double interv = Math.Log10(number) + 1;
+            string rez = "";
+            interv = Math.Truncate(interv) * 2;
+
+            for (int i = 0; i < interv + 2; i++)
+                rez += " ";
+
+            return rez;
         }
     }
 }

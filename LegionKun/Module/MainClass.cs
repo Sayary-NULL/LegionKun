@@ -23,7 +23,7 @@ namespace LegionKun.Module
             {
                 var mess = await arg1.GetOrDownloadAsync();
 
-                if( mess.CreatedAt.Year == mess.EditedTimestamp.Value.Year && mess.CreatedAt.Month == mess.EditedTimestamp.Value.Month && mess.CreatedAt.Day == mess.EditedTimestamp.Value.Day && mess.CreatedAt.Hour - 3 == mess.EditedTimestamp.Value.Hour && Math.Abs(mess.CreatedAt.Minute - mess.EditedTimestamp.Value.Minute) < 5)
+                if( mess.CreatedAt.Year == mess.EditedTimestamp.Value.Year && mess.CreatedAt.Month == mess.EditedTimestamp.Value.Month && mess.CreatedAt.Day == mess.EditedTimestamp.Value.Day && mess.CreatedAt.Hour == mess.EditedTimestamp.Value.Hour && Math.Abs(mess.CreatedAt.Minute - mess.EditedTimestamp.Value.Minute) < 5)
                 {
                     await MessageRec(arg2);
                     await HandleCommandAsync(arg2);
@@ -44,7 +44,7 @@ namespace LegionKun.Module
 
             SocketCommandContext Context = new SocketCommandContext(Module.ConstVariables._Client, Messege);
 
-            if (!ConstVariables.CServer[Context.Guild.Id].IsOn && !ConstVariables.ThisTest)
+            if (!ConstVariables.CServer[Context.Guild.Id].IsOn && !ConstVariables.ThisTest || Messag.Author.IsBot)
                     return;
 
             bool IsTrigger = false;

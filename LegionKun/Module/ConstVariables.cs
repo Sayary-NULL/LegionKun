@@ -184,7 +184,9 @@ namespace LegionKun.Module
             new Commands( "banlist" , "banlist <User Mention>", true),
             new Commands( "banlistadmin" , "banlistadmin <Admin Mention>", true),
             new Commands( "banlistadd" , "banlistadd [User Mention] <Comment>", true),
-            new Commands( "triggeradd" , "triggeradd \"Text Search\" \"Text Otvet\"", true)
+            new Commands( "addtrigger" , "addtrigger \"Text Search\" \"Text Otvet\"", true),
+            new Commands( "selecttrigger" , "selecttrigger", true),
+            new Commands( "deletetrigger" , "deletetrigger [id trigger]", true)
         };
 
         public struct Commands
@@ -474,7 +476,7 @@ namespace LegionKun.Module
             }
 
             var _config = new DiscordSocketConfig();
-            _config.LogLevel = LogSeverity.Debug;
+            _config.LogLevel = LogSeverity.Info;
 
             _Client = new DiscordSocketClient(_config);
             _Command = new CommandService();

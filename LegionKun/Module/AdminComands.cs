@@ -430,7 +430,7 @@ namespace LegionKun.Module
             }
             catch(Exception e)
             {
-                await ReplyAndDeleteAsync("Ошибка чтения! Обратитесь к администратору!", timeout: TimeSpan.FromSeconds(5));
+                await ReplyAsync("Ошибка чтения! Обратитесь к администратору!");
                 logger._exception = e;
             }
             logger.PrintLog();
@@ -529,14 +529,14 @@ namespace LegionKun.Module
 
                             await ReplyAsync("", embed: builder.Build());
                         }
-                        else await ReplyAndDeleteAsync("Данных в базе не обнаружено!", timeout: TimeSpan.FromSeconds(5));
+                        else await ReplyAsync("Данных в базе не обнаружено!");
 
                         logger._addcondition = $"is user '{Context.User.Username}#{Context.User.Discriminator}'";
                     }
                 }
                 catch (Exception e)
                 {
-                    await ReplyAndDeleteAsync("Произошла ошибка! Обратитесь к администратору.", timeout: TimeSpan.FromSeconds(5));
+                    await ReplyAsync("Произошла ошибка! Обратитесь к администратору.");
                     logger._exception = e;
                 }
                 logger.PrintLog();
@@ -602,13 +602,13 @@ namespace LegionKun.Module
 
                         await ReplyAsync("", embed: builder.Build());
                     }
-                    else await ReplyAndDeleteAsync("Данных в базе не обноружено!", timeout: TimeSpan.FromSeconds(5));
+                    else await ReplyAsync("Данных в базе не обноружено!");
 
                     logger._addcondition = $"is Admin '{User.Username}#{User.Discriminator}'";
                 }
                 catch (Exception e)
                 {
-                    await ReplyAndDeleteAsync("Ошибка чтения! Обратитесь к администратору!", timeout: TimeSpan.FromSeconds(5));
+                    await ReplyAsync("Ошибка чтения! Обратитесь к администратору!");
                     logger._exception = e;
                 }
                 logger.PrintLog();
@@ -711,7 +711,7 @@ namespace LegionKun.Module
                 }
                 catch (Exception e)
                 {
-                    await ReplyAndDeleteAsync("Ошибка вставки! Обратитесь к администратору!", timeout: TimeSpan.FromSeconds(5));
+                    await ReplyAsync("Ошибка вставки! Обратитесь к администратору!");
                     logger._exception = e;
                 }
                 logger.PrintLog();
@@ -759,7 +759,7 @@ namespace LegionKun.Module
                 }
                 catch (Exception e)
                 {
-                    await ReplyAndDeleteAsync("Ошибка вставки! Обратитесь к администратору!", timeout: TimeSpan.FromSeconds(5));
+                    await ReplyAsync("Ошибка вставки! Обратитесь к администратору!");
                     logger._exception = e;
                 }
 
@@ -884,7 +884,7 @@ namespace LegionKun.Module
                 }
                 catch (Exception e)
                 {
-                    await ReplyAndDeleteAsync("Ошибка вставки! Обратитесь к администратору!", timeout: TimeSpan.FromSeconds(5));
+                    await ReplyAsync("Ошибка вставки! Обратитесь к администратору!");
                     logger._exception = e;
                 }
 
@@ -944,7 +944,7 @@ namespace LegionKun.Module
                 }
                 catch (Exception e)
                 {
-                    await ReplyAndDeleteAsync("Ошибка чтения! Обратитесь к администратору!", timeout: TimeSpan.FromSeconds(5));
+                    await ReplyAsync("Ошибка чтения! Обратитесь к администратору!");
                     logger._exception = e;
                 }
 
@@ -998,7 +998,69 @@ namespace LegionKun.Module
                 }
                 catch (Exception e)
                 {
-                    await ReplyAndDeleteAsync("Ошибка чтения! Обратитесь к администратору!", timeout: TimeSpan.FromSeconds(5));
+                    await ReplyAsync("Ошибка чтения! Обратитесь к администратору!");
+                    logger._exception = e;
+                }
+
+                logger.PrintLog();
+            }
+        }
+
+        [Command("updatetrigger")]
+        [CategoryChannel(IC: true)]
+        public async Task UpdateTriggerAsync(int id, string reupdate)
+        {
+            if (!(await Access("updatetrigger")))
+                return;
+
+            SLog logger = new SLog("UpdateTrigger", Context);
+
+            string SqlExpression = "sp_UpdateTrigger";
+
+            SqlParameter GuildIdParam = new SqlParameter
+            {
+                ParameterName = "@GuildID",
+                DbType = System.Data.DbType.Int64,
+                Value = Context.Guild.Id
+            };
+
+            SqlParameter IdTrigger = new SqlParameter
+            {
+                ParameterName = "@ID",
+                DbType = System.Data.DbType.Int32,
+                Value = id
+            };
+
+            SqlParameter ReUpdate = new SqlParameter
+            {
+                ParameterName = "@UpTrigger",
+                DbType = System.Data.DbType.String,
+                Value = reupdate
+            };
+
+            using (SqlConnection conect = new SqlConnection(Base.Resource1.ConnectionKeyTestServer))
+            {
+                try
+                {
+                    conect.Open();
+
+                    using (SqlCommand command = new SqlCommand(SqlExpression, conect) { CommandType = System.Data.CommandType.StoredProcedure })
+                    {
+                        command.Parameters.Add(GuildIdParam);
+                        command.Parameters.Add(IdTrigger);
+                        command.Parameters.Add(ReUpdate);
+
+                        int result = await command.ExecuteNonQueryAsync();
+                        if (result == 0)
+                        {
+                            await ReplyAsync("Не обновлен не одн триггер!");
+                        }
+                        else await ReplyAsync("Обновлен 1 триггер.");
+                    }
+                }
+                catch (Exception e)
+                {
+                    await ReplyAsync("Ошибка чтения! Обратитесь к администратору!");
                     logger._exception = e;
                 }
 

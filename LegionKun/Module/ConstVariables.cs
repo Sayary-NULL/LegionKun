@@ -184,9 +184,10 @@ namespace LegionKun.Module
             new Commands( "banlist" , "banlist <User Mention>", true),
             new Commands( "banlistadmin" , "banlistadmin <Admin Mention>", true),
             new Commands( "banlistadd" , "banlistadd [User Mention] <Comment>", true),
-            new Commands( "addtrigger" , "addtrigger \"Text Search\" \"Text Otvet\"", true),
+            new Commands( "addtrigger" , "addtrigger [\"Text Search\"] [\"Text Otvet\"]", true),
             new Commands( "selecttrigger" , "selecttrigger", true),
-            new Commands( "deletetrigger" , "deletetrigger [id trigger]", true)
+            new Commands( "deletetrigger" , "deletetrigger [id trigger]", true),
+            new Commands( "updatetrigger" , "updatetrigger [id trigger] [\"Re Text Otvet\"]", true)
         };
 
         public struct Commands

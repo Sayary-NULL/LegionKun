@@ -21,9 +21,15 @@ namespace LegionKun.Module
         {
             var guild = (arg3 as SocketGuildChannel)?.Guild;
 
+            if (arg2.Author.IsBot || arg2.Author.Id == 0)
+                return;
+
             try
             {
                 var mess = await arg1.GetOrDownloadAsync();
+
+                if (mess == null)
+                    return;
 
                 if( mess.CreatedAt.Year == mess.EditedTimestamp.Value.Year && mess.CreatedAt.Month == mess.EditedTimestamp.Value.Month && mess.CreatedAt.Day == mess.EditedTimestamp.Value.Day && mess.CreatedAt.Hour == mess.EditedTimestamp.Value.Hour && Math.Abs(mess.CreatedAt.Minute - mess.EditedTimestamp.Value.Minute) < 5)
                 {

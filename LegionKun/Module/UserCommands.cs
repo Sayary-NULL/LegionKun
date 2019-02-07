@@ -352,7 +352,7 @@ namespace LegionKun.Module
                 logger._exception = e;
             }
 
-            logger.ToString();
+            logger.PrintLog();
         }
 
         [Command("roleinfo")]
@@ -392,7 +392,7 @@ namespace LegionKun.Module
                 logger._exception = e;
             }
 
-            logger.ToString();
+            logger.PrintLog();
         }
 
         [Command("time")]
@@ -422,7 +422,7 @@ namespace LegionKun.Module
                 logger._exception = e;
             }
 
-            logger.ToString();
+            logger.PrintLog();
         }
 
         [Command("banlistuser")]
@@ -541,7 +541,7 @@ namespace LegionKun.Module
                 logger._exception = e;
             }
 
-            logger.ToString();
+            logger.PrintLog();
         }
 
         [Command("search"), CategoryChannel(IC: true)]
@@ -593,7 +593,7 @@ namespace LegionKun.Module
                 logger._exception = e;
             }
 
-            logger.ToString();
+            logger.PrintLog();
         }
 
         [Command("perevorot")]
@@ -654,7 +654,7 @@ namespace LegionKun.Module
                 logger._exception = e;
             }
 
-            logger.ToString();
+            logger.PrintLog();
         }
 
         [Command("userinfo"), CategoryChannel(IC: true)]
@@ -707,7 +707,7 @@ namespace LegionKun.Module
                 logger._exception = e;
             }
 
-            logger.ToString();
+            logger.PrintLog();
         }
 
         [Command("serverinfo"), CategoryChannel(IC: true)]
@@ -759,7 +759,7 @@ namespace LegionKun.Module
                 logger._exception = e;
             }
 
-            logger.ToString();
+            logger.PrintLog();
         }
        
         [Command("ping"), CategoryChannel(IC: true)]
@@ -786,7 +786,7 @@ namespace LegionKun.Module
                 logger._exception = e;
             }
 
-            logger.ToString();
+            logger.PrintLog();
         }
          
         [Command("report"), CategoryChannel(IC: true)]
@@ -813,7 +813,7 @@ namespace LegionKun.Module
                 logger._exception = e;
             }
 
-            logger.ToString();
+            logger.PrintLog();
         }
 
         [Command("help"), CategoryChannel(IC: true)]
@@ -866,7 +866,7 @@ namespace LegionKun.Module
                 logger._exception = e;
             }
 
-            logger.ToString();
+            logger.PrintLog();
         }
     }
 }

@@ -19,6 +19,8 @@ namespace LegionKun.Module
 
         protected async Task MessageUpdate(Cacheable<IMessage, ulong> arg1, SocketMessage arg2, ISocketMessageChannel arg3)
         {
+            var guild = (arg3 as SocketGuildChannel)?.Guild;
+
             try
             {
                 var mess = await arg1.GetOrDownloadAsync();
@@ -27,12 +29,12 @@ namespace LegionKun.Module
                 {
                     await MessageRec(arg2);
                     await HandleCommandAsync(arg2);
-                    ConstVariables.logger.Info($"update message: message '{arg2.Content}' is chanel '{arg2.Channel.Name}' is user '{arg2.Author.Mention}'");
+                    ConstVariables.logger.Info($"is func 'MessageUpdate' is guild '{(guild == null? guild.Name : "Not")}' is chanel '{arg2.Channel.Name}' is user '{arg2.Author.Username}#{arg2.Author.Discriminator}' is message '{arg2.Content}'");
                 }
             }
             catch (Exception e)
             {
-                ConstVariables.logger.Error($"is chanel '{arg2.Channel.Name}' is user '{arg2.Author.Mention}' is errors '{e.Message}'");
+                ConstVariables.logger.Error($"is func 'MessageUpdate' is guild '{(guild == null ? guild.Name : "Not")}' is chanel '{arg2.Channel.Name}' is user '{arg2.Author.Username}#{arg2.Author.Discriminator}' is message '{arg2.Content}' is errors '{e.Message}'");
             }            
         }
 
@@ -152,6 +154,9 @@ namespace LegionKun.Module
             {
                 result = await ConstVariables._GameCommand.ExecuteAsync(contex, argPos, ConstVariables._GameService);                
             }
+
+            if (result == null)
+                return;
 
             if (!result.IsSuccess)
             {

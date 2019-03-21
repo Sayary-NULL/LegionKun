@@ -9,16 +9,17 @@ using NLog;
 using System.Data.SqlClient;
 using System.Threading;
 using System.Diagnostics;
+using LegionKun.BotAPI;
 
 namespace LegionKun.Module
 {
     public static class ConstVariables
     {
-        public static DiscordSocketClient _Client { get; set; }
-        public static CommandService _Command { get; set; }
-        public static CommandService _GameCommand { get; set; }
-        public static IServiceProvider _UserService { get; set; }
-        public static IServiceProvider _GameService { get; set; }
+        public delegate void DMessege(string str);
+
+        public static DMessege Mess = null;
+
+        public static DiscordAPI LegionDiscord = new DiscordAPI();
 
         /// <summary>
         /// Класс серверов где работает бот
@@ -44,7 +45,7 @@ namespace LegionKun.Module
             ///<summary>возвращает class сервера</summary>
             public SocketGuild GetGuild()
             {
-                return _Client.GetGuild(GuildId);
+                return DiscordAPI._Client.GetGuild(GuildId);
             }
             ///<summary>возвращает class канала по умолчанию</summary>
             public SocketTextChannel GetDefaultChannel()
@@ -60,19 +61,12 @@ namespace LegionKun.Module
                     return GetGuild().GetTextChannel(DefaultChannelNewsId);
                 else return null;
             }
-            ///<summary>возвращает class канал с командами бота</summary>
-            /*public SocketTextChannel GetDefaultCommandChannel()
-            {
-                if (DefaultChannelId != 0)
-                    return GetGuild().GetTextChannel(DefaultCommandChannel);
-                else return null;
-            }*/
-
+            
             public bool EntryRole(ulong RoleId)
             {
                 string SqlRequest = $"SELECT [RoleId] FROM Role WHERE [GuildId] = {GuildId} AND [RoleId] = {RoleId}";
 
-                using (SqlConnection conect = new SqlConnection(@"Data Source=KIRILL\SQL_LEGIONKUN;Initial Catalog=TestServer;Integrated Security=True; User Id = LegeonKun; Password = Kun73$Kanti//"))
+                using (SqlConnection conect = new SqlConnection(Base.Resource1.ConnectionKeyTestServer))
                 {
                     try
                     {
@@ -105,7 +99,7 @@ namespace LegionKun.Module
                 if (IsCommand)
                     SqlRequest += " AND [IsCommand] = 'true'";
 
-                using (SqlConnection conect = new SqlConnection(@"Data Source=KIRILL\SQL_LEGIONKUN;Initial Catalog=TestServer;Integrated Security=True; User Id = LegeonKun; Password = Kun73$Kanti//"))
+                using (SqlConnection conect = new SqlConnection(Base.Resource1.ConnectionKeyTestServer))
                 {
                     try
                     {
@@ -240,10 +234,6 @@ namespace LegionKun.Module
 
         public static bool IsDownloadGuild { get; private set; } = false;
 
-        public delegate void DMessege(string str);
-
-        public static DMessege Mess = null;
-
         public static Discord.Color InfoColor { get; private set; } = Color.DarkTeal;
 
         public static Discord.Color UserColor { get; private set; } = Color.Blue;
@@ -251,6 +241,8 @@ namespace LegionKun.Module
         public static Discord.Color AdminColor { get; private set; } = Color.Red;
 
         private static Thread DownloadetThread = new Thread(DownlodeGuildParams);
+
+        public static Thread LegionDiscordThread = new Thread(LegionDiscord.RunBotAsync);
 
         public static Logger logger { get; private set; } = LogManager.GetCurrentClassLogger();
 
@@ -352,9 +344,6 @@ namespace LegionKun.Module
         public static bool UpdVideo(int id, string strock)
         {
             int result = 0;
-
-            if ((id != 1) && (id != 2))
-                return false;
 
             using (SqlConnection connect = new SqlConnection(Base.Resource1.ConnectionKeyTestServer))
             {
@@ -476,16 +465,6 @@ namespace LegionKun.Module
                 Zero = @"Base\zero.png";
             }
 
-            var _config = new DiscordSocketConfig();
-            _config.LogLevel = LogSeverity.Info;
-
-            _Client = new DiscordSocketClient(_config);
-            _Command = new CommandService();
-            _GameCommand = new CommandService();
-
-            _UserService = new ServiceCollection().AddSingleton(_Client).AddSingleton(_Command).AddSingleton<InteractiveService>().BuildServiceProvider();
-            _GameService = new ServiceCollection().AddSingleton(_Client).AddSingleton(_GameCommand).AddSingleton<InteractiveService>().BuildServiceProvider();
-
             int i = 1;
             foreach (var help in UserCommand)
                 if (help.IsOn)
@@ -585,6 +564,7 @@ namespace LegionKun.Module
         public static void SetDelegate(DMessege fun)
         {
             Mess = fun;
+            LegionDiscord.SetDelegate(fun);
         }
 
         public static void DownlodeGuildParams()

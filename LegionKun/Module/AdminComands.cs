@@ -8,6 +8,7 @@ using System.Data.SqlClient;
 using Discord.WebSocket;
 using System.Diagnostics;
 using System.Collections.Generic;
+using LegionKun.BotAPI;
 
 namespace LegionKun.Module
 {
@@ -95,7 +96,7 @@ namespace LegionKun.Module
 
             SLog logger = new SLog("Off", Context);
 
-            await ConstVariables._Client.SetStatusAsync(UserStatus.DoNotDisturb);
+            await DiscordAPI._Client.SetStatusAsync(UserStatus.DoNotDisturb);
 
             switch (level)
             {
@@ -173,7 +174,7 @@ namespace LegionKun.Module
 
             SLog logger = new SLog("On", Context);
 
-            await ConstVariables._Client.SetStatusAsync(UserStatus.Online);
+            await DiscordAPI._Client.SetStatusAsync(UserStatus.Online);
 
             switch (level)
             {
@@ -356,7 +357,6 @@ namespace LegionKun.Module
         }
 
         [Command("status")]
-        [CategoryChannel(IC: true)]
         public async Task StatusAsync()
         {
             if (!(await Access("status")))
@@ -832,7 +832,7 @@ namespace LegionKun.Module
                 logger._exception = e;
             }
 
-            await ConstVariables._Client.StopAsync();
+            await DiscordAPI._Client.StopAsync();
             logger.PrintLog();
         }
 

@@ -9,6 +9,8 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Data.SqlClient;
+using LegionKun.BotAPI;
 
 namespace LegionKun.Module
 {
@@ -72,12 +74,20 @@ namespace LegionKun.Module
             }
         }
 
+        private struct Stream
+        {
+            public int id;
+            public string channelid;
+            public string videoid;
+            public bool ison;
+        }
+
         private static async void Youtube(object obj)
         {
             if (ConstVariables.ThisTest)
                 return;
 
-            while (ConstVariables._Client.ConnectionState != ConnectionState.Connected);
+            while (DiscordAPI._Client.ConnectionState != ConnectionState.Connected);
 
             Thread.Sleep(2000);
 
@@ -85,7 +95,7 @@ namespace LegionKun.Module
             ConstVariables.logger.Info("Запуск потока: YouTubeStream;");
 
             EmbedBuilder Live = new EmbedBuilder();
-            Live.AddField("Новости", "у Генерала найден стрим!")
+            Live.AddField("Новости", "Найден стрим!")
                 .WithColor(ConstVariables.InfoColor);
 
             var youtubeService = new YouTubeService(new BaseClientService.Initializer()
@@ -94,17 +104,7 @@ namespace LegionKun.Module
                 ApplicationName = "Legion-kun"
             });
 
-            SearchResource.ListRequest SharonRequest = youtubeService.Search.List("snippet");
-            SharonRequest.Type = "video";
-            SharonRequest.EventType = SearchResource.ListRequest.EventTypeEnum.Live;
-            SharonRequest.ChannelId = "UCScLnRAwAT2qyNcvaFSFvYA";
-            SharonRequest.MaxResults = 1;
-
-            SearchResource.ListRequest DejzRequest = youtubeService.Search.List("snippet");
-            DejzRequest.Type = "video";
-            DejzRequest.EventType = SearchResource.ListRequest.EventTypeEnum.Live;
-            DejzRequest.ChannelId = "UCbGMUOX-6gsC2q75x3YS0gw";
-            DejzRequest.MaxResults = 1;
+            string SqlExpressionStreams = "sp_GetAccountStreams";
 
             do
             {
@@ -114,65 +114,68 @@ namespace LegionKun.Module
                     continue;
                 }
 
-                string SSharoHH = "-", SDejz = "-";
+                List<Stream> streams = new List<Stream>();
 
-                try
+                using (SqlConnection connect = new SqlConnection(Base.Resource1.ConnectionKeyTestServer))
                 {
-                    SSharoHH = ConstVariables.GetVideo1(1);
-                }
-                catch (Exception e)
-                {
-                    ConstVariables.logger.Error(e.Message);
-                    Thread.Sleep(60000);
-                    continue;
-                }
-
-                try
-                {
-                    SDejz = ConstVariables.GetVideo1(2);
-                }
-                catch (Exception e)
-                {
-                    ConstVariables.logger.Error(e.Message);
-                    Thread.Sleep(60000);
-                    continue;
-                }
-
-                SearchListResponse SharonResponse = null;
-                SearchListResponse DejzResponse = null;
-
-                try
-                {
-                    SharonResponse = await SharonRequest.ExecuteAsync();
-                    DejzResponse = await DejzRequest.ExecuteAsync();
-                }
-                catch (Exception e)
-                {
-                    ConstVariables.logger.Error(e.Message);
-                    Thread.Sleep(60000);
-                    continue;
-                }
-
-                SearchResult SharoHH = null;
-                SearchResult Dejz = null;
-
-                if ((SharonResponse.Items.Count != 0) || (DejzResponse.Items.Count != 0))
-                {
-                    if (SharonResponse.Items.Count != 0)
+                    try
                     {
-                        SharoHH = SharonResponse.Items[0];
+                        connect.Open();
+                        using (SqlCommand command = new SqlCommand(SqlExpressionStreams, connect))
+                        {
+                            SqlDataReader reader = command.ExecuteReader();
 
-                        if(SSharoHH != SharoHH.Id.VideoId)
-                            ConstVariables.logger.Info("Стрим найден! Sharon: https://www.youtube.com/video/" + $"{SharoHH.Id.VideoId}");
+                            if(reader.HasRows)
+                            {
+                                while (reader.Read())
+                                {
+                                    Stream NewStr;
+                                    NewStr.id = reader.GetInt32(0);
+                                    NewStr.channelid = reader.GetString(1);
+                                    NewStr.videoid = reader.GetString(2);
+                                    NewStr.ison = reader.GetBoolean(3);
+                                    if(NewStr.ison)
+                                        streams.Add(NewStr);
+                                }
+                                reader.Close();
+                            }
+                            else throw new Exception($"Ошибка чтения");
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        ConstVariables.logger.Error($"YutubeSearch, errorrs: '{e}'");
+                    }
+                }
+
+                foreach(Stream str in streams)
+                {
+                    SearchResource.ListRequest Account = youtubeService.Search.List("snippet");
+                    Account.Type = "video";
+                    Account.EventType = SearchResource.ListRequest.EventTypeEnum.Live;
+                    Account.ChannelId = str.channelid;
+                    Account.MaxResults = 1;
+
+                    SearchListResponse searchList = null;
+
+                    try
+                    {
+                        searchList = await Account.ExecuteAsync();
+                    }
+                    catch (Exception e)
+                    {
+                        ConstVariables.logger.Error($"YoutubeSearch. is errors :{e}");
+                        Thread.Sleep(60000);
+                        continue;
                     }
 
-                    if (DejzResponse.Items.Count != 0)
-                    {
-                        Dejz = DejzResponse.Items[0];
+                    if (searchList.Items.Count == 0)
+                        continue;
 
-                        if (SDejz != Dejz.Id.VideoId)
-                            ConstVariables.logger.Info("Стрим найден! Dejz: https://www.youtube.com/video/" + $"{Dejz.Id.VideoId}");
-                    }
+                    SearchResult stream = searchList.Items[0];
+
+                    if (stream.Id.VideoId == str.videoid)
+                        continue;
 
                     if (ConstVariables.ThisTest)
                     {
@@ -180,18 +183,7 @@ namespace LegionKun.Module
                         SocketTextChannel channel = guild.GetGuild().GetTextChannel(444152623319482378);
 
                         await channel.SendMessageAsync("", embed: Live.Build());
-
-                        if ((SharonResponse.Items.Count != 0) && (SSharoHH != SharoHH.Id.VideoId))
-                        {
-                            await channel.SendMessageAsync("https://www.youtube.com/video/" + SharoHH.Id.VideoId);
-                            ConstVariables.UpdVideo(1, SharoHH.Id.VideoId);
-                        }
-
-                        if ((DejzResponse.Items.Count != 0) && (SDejz != Dejz.Id.VideoId))
-                        {
-                            await channel.SendMessageAsync("https://www.youtube.com/video/" + Dejz.Id.VideoId);
-                            ConstVariables.UpdVideo(2, Dejz.Id.VideoId);
-                        }
+                        await channel.SendMessageAsync("https://www.youtube.com/video/" + stream.Id.VideoId);
                     }
                     else
                     {
@@ -204,37 +196,20 @@ namespace LegionKun.Module
                                     channel = key.Value.GetDefaultChannel();
                                 else channel = key.Value.GetGuild().GetTextChannel(key.Value.DefaultChannelNewsId);
 
-                                if ((SharonResponse.Items.Count != 0) && (SSharoHH != SharoHH.Id.VideoId))
-                                {
-                                    await key.Value.GetDefaultNewsChannel().SendMessageAsync("@here", embed: Live.Build());
-                                    await key.Value.GetDefaultNewsChannel().SendMessageAsync("https://www.youtube.com/video/" + SharoHH.Id.VideoId);
-                                }
-
-                                if ((DejzResponse.Items.Count != 0) && (SDejz != Dejz.Id.VideoId))
-                                {
-                                    await key.Value.GetDefaultNewsChannel().SendMessageAsync("@here", embed: Live.Build());
-                                    await key.Value.GetDefaultNewsChannel().SendMessageAsync("https://www.youtube.com/video/" + Dejz.Id.VideoId);
-                                }
+                                await key.Value.GetDefaultNewsChannel().SendMessageAsync("@here", embed: Live.Build());
+                                await key.Value.GetDefaultNewsChannel().SendMessageAsync("https://www.youtube.com/video/" + stream.Id.VideoId);
 
                                 //ConstVariables.logger.Info($"is guild {key.Value.Name} is channel {channel.Name}");
                             }
-                            catch(Exception e)
+                            catch (Exception e)
                             {
                                 ConstVariables.logger.Error($"is guild {key.Value.Name} is error {e}");
                                 ConstVariables.Mess($"Youtube: is guild: {key.Key} {e}");
                             }
                         }
-
-                        if((SharonResponse.Items.Count != 0) && (SSharoHH != SharoHH.Id.VideoId))
-                        {
-                            ConstVariables.UpdVideo(1, SharoHH.Id.VideoId);
-                        }
-
-                        if ((DejzResponse.Items.Count != 0) && (SDejz != Dejz.Id.VideoId))
-                        {
-                            ConstVariables.UpdVideo(2, Dejz.Id.VideoId);
-                        }
                     }
+
+                    ConstVariables.UpdVideo(str.id, stream.Id.VideoId);
                 }
 
                 Thread.Sleep(30000);

@@ -10,6 +10,7 @@ using Google.Apis.YouTube.v3;
 using Google.Apis.Services;
 using LegionKun.Attribute;
 using System.Data.SqlClient;
+using LegionKun.BotAPI;
 
 namespace LegionKun.Module
 {
@@ -161,7 +162,7 @@ namespace LegionKun.Module
             {
                 EmbedBuilder builder = new EmbedBuilder();
 
-                if (user.Id == ConstVariables._Client.CurrentUser.Id)
+                if (user.Id == DiscordAPI._Client.CurrentUser.Id)
                 {
                     builder.WithTitle("Ошибка!").WithDescription("нельзя жаловатся на бота!")
                         .WithFooter(Context.Guild.Name, Context.Guild.IconUrl)

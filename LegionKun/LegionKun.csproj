@@ -211,6 +211,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resource1.resx</DependentUpon>
     </Compile>
+    <Compile Include="BotAPI\DiscordAPI.cs" />
     <Compile Include="Game\CrossZero\CrossZeroGame.cs" />
     <Compile Include="Game\CrossZero\CrossZeroModule.cs" />
     <Compile Include="Game\CrossZero\CrossZeroBase.cs" />

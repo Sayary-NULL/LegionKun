@@ -80,12 +80,13 @@ namespace LegionKun.Module
             public string channelid;
             public string videoid;
             public bool ison;
+            public string Name;
         }
 
         private static async void Youtube(object obj)
         {
-            if (ConstVariables.ThisTest)
-                return;
+            //if (ConstVariables.ThisTest)
+            //    return;
 
             while (DiscordAPI._Client.ConnectionState != ConnectionState.Connected);
 
@@ -94,13 +95,9 @@ namespace LegionKun.Module
             ConstVariables.Mess?.Invoke(" Запуск потока: YouTubeStream;");
             ConstVariables.logger.Info("Запуск потока: YouTubeStream;");
 
-            EmbedBuilder Live = new EmbedBuilder();
-            Live.AddField("Новости", "Найден стрим!")
-                .WithColor(ConstVariables.InfoColor);
-
             var youtubeService = new YouTubeService(new BaseClientService.Initializer()
             {
-                ApiKey = Base.Resource1.ApiKeyToken,
+                ApiKey = Base.Resource2.ApiKeyToken,
                 ApplicationName = "Legion-kun"
             });
 
@@ -116,7 +113,7 @@ namespace LegionKun.Module
 
                 List<Stream> streams = new List<Stream>();
 
-                using (SqlConnection connect = new SqlConnection(Base.Resource1.ConnectionKeyTestServer))
+                using (SqlConnection connect = new SqlConnection(Base.Resource2.ConnectionKeyTestServer))
                 {
                     try
                     {
@@ -134,6 +131,7 @@ namespace LegionKun.Module
                                     NewStr.channelid = reader.GetString(1);
                                     NewStr.videoid = reader.GetString(2);
                                     NewStr.ison = reader.GetBoolean(3);
+                                    NewStr.Name = reader.GetString(4);
                                     if(NewStr.ison)
                                         streams.Add(NewStr);
                                 }
@@ -182,6 +180,10 @@ namespace LegionKun.Module
                         ConstVariables.CDiscord guild = ConstVariables.CServer[435485527156981770];
                         SocketTextChannel channel = guild.GetGuild().GetTextChannel(444152623319482378);
 
+                        EmbedBuilder Live = new EmbedBuilder();
+                        Live.AddField("Новости", $"Найден стрим у {str.Name}!")
+                            .WithColor(ConstVariables.InfoColor);
+
                         await channel.SendMessageAsync("", embed: Live.Build());
                         await channel.SendMessageAsync("https://www.youtube.com/video/" + stream.Id.VideoId);
                     }
@@ -189,12 +191,19 @@ namespace LegionKun.Module
                     {
                         foreach (var key in ConstVariables.CServer)
                         {
+                            if (key.Key == 423154703354822668)
+                                continue;
+
                             try
                             {
                                 SocketTextChannel channel = null;
                                 if (key.Value.DefaultChannelNewsId == 0)
                                     channel = key.Value.GetDefaultChannel();
                                 else channel = key.Value.GetGuild().GetTextChannel(key.Value.DefaultChannelNewsId);
+
+                                EmbedBuilder Live = new EmbedBuilder();
+                                Live.AddField("Новости", $"Найден стрим у {str.Name}!")
+                                    .WithColor(ConstVariables.InfoColor);
 
                                 await key.Value.GetDefaultNewsChannel().SendMessageAsync("@here", embed: Live.Build());
                                 await key.Value.GetDefaultNewsChannel().SendMessageAsync("https://www.youtube.com/video/" + stream.Id.VideoId);
@@ -209,7 +218,7 @@ namespace LegionKun.Module
                         }
                     }
 
-                    ConstVariables.UpdVideo(str.id, stream.Id.VideoId);
+                   ConstVariables.UpdVideo(str.id, stream.Id.VideoId);
                 }
 
                 Thread.Sleep(30000);

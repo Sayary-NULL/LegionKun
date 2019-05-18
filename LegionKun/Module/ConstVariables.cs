@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Discord;
-using Discord.Commands;
 using Discord.WebSocket;
-using Discord.Addons.Interactive;
-using Microsoft.Extensions.DependencyInjection;
 using NLog;
 using System.Data.SqlClient;
 using System.Threading;
@@ -66,7 +63,7 @@ namespace LegionKun.Module
             {
                 string SqlRequest = $"SELECT [RoleId] FROM Role WHERE [GuildId] = {GuildId} AND [RoleId] = {RoleId}";
 
-                using (SqlConnection conect = new SqlConnection(Base.Resource1.ConnectionKeyTestServer))
+                using (SqlConnection conect = new SqlConnection(Base.Resource2.ConnectionKeyTestServer))
                 {
                     try
                     {
@@ -99,7 +96,7 @@ namespace LegionKun.Module
                 if (IsCommand)
                     SqlRequest += " AND [IsCommand] = 'true'";
 
-                using (SqlConnection conect = new SqlConnection(Base.Resource1.ConnectionKeyTestServer))
+                using (SqlConnection conect = new SqlConnection(Base.Resource2.ConnectionKeyTestServer))
                 {
                     try
                     {
@@ -163,7 +160,8 @@ namespace LegionKun.Module
             new Commands( "ping" , "ping", true),
             new Commands( "ban" , "ban [User Mention]", false),
             new Commands( "report" , "report [Name Command] [report text]", true),
-            new Commands( "banlistuser" , "banlistuser", true),
+            new Commands( "banlistuser" , "banlistuser", false),
+            new Commands( "banlist" , "banlist <User Mention>", true),
             new Commands( "help" , "help", true),
         };
 
@@ -175,7 +173,6 @@ namespace LegionKun.Module
             new Commands( "status" , "status", true),
             new Commands( "debug" , "debug", true),
             new Commands( "flowcontrol" , "flowcontrol <number level>", true),
-            new Commands( "banlist" , "banlist <User Mention>", true),
             new Commands( "banlistadmin" , "banlistadmin <Admin Mention>", true),
             new Commands( "banlistadd" , "banlistadd [User Mention] <Comment>", true),
             new Commands( "addtrigger" , "addtrigger [\"Text Search\"] [\"Text Otvet\"]", true),
@@ -268,7 +265,7 @@ namespace LegionKun.Module
 
             try
             {
-                using (SqlConnection connect = new SqlConnection(Base.Resource1.ConnectionKeyTestServer))
+                using (SqlConnection connect = new SqlConnection(Base.Resource2.ConnectionKeyTestServer))
                 {
                     connect.Open();
                     using (SqlCommand command = new SqlCommand(SqlExpression, connect) { CommandType = System.Data.CommandType.StoredProcedure })
@@ -312,7 +309,7 @@ namespace LegionKun.Module
             if ((id != 1) && (id != 2))
                 return str;
 
-            using (SqlConnection connect = new SqlConnection(Base.Resource1.ConnectionKeyTestServer))
+            using (SqlConnection connect = new SqlConnection(Base.Resource2.ConnectionKeyTestServer))
             {
                 connect.Open();
 
@@ -345,7 +342,7 @@ namespace LegionKun.Module
         {
             int result = 0;
 
-            using (SqlConnection connect = new SqlConnection(Base.Resource1.ConnectionKeyTestServer))
+            using (SqlConnection connect = new SqlConnection(Base.Resource2.ConnectionKeyTestServer))
             {
                 connect.Open();
 
@@ -381,7 +378,7 @@ namespace LegionKun.Module
             int count = 0;
             Random ran = new Random();            
 
-            using (SqlConnection connect = new SqlConnection(Base.Resource1.ConnectionKeyTestServer))
+            using (SqlConnection connect = new SqlConnection(Base.Resource2.ConnectionKeyTestServer))
             {
                 connect.Open();
 
@@ -427,7 +424,7 @@ namespace LegionKun.Module
         public static int CountTextRequst(string text, ulong serverid)
         {
             int count = 0;
-            using(SqlConnection connect = new SqlConnection(Base.Resource1.ConnectionKeyTestServer))
+            using(SqlConnection connect = new SqlConnection(Base.Resource2.ConnectionKeyTestServer))
             {
                 connect.Open();
 
@@ -578,7 +575,7 @@ namespace LegionKun.Module
             do
             {
                 Stopwatch sw = Stopwatch.StartNew();
-                using (SqlConnection connect = new SqlConnection(Base.Resource1.ConnectionKeyTestServer))
+                using (SqlConnection connect = new SqlConnection(Base.Resource2.ConnectionKeyTestServer))
                 {
                     try
                     {

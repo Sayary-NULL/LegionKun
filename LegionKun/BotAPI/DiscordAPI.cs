@@ -17,9 +17,9 @@ namespace LegionKun.BotAPI
     {
         public static DiscordSocketClient _Client { get; set; }
         public static CommandService _Command { get; set; }
-        public static CommandService _GameCommand { get; set; }
+        //public static CommandService _GameCommand { get; set; }
         public static IServiceProvider _UserService { get; set; }
-        public static IServiceProvider _GameService { get; set; }
+        //public static IServiceProvider _GameService { get; set; }
 
         public static ConstVariables.DMessege Messege = null;
 
@@ -30,10 +30,8 @@ namespace LegionKun.BotAPI
 
             _Client = new DiscordSocketClient(_config);
             _Command = new CommandService();
-            _GameCommand = new CommandService();
 
             _UserService = new ServiceCollection().AddSingleton(_Client).AddSingleton(_Command).AddSingleton<InteractiveService>().BuildServiceProvider();
-            _GameService = new ServiceCollection().AddSingleton(_Client).AddSingleton(_GameCommand).AddSingleton<InteractiveService>().BuildServiceProvider();
 
             _Client.Log += Log;
 
@@ -135,17 +133,18 @@ namespace LegionKun.BotAPI
             {
                 Console.WriteLine("------------!Рабочий бот!--------------");
 
-                Console.WriteLine($"Версия: {Base.Resource1.VersionBot}");
+                Console.WriteLine($"Версия: {Base.Resource2.VersionBot}");
 
-                await _Client.LoginAsync(TokenType.Bot, Base.Resource1.TokenBot);
+                await _Client.LoginAsync(TokenType.Bot, Base.Resource2.TokenBot);
+            
             }
             else
             {
                 Console.WriteLine("------------!Тестовый бот!--------------");
 
-                Console.WriteLine($"Версия: {Base.Resource1.VersionBot}");
+                Console.WriteLine($"Версия: {Base.Resource2.VersionBot}");
 
-                await _Client.LoginAsync(TokenType.Bot, Base.Resource1.TestBotToken);
+                await _Client.LoginAsync(TokenType.Bot, Base.Resource2.TestBotToken);
             }
 
             await _Client.StartAsync();
@@ -162,8 +161,6 @@ namespace LegionKun.BotAPI
             await _Command.AddModuleAsync<Module.AdminComands>(_UserService);
 
             await _Command.AddModuleAsync<Tests.TestClass>(_UserService);
-
-            await _GameCommand.AddModuleAsync<Game.CrossZero.CrossZeroModule>(_GameService);
         }
 
         private async Task HandleCommandAsync(SocketMessage arg)
@@ -183,10 +180,6 @@ namespace LegionKun.BotAPI
             if (Messeg.HasStringPrefix("sh!", ref argPos) || Messeg.HasStringPrefix("Sh!", ref argPos))
             {
                 result = await _Command.ExecuteAsync(contex, argPos, _UserService);
-            }
-            else if (Messeg.HasStringPrefix("c!", ref argPos) || Messeg.HasStringPrefix("с!", ref argPos))
-            {
-                result = await _GameCommand.ExecuteAsync(contex, argPos, _GameService);
             }
 
             if (result == null)

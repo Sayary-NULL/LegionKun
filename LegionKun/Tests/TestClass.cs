@@ -13,6 +13,8 @@ using LegionKun.Module;
 //UCDnNz_stjQqcikCvIF2NTAw - Kanade
 //UCScLnRAwAT2qyNcvaFSFvYA - Sharon
 //UCuF8ghQWaa7K-28llm-K3Zg - Anilibria.TV
+//WIN-FCZUC9ET6YV\LEGIONKUN
+//KIRILL02\LEGIONKUN
 namespace LegionKun.Tests
 {
     [Group("tests")]
@@ -44,7 +46,7 @@ namespace LegionKun.Tests
 
             try
             {
-                using (SqlConnection connect = new SqlConnection(Base.Resource1.ConnectionKeyTestServer))
+                using (SqlConnection connect = new SqlConnection(Base.Resource2.ConnectionKeyTestServer))
                 {
                     connect.Open();
                     using (SqlCommand command = new SqlCommand(SqlExpression, connect) { CommandType = System.Data.CommandType.StoredProcedure })

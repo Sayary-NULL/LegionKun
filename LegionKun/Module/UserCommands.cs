@@ -1,16 +1,16 @@
 ﻿using Discord;
+using Discord.Addons.Interactive;
 using Discord.Commands;
 using Discord.WebSocket;
-using Discord.Addons.Interactive;
+using Google.Apis.Services;
+using Google.Apis.YouTube.v3;
+using LegionKun.Attribute;
+using LegionKun.BotAPI;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.Diagnostics;
-using Google.Apis.YouTube.v3;
-using Google.Apis.Services;
-using LegionKun.Attribute;
 using System.Data.SqlClient;
-using LegionKun.BotAPI;
+using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace LegionKun.Module
 {
@@ -111,7 +111,7 @@ namespace LegionKun.Module
 
                 await Context.Channel.SendMessageAsync(good);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 await ReplyAsync("Ошибка во время выполнения! Обратитесь к админестратору!");
                 logger._exception = e;
@@ -141,7 +141,7 @@ namespace LegionKun.Module
 
                 logger._addcondition = $" is message '{mess}'";
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 await ReplyAsync("Ошибка во время выполнения! Обратитесь к админестратору!");
                 logger._exception = e;
@@ -190,7 +190,7 @@ namespace LegionKun.Module
 
                 await Context.Channel.SendMessageAsync("", embed: builder.Build());
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 await ReplyAsync("Ошибка во время выполнения! Обратитесь к админестратору!");
                 logger._exception = e;
@@ -200,7 +200,7 @@ namespace LegionKun.Module
         }
 
         [Command("roleinfo")]
-        [Priority(0), CategoryChannel(IC:true)]
+        [Priority(0), CategoryChannel(IC: true)]
         public async Task RoleIhfoAsync()
         {
             if (!(await Access("roleinfo")))
@@ -330,7 +330,7 @@ namespace LegionKun.Module
 
                 foreach (var userr in Role.Members)
                     strock += $"{i++}: {userr.Username}#{userr.Discriminator}({userr.Nickname})\r\n";
-                
+
 
                 if (strock == "")
                     strock = "Пользователей нет";
@@ -347,7 +347,7 @@ namespace LegionKun.Module
 
                 await Context.Channel.SendMessageAsync("", embed: builder.Build());
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 await ReplyAsync("Ошибка во время выполнения! Обратитесь к админестратору!");
                 logger._exception = e;
@@ -373,7 +373,7 @@ namespace LegionKun.Module
                 int i = 1;
 
                 foreach (var userr in Role.Members)
-                    strock += $"{i++}: {userr.Username}#{userr.Discriminator}\r\n";                
+                    strock += $"{i++}: {userr.Username}#{userr.Discriminator}\r\n";
 
                 builder.WithTitle($"Информация о роле для {Context.User.Username}")
                     .WithAuthor(Role.Name)
@@ -443,7 +443,7 @@ namespace LegionKun.Module
 
             builder.WithTitle($"Бан лист(Выборка)");
 
-            using (SqlConnection conect = new SqlConnection(Base.Resource1.ConnectionKeyTestServer))
+            using (SqlConnection conect = new SqlConnection(Base.Resource2.ConnectionKeyTestServer))
             {
                 try
                 {
@@ -454,10 +454,10 @@ namespace LegionKun.Module
                         {
                             ParameterName = "@BannedId",
                             DbType = System.Data.DbType.Int64,
-                            Value = (user == null? User.Id : user.Id)
+                            Value = (user == null ? User.Id : user.Id)
                         };
 
-                        command.Parameters.Add(BannedParam);                        
+                        command.Parameters.Add(BannedParam);
 
                         SqlParameter GuildIdParam = new SqlParameter()
                         {
@@ -509,6 +509,91 @@ namespace LegionKun.Module
             }
         }
 
+        [Command("banlist")]
+        public async Task BanListAsync(IUser User = null)
+        {
+            if (!(await Access("banlist")))
+                return;
+
+            SLog logger = new SLog("BanList", Context);
+
+            string SqlExpression = "sp_SelectBanList";
+            string TextRequest = "";
+
+            EmbedBuilder builder = new EmbedBuilder();
+
+            if (User != null)
+                SqlExpression = "sp_SelectBanListAnd";
+
+            builder.WithTitle($"Бан лист{(User != null ? "(Выборка)" : "")}");
+
+            using (SqlConnection conect = new SqlConnection(Base.Resource2.ConnectionKeyTestServer))
+            {
+                try
+                {
+                    conect.Open();
+                    using (SqlCommand command = new SqlCommand(SqlExpression, conect) { CommandType = System.Data.CommandType.StoredProcedure })
+                    {
+                        if (User != null)
+                        {
+                            SqlParameter BannedParam = new SqlParameter()
+                            {
+                                ParameterName = "@BannedId",
+                                DbType = System.Data.DbType.Int64,
+                                Value = User
+                            };
+
+                            command.Parameters.Add(BannedParam);
+                        }
+
+                        SqlParameter GuildIdParam = new SqlParameter()
+                        {
+                            ParameterName = "@GuildId",
+                            DbType = System.Data.DbType.Int64,
+                            Value = Context.Guild.Id
+                        };
+
+                        command.Parameters.Add(GuildIdParam);
+
+                        SqlDataReader reader = await command.ExecuteReaderAsync();
+
+                        if (reader.HasRows)
+                        {
+                            while (reader.Read())
+                            {
+                                ulong BannedId = (ulong)reader.GetInt64(0);
+                                ulong AdminId = (ulong)reader.GetInt64(1);
+                                string Comment = reader.GetString(2);
+                                DateTime Date = reader.GetDateTime(3);
+
+                                var banned = Context.Guild.GetUser(BannedId);
+
+                                var admin = Context.Guild.GetUser(AdminId);
+
+                                TextRequest += $"**Пользователь:** {(banned == null ? "----" : banned.Mention)}\r\n**Администратор:** {(admin == null ? "----" : admin.Mention)}\r\nЗаметка: {Comment}\r\nДата: {Date}\r\n";
+                            }
+
+                            builder.WithDescription(TextRequest)
+                                .WithFooter(Context.Guild.Name, Context.Guild.IconUrl)
+                                .WithColor(ConstVariables.UserColor);
+
+                            await ReplyAsync("", embed: builder.Build());
+                        }
+                        else await ReplyAsync("Данных в базе не обнаружено!");
+
+                        logger._addcondition = $"is user '{Context.User.Username}#{Context.User.Discriminator}'";
+                    }
+                }
+                catch (Exception e)
+                {
+                    await ReplyAsync("Произошла ошибка! Обратитесь к администратору.");
+                    logger._exception = e;
+                }
+
+                logger.PrintLog();
+            }
+        }
+
         [Command("coin")]
         public async Task ThrowACoinAsync(int count = 1)
         {
@@ -529,7 +614,7 @@ namespace LegionKun.Module
 
                 for (int i = 0; i < count; i++)
                     ResultArray += ran.Next(0, 2);//[0;2)
-                
+
 
                 builder.WithTitle("Результаты броска монеты")
                     .WithDescription($"Орел: {ResultArray}\r\nРешка: {count - ResultArray}");
@@ -579,7 +664,7 @@ namespace LegionKun.Module
 
                 foreach (var Search in SearchResult.Items)
                     strock += $"{i++}: {Search.Snippet.Title}\r\nurl:https://www.youtube.com/video/" + Search.Id.VideoId + "\r\n";
-                
+
 
                 builder.AddField("YouTube video search", strock)
                     .WithColor(ConstVariables.InfoColor);
@@ -599,7 +684,7 @@ namespace LegionKun.Module
 
         [Command("perevorot")]
         public async Task PerevorotAsync()
-        {           
+        {
             SLog logger = new SLog("Perevorot", Context);
 
             try
@@ -668,7 +753,7 @@ namespace LegionKun.Module
 
             try
             {
-                IGuildUser User = user ?? Context.User as IGuildUser;                
+                IGuildUser User = user ?? Context.User as IGuildUser;
 
                 EmbedBuilder builder = new EmbedBuilder();
 
@@ -762,7 +847,7 @@ namespace LegionKun.Module
 
             logger.PrintLog();
         }
-       
+
         [Command("ping"), CategoryChannel(IC: true)]
         public async Task PingAsync()
         {
@@ -789,13 +874,13 @@ namespace LegionKun.Module
 
             logger.PrintLog();
         }
-         
+
         [Command("report"), CategoryChannel(IC: true)]
         public async Task ReportAsync(string command, [Remainder]string text)
         {
             if (!(await Access("report")))
                 return;
-            
+
             SLog logger = new SLog("Report", Context);
 
             try
@@ -803,7 +888,6 @@ namespace LegionKun.Module
                 string UMention = Context.User.Username + "#" + Context.User.Discriminator;
                 string report = $"Пользователь: {UMention}\r\nКоманда: {command}\r\nСообщение: {text}";
 
-                ConstVariables.Mess?.Invoke(report);
                 await ConstVariables.CServer[Context.Guild.Id].GetGuild().GetUser(ConstVariables.CreatorId).SendMessageAsync(report);
 
                 await ReplyAsync($"{Context.User.Mention}, спасибо за ваш отчет! Ваше сообщение очень важно для нас))");

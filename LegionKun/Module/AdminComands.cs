@@ -5,9 +5,6 @@ using System;
 using System.Threading.Tasks;
 using LegionKun.Attribute;
 using System.Data.SqlClient;
-using Discord.WebSocket;
-using System.Diagnostics;
-using System.Collections.Generic;
 using LegionKun.BotAPI;
 
 namespace LegionKun.Module
@@ -284,7 +281,7 @@ namespace LegionKun.Module
                     text += mess[index];
             }
 
-            var result = await Context.Channel.SendMessageAsync("Начата рассылка!\n Ждите, если это сообщение не проподет, то напишите Sayary.");
+            var result = await Context.Channel.SendMessageAsync("Начата рассылка!\n Ждите, если это сообщение не пропадет, то напишите Sayary.");
 
             foreach (var server in ConstVariables.CServer)
             {
@@ -386,7 +383,7 @@ namespace LegionKun.Module
             int i = 1;
             try
             {
-                using (SqlConnection connect = new SqlConnection(Base.Resource1.ConnectionKeyTestServer))
+                using (SqlConnection connect = new SqlConnection(Base.Resource2.ConnectionKeyTestServer))
                 {
                     connect.Open();
                     SqlCommand command = new SqlCommand(SqlRequestRole, connect);
@@ -420,7 +417,7 @@ namespace LegionKun.Module
 
                 builder.AddField("Roles", role, true)
                        .AddField("Channels", channel, true)
-                       .AddField("Версия бота", Base.Resource1.VersionBot, true)
+                       .AddField("Версия бота", Base.Resource2.VersionBot, true)
                        .AddField("Defaul channel", Context.Guild.GetTextChannel(guild.DefaultChannelId).Mention, true)
                        .AddField("Default channel for news", Context.Guild.GetTextChannel(guild.DefaultChannelNewsId).Mention, true)
                        .AddField("Guild Id", guild.GuildId, true);
@@ -457,162 +454,6 @@ namespace LegionKun.Module
 
             logger._addcondition = $" is result '{(ConstVariables.CServer[Context.Guild.Id].Debug ? "on" : "off")}'";
             logger.PrintLog();
-        }
-
-        [Command("banlist")]
-        public async Task BanListAsync(IUser User = null)
-        {
-            if (!(await Access("banlist")))
-                return;
-
-            SLog logger = new SLog("BanList", Context);
-
-            string SqlExpression = "sp_SelectBanList";
-            string TextRequest = "";
-
-            EmbedBuilder builder = new EmbedBuilder();
-
-            if (User != null)
-                SqlExpression = "sp_SelectBanListAnd";
-
-            builder.WithTitle($"Бан лист{(User != null ? "(Выборка)" : "")}");
-
-            using (SqlConnection conect = new SqlConnection(Base.Resource1.ConnectionKeyTestServer))
-            {
-                try
-                {
-                    conect.Open();
-                    using (SqlCommand command = new SqlCommand(SqlExpression, conect) { CommandType = System.Data.CommandType.StoredProcedure })
-                    {
-                        if (User != null)
-                        {
-                            SqlParameter BannedParam = new SqlParameter()
-                            {
-                                ParameterName = "@BannedId",
-                                DbType = System.Data.DbType.Int64,
-                                Value = User
-                            };
-
-                            command.Parameters.Add(BannedParam);
-                        }
-
-                        SqlParameter GuildIdParam = new SqlParameter()
-                        {
-                            ParameterName = "@GuildId",
-                            DbType = System.Data.DbType.Int64,
-                            Value = Context.Guild.Id
-                        };
-
-                        command.Parameters.Add(GuildIdParam);
-
-                        SqlDataReader reader = await command.ExecuteReaderAsync();
-
-                        if (reader.HasRows)
-                        {
-                            while (reader.Read())
-                            {
-                                ulong BannedId = (ulong)reader.GetInt64(0);
-                                ulong AdminId = (ulong)reader.GetInt64(1);
-                                string Comment = reader.GetString(2);
-                                DateTime Date = reader.GetDateTime(3);
-
-                                var banned = Context.Guild.GetUser(BannedId);
-
-                                var admin = Context.Guild.GetUser(AdminId);
-
-                                TextRequest += $"**Пользователь:** {(banned == null ? "----" : banned.Mention)}\r\n**Администратор:** {(admin == null ? "----" : admin.Mention)}\r\nЗаметка: {Comment}\r\nДата: {Date}\r\n";
-                            }
-
-                            builder.WithDescription(TextRequest)
-                                .WithFooter(Context.Guild.Name, Context.Guild.IconUrl)
-                                .WithColor(ConstVariables.AdminColor);
-
-                            await ReplyAsync("", embed: builder.Build());
-                        }
-                        else await ReplyAsync("Данных в базе не обнаружено!");
-
-                        logger._addcondition = $"is user '{Context.User.Username}#{Context.User.Discriminator}'";
-                    }
-                }
-                catch (Exception e)
-                {
-                    await ReplyAsync("Произошла ошибка! Обратитесь к администратору.");
-                    logger._exception = e;
-                }
-                logger.PrintLog();
-            }
-        }
-
-        [Command("banlistadmin")]
-        public async Task BanListAdmAsync(IUser User)
-        {
-            if (!(await Access("banlistadmin")))
-                return;
-
-            SLog logger = new SLog("BanListAdmin", Context);
-
-            string SqlExpression = "sp_SelectBanListAdmin";
-            string TextRequest = "";
-
-            SqlParameter GuildIdParam = new SqlParameter()
-            {
-                ParameterName = "@GuildId",
-                DbType = System.Data.DbType.Int64,
-                Value = Context.Guild.Id
-            };
-
-            SqlParameter AdminIdParam = new SqlParameter()
-            {
-                ParameterName = "@AdminId",
-                DbType = System.Data.DbType.Int64,
-                Value = User.Id
-            };
-
-            EmbedBuilder builder = new EmbedBuilder();
-
-            builder.WithTitle($"Бан лист(Выборка)");
-
-            using (SqlConnection conect = new SqlConnection(Base.Resource1.ConnectionKeyTestServer))
-            {
-                try
-                {
-                    conect.Open();
-                    SqlCommand command = new SqlCommand(SqlExpression, conect) { CommandType = System.Data.CommandType.StoredProcedure };
-
-                    command.Parameters.Add(GuildIdParam);
-                    command.Parameters.Add(AdminIdParam);
-
-                    SqlDataReader reader = await command.ExecuteReaderAsync();
-
-                    if (reader.HasRows)
-                    {
-                        while (reader.Read())
-                        {
-                            ulong BannedId = (ulong)reader.GetInt64(0);
-                            ulong AdminId = (ulong)reader.GetInt64(1);
-                            string Comment = reader.GetString(2);
-                            DateTime Date = reader.GetDateTime(3);
-
-                            TextRequest += $"**Пользователь:** {Context.Guild.GetUser(BannedId).Mention} **Администратор:** {Context.Guild.GetUser(AdminId).Mention}\r\n Заметка: {Comment}\r\n Дата: {Date}";
-                        }
-
-                        builder.WithDescription(TextRequest)
-                            .WithFooter(Context.Guild.Name, Context.Guild.IconUrl)
-                            .WithColor(ConstVariables.AdminColor);
-
-                        await ReplyAsync("", embed: builder.Build());
-                    }
-                    else await ReplyAsync("Данных в базе не обноружено!");
-
-                    logger._addcondition = $"is Admin '{User.Username}#{User.Discriminator}'";
-                }
-                catch (Exception e)
-                {
-                    await ReplyAsync("Ошибка чтения! Обратитесь к администратору!");
-                    logger._exception = e;
-                }
-                logger.PrintLog();
-            }
         }
 
         [Command("banlistadd")]
@@ -691,7 +532,7 @@ namespace LegionKun.Module
                 Value = comment
             };
 
-            using (SqlConnection conect = new SqlConnection(Base.Resource1.ConnectionKeyTestServer))
+            using (SqlConnection conect = new SqlConnection(Base.Resource2.ConnectionKeyTestServer))
             {
                 try
                 {
@@ -742,7 +583,7 @@ namespace LegionKun.Module
                 Value = User.Id
             };
 
-            using (SqlConnection conect = new SqlConnection(Base.Resource1.ConnectionKeyTestServer))
+            using (SqlConnection conect = new SqlConnection(Base.Resource2.ConnectionKeyTestServer))
             {
                 try
                 {
@@ -838,7 +679,7 @@ namespace LegionKun.Module
 
         [Command("addtrigger")]
         [CategoryChannel(IC: true)]
-        public async Task TriggerAddAsync(string trigger1, string trigger2)
+        public async Task TriggerAddAsync(string trigger1, string trigger2, bool allserver = false)
         {
             if (!(await Access("addtrigger")))
                 return;
@@ -854,6 +695,9 @@ namespace LegionKun.Module
                 Value = Context.Guild.Id
             };
 
+            if (Context.User.Id == ConstVariables.CreatorId && allserver)
+                GuildIdParam.Value = 0;
+
             SqlParameter TextRes = new SqlParameter
             {
                 ParameterName = "@TextRec",
@@ -868,7 +712,7 @@ namespace LegionKun.Module
                 Value = trigger2
             };
 
-            using (SqlConnection conect = new SqlConnection(Base.Resource1.ConnectionKeyTestServer))
+            using (SqlConnection conect = new SqlConnection(Base.Resource2.ConnectionKeyTestServer))
             {
                 try
                 {
@@ -880,7 +724,7 @@ namespace LegionKun.Module
                     command.Parameters.Add(TextRes);
 
                     int number = command.ExecuteNonQuery();
-                    await ReplyAsync((number == 0 ? $"{Context.User.Mention}, возникла ошибка при добавлении!" : "добавлнеа новая запись!"));
+                    await ReplyAsync((number == 0 ? $"{Context.User.Mention}, возникла ошибка при добавлении!" : "добавлена новая запись!"));
                 }
                 catch (Exception e)
                 {
@@ -913,7 +757,7 @@ namespace LegionKun.Module
                 Value = Context.Guild.Id
             };
 
-            using (SqlConnection conect = new SqlConnection(Base.Resource1.ConnectionKeyTestServer))
+            using (SqlConnection conect = new SqlConnection(Base.Resource2.ConnectionKeyTestServer))
             {
                 try
                 {
@@ -977,7 +821,7 @@ namespace LegionKun.Module
                 Value = id
             };
 
-            using (SqlConnection conect = new SqlConnection(Base.Resource1.ConnectionKeyTestServer))
+            using (SqlConnection conect = new SqlConnection(Base.Resource2.ConnectionKeyTestServer))
             {
                 try
                 {
@@ -1038,7 +882,7 @@ namespace LegionKun.Module
                 Value = reupdate
             };
 
-            using (SqlConnection conect = new SqlConnection(Base.Resource1.ConnectionKeyTestServer))
+            using (SqlConnection conect = new SqlConnection(Base.Resource2.ConnectionKeyTestServer))
             {
                 try
                 {

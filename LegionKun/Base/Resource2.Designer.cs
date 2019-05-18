@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace LegionKun.Properties {
+namespace LegionKun.Base {
     using System;
     
     
@@ -19,17 +19,17 @@ namespace LegionKun.Properties {
     // с помощью такого средства, как ResGen или Visual Studio.
     // Чтобы добавить или удалить член, измените файл .ResX и снова запустите ResGen
     // с параметром /str или перестройте свой проект VS.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Resources {
+    internal class Resource2 {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
         private static global::System.Globalization.CultureInfo resourceCulture;
         
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal Resources() {
+        internal Resource2() {
         }
         
         /// <summary>
@@ -39,7 +39,7 @@ namespace LegionKun.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("LegionKun.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("LegionKun.Base.Resource2", typeof(Resource2).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -57,6 +57,51 @@ namespace LegionKun.Properties {
             }
             set {
                 resourceCulture = value;
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на AIzaSyDIuH33zi6aod6jSHm31V1VIVKYIIGxvEo.
+        /// </summary>
+        internal static string ApiKeyToken {
+            get {
+                return ResourceManager.GetString("ApiKeyToken", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Data Source=KIRILL02\LEGIONKUN;Initial Catalog=TestServer;Integrated Security=True; User Id = LegeonKun; Password = Kun73$Kanti//.
+        /// </summary>
+        internal static string ConnectionKeyTestServer {
+            get {
+                return ResourceManager.GetString("ConnectionKeyTestServer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на NDU4Mjc2NjM2MDY0ODc0NDk3.DhZByw.dBlIP1itXd7XOjmVe59drPhkB7o.
+        /// </summary>
+        internal static string TestBotToken {
+            get {
+                return ResourceManager.GetString("TestBotToken", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на NDYwMTUyNTgzNzc2ODk0OTk3.DhAm7g.GSRCqXFiNo_oQQuv2Uhk770Rxbg.
+        /// </summary>
+        internal static string TokenBot {
+            get {
+                return ResourceManager.GetString("TokenBot", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на 5.003.
+        /// </summary>
+        internal static string VersionBot {
+            get {
+                return ResourceManager.GetString("VersionBot", resourceCulture);
             }
         }
     }

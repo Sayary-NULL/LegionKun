@@ -19,7 +19,7 @@ namespace LegionKun.Base {
     // с помощью такого средства, как ResGen или Visual Studio.
     // Чтобы добавить или удалить член, измените файл .ResX и снова запустите ResGen
     // с параметром /str или перестройте свой проект VS.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resource1 {
@@ -70,16 +70,7 @@ namespace LegionKun.Base {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Data Source=KIRILL\SQL_LEGIONKUN;Initial Catalog=UserBanned;Integrated Security=True.
-        /// </summary>
-        internal static string ConnectionKey {
-            get {
-                return ResourceManager.GetString("ConnectionKey", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Ищет локализованную строку, похожую на Data Source=KIRILL\SQL_LEGIONKUN;Initial Catalog=TestServer;Integrated Security=True; User Id = LegeonKun; Password = Kun73$Kanti//.
+        ///   Ищет локализованную строку, похожую на Data Source=WIN-FCZUC9ET6YV\LEGIONKUN;Initial Catalog=TestServer;Integrated Security=True; User Id = LegeonKun; Password = Kun73$Kanti//.
         /// </summary>
         internal static string ConnectionKeyTestServer {
             get {
@@ -106,7 +97,7 @@ namespace LegionKun.Base {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на 4.35.
+        ///   Ищет локализованную строку, похожую на 5.003.
         /// </summary>
         internal static string VersionBot {
             get {

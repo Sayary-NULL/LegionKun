@@ -1,13 +1,5 @@
 ﻿using System;
-using System.Threading.Tasks;
-using Discord;
-using Discord.WebSocket;
-using Discord.Commands;
-using System.Windows.Forms;
 using LegionKun.Module;
-using Discord.Rest;
-using System.Threading;
-using LegionKun.BotAPI;
 
 /*461284473799966730 - шароновский легион
  *423154703354822668 - [Legion Sharon'a]
@@ -41,7 +33,7 @@ namespace LegionKun
                     ConstVariables.logger.Error(e.Message);
                     break;
                 }
-
+               
             } while (true);
 
             Console.ReadKey();

@@ -11,7 +11,7 @@ namespace LegionKun.Attribute
     {
         public override Task<PreconditionResult> CheckPermissionsAsync(ICommandContext Context, CommandInfo command, IServiceProvider services)
         {
-            if(Context.User.Id == Module.ConstVariables.CreatorId)
+            if(Context.User.Id == Module.ConstVariables.DateBase.OwnerID)
             {
                 return Task.FromResult(PreconditionResult.FromSuccess());
             }

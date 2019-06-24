@@ -120,9 +120,11 @@
   <data name="ApiKeyToken" xml:space="preserve">
     <value>AIzaSyDIuH33zi6aod6jSHm31V1VIVKYIIGxvEo</value>
   </data>
-  <data name="ConnectionKeyTestServer" xml:space="preserve">
-    <value>Data Source=KIRILL02\LEGIONKUN;Initial Catalog=TestServer;Integrated Security=True; User Id = LegeonKun; Password = Kun73$Kanti//</value>
-    <comment>строка подключения к БД</comment>
+  <data name="releaze" xml:space="preserve">
+    <value>WIN-FCZUC9ET6YV\LEGIONKUN</value>
+  </data>
+  <data name="test" xml:space="preserve">
+    <value>KIRILL02\LEGIONKUN</value>
   </data>
   <data name="TestBotToken" xml:space="preserve">
     <value>NDU4Mjc2NjM2MDY0ODc0NDk3.DhZByw.dBlIP1itXd7XOjmVe59drPhkB7o</value>
@@ -135,5 +137,11 @@
   <data name="VersionBot" xml:space="preserve">
     <value>5.003</value>
     <comment>Версия бота</comment>
+  </data>
+  <data name="Cliend_ID" xml:space="preserve">
+    <value>529r052cwq3euy4ib1fqs2s0wmha57</value>
+  </data>
+  <data name="Oauth2" xml:space="preserve">
+    <value>OAuth 5blup928ol0nku348udw4qppektcaq</value>
   </data>
 </root>

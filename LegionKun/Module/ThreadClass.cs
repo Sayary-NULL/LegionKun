@@ -5,12 +5,13 @@ using Google.Apis.YouTube.v3;
 using Google.Apis.YouTube.v3.Data;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Data.SqlClient;
 using LegionKun.BotAPI;
+using Newtonsoft.Json;
+using System.Net;
+using System.IO;
+using TwitchCoreAPI.JsonModule;
 
 namespace LegionKun.Module
 {
@@ -21,6 +22,8 @@ namespace LegionKun.Module
         private Thread MainTimer = new Thread(MainFunc);
 
         private Thread YouTubeStream = new Thread(Youtube);
+
+        private Thread TwitchStream = new Thread(Twitch);
 
         public void OneMinStart(ulong guildId)
         {
@@ -35,6 +38,11 @@ namespace LegionKun.Module
         public void YoutubeStart()
         {
             YouTubeStream.Start();
+        }
+
+        public void TwitchStart()
+        {
+            TwitchStream.Start();
         }
 
         private static void OneMin(object obj)
@@ -81,13 +89,11 @@ namespace LegionKun.Module
             public string videoid;
             public bool ison;
             public string Name;
+            public string GuildsId;
         }
 
         private static async void Youtube(object obj)
         {
-            //if (ConstVariables.ThisTest)
-            //    return;
-
             while (DiscordAPI._Client.ConnectionState != ConnectionState.Connected);
 
             Thread.Sleep(2000);
@@ -113,7 +119,7 @@ namespace LegionKun.Module
 
                 List<Stream> streams = new List<Stream>();
 
-                using (SqlConnection connect = new SqlConnection(Base.Resource2.ConnectionKeyTestServer))
+                using (SqlConnection connect = new SqlConnection(ConstVariables.DateBase.ConnectionStringKey))
                 {
                     try
                     {
@@ -126,12 +132,13 @@ namespace LegionKun.Module
                             {
                                 while (reader.Read())
                                 {
-                                    Stream NewStr;
+                                    Stream NewStr = new Stream();
                                     NewStr.id = reader.GetInt32(0);
                                     NewStr.channelid = reader.GetString(1);
                                     NewStr.videoid = reader.GetString(2);
                                     NewStr.ison = reader.GetBoolean(3);
                                     NewStr.Name = reader.GetString(4);
+                                    NewStr.GuildsId = reader.GetString(5);
                                     if(NewStr.ison)
                                         streams.Add(NewStr);
                                 }
@@ -153,6 +160,7 @@ namespace LegionKun.Module
                     Account.EventType = SearchResource.ListRequest.EventTypeEnum.Live;
                     Account.ChannelId = str.channelid;
                     Account.MaxResults = 1;
+                    String[] guilds = str.GuildsId.Split(new char[] { ' ', ',' }, StringSplitOptions.RemoveEmptyEntries);
 
                     SearchListResponse searchList = null;
 
@@ -191,8 +199,12 @@ namespace LegionKun.Module
                     {
                         foreach (var key in ConstVariables.CServer)
                         {
-                            if (key.Key == 423154703354822668)
-                                continue;
+                            if(guilds.Length != 0)
+                            {
+                                foreach (var par in guilds)
+                                    if ((ulong)Convert.ToInt64(par) == key.Key)
+                                        continue;
+                            }
 
                             try
                             {
@@ -221,8 +233,96 @@ namespace LegionKun.Module
                    ConstVariables.UpdVideo(str.id, stream.Id.VideoId);
                 }
 
-                Thread.Sleep(30000);
+                Thread.Sleep(60000);
             } while (true);
+        }
+
+        private static async void Twitch(object obj)
+        {
+            while (DiscordAPI._Client.ConnectionState != ConnectionState.Connected) ;
+
+            Thread.Sleep(2000);
+            ConstVariables.Mess?.Invoke(" Запуск потока: TwitchStream;");
+            ConstVariables.logger.Info("Запуск потока: TwitchStream;");
+
+            bool isbegin = false;
+
+            try
+            {
+                do
+                {
+                    Streams stream = GetRequest<Streams>("streams/95844270");
+
+                    if (stream.stream != null)
+                    {
+                        if (!isbegin)
+                        {
+                            EmbedBuilder Live = new EmbedBuilder();
+                            Live.AddField("Новости", $"Найден стрим у {stream.stream.channel.name}!")
+                                .WithColor(ConstVariables.InfoColor);
+
+                            foreach (var key in ConstVariables.CServer)
+                            {
+                                try
+                                {
+                                    SocketTextChannel channel = null;
+                                    if (key.Value.DefaultChannelNewsId == 0)
+                                        channel = key.Value.GetDefaultChannel();
+                                    else channel = key.Value.GetGuild().GetTextChannel(key.Value.DefaultChannelNewsId);
+
+                                    await channel.SendMessageAsync("@here", embed: Live.Build());
+                                    await channel.SendMessageAsync($"{stream.stream.channel.status}");
+                                    await channel.SendMessageAsync($"Игра: {stream.stream.game} \r\nСсыль: {stream.stream.channel.url}");
+                                }
+                                catch (Exception e)
+                                {
+                                    ConstVariables.logger.Error($"is guild {key.Value.Name} is error {e}");
+                                    ConstVariables.Mess($"Youtube: is guild: {key.Key} {e}");
+                                }
+                            }
+                            isbegin = true;
+                        }
+                    }
+                    else isbegin = false;
+
+                    Thread.Sleep(60000);
+                } while (true);
+            }
+            catch (Exception e)
+            {
+                ConstVariables.logger.Error($"Automatic(Twitch): Errorr {e}");
+            }
+        }
+
+        private static T GetRequest<T>(string url)
+        {
+            url = "https://api.twitch.tv/kraken/" + url;
+
+            HttpWebRequest req = (HttpWebRequest)WebRequest.Create(url);
+
+            req.Method = "GET";
+            req.Accept = "application/vnd.twitchtv.v5+json";
+            req.Headers.Add("Client-ID", Base.Resource2.Cliend_ID);
+            req.Headers.Add("Authorization", Base.Resource2.Oauth2);
+
+            string result = "";
+            try
+            {
+                using (HttpWebResponse res = (HttpWebResponse)req.GetResponse())
+                using (StreamReader sr = new StreamReader(res.GetResponseStream()))
+                {
+                    result = sr.ReadToEnd();
+                }
+
+                T par = JsonConvert.DeserializeObject<T>(result);
+                return par;
+            }
+            catch (WebException ex)
+            {
+                HttpWebResponse webResponse = (HttpWebResponse)ex.Response;
+                ConstVariables.logger.Error($"Статусный код ошибки: {(int)webResponse.StatusCode} - {webResponse.StatusCode}");
+                return default;
+            }
         }
     }
 }

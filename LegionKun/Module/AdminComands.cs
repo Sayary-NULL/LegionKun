@@ -309,7 +309,7 @@ namespace LegionKun.Module
                         await guild.GetDefaultNewsChannel().SendMessageAsync("Автор: " + Context.User.Mention);
                         break;
                     }
-                    else if (Context.User.Id == ConstVariables.CreatorId)
+                    else if (Context.User.Id == ConstVariables.DateBase.OwnerID)
                     {
                         if (isfalg)
                         {
@@ -383,7 +383,7 @@ namespace LegionKun.Module
             int i = 1;
             try
             {
-                using (SqlConnection connect = new SqlConnection(Base.Resource2.ConnectionKeyTestServer))
+                using (SqlConnection connect = new SqlConnection(ConstVariables.DateBase.ConnectionStringKey))
                 {
                     connect.Open();
                     SqlCommand command = new SqlCommand(SqlRequestRole, connect);
@@ -532,7 +532,7 @@ namespace LegionKun.Module
                 Value = comment
             };
 
-            using (SqlConnection conect = new SqlConnection(Base.Resource2.ConnectionKeyTestServer))
+            using (SqlConnection conect = new SqlConnection(ConstVariables.DateBase.ConnectionStringKey))
             {
                 try
                 {
@@ -583,7 +583,7 @@ namespace LegionKun.Module
                 Value = User.Id
             };
 
-            using (SqlConnection conect = new SqlConnection(Base.Resource2.ConnectionKeyTestServer))
+            using (SqlConnection conect = new SqlConnection(ConstVariables.DateBase.ConnectionStringKey))
             {
                 try
                 {
@@ -695,7 +695,7 @@ namespace LegionKun.Module
                 Value = Context.Guild.Id
             };
 
-            if (Context.User.Id == ConstVariables.CreatorId && allserver)
+            if (Context.User.Id == ConstVariables.DateBase.OwnerID && allserver)
                 GuildIdParam.Value = 0;
 
             SqlParameter TextRes = new SqlParameter
@@ -712,7 +712,7 @@ namespace LegionKun.Module
                 Value = trigger2
             };
 
-            using (SqlConnection conect = new SqlConnection(Base.Resource2.ConnectionKeyTestServer))
+            using (SqlConnection conect = new SqlConnection(ConstVariables.DateBase.ConnectionStringKey))
             {
                 try
                 {
@@ -757,7 +757,7 @@ namespace LegionKun.Module
                 Value = Context.Guild.Id
             };
 
-            using (SqlConnection conect = new SqlConnection(Base.Resource2.ConnectionKeyTestServer))
+            using (SqlConnection conect = new SqlConnection(ConstVariables.DateBase.ConnectionStringKey))
             {
                 try
                 {
@@ -773,6 +773,66 @@ namespace LegionKun.Module
                         {
                             answer = "";
                             while(reader.Read())
+                            {
+                                int id = reader.GetInt32(0);
+                                string textsec = reader.GetString(1);
+                                string textanswer = reader.GetString(2);
+
+                                answer += $"{count++}) **id trigger**: {id}\r\n{CountInterval(count)}**text search**: '{textsec}'\r\n{CountInterval(count)}**text anwser**: '{textanswer}'\r\n";
+                            }
+                            reader.Close();
+                            await ReplyAsync(answer);
+                        }
+                        else await ReplyAsync("триггеров не найдено!");
+                    }
+                }
+                catch (Exception e)
+                {
+                    await ReplyAsync("Ошибка чтения! Обратитесь к администратору!");
+                    logger._exception = e;
+                }
+
+                logger.PrintLog();
+            }
+        }
+
+        [Command("selecttriggerdefault")]
+        [CategoryChannel(IC: true)]
+        public async Task SelectTriggerDefaultAsync()
+        {
+            if (!(await Access("selecttriggerdefault")))
+                return;
+
+            SLog logger = new SLog("SelectTriggerDefault", Context);
+
+            string SqlExpression = "sp_SelectTriggers";
+
+            string answer = ConstVariables.NCR;
+            int count = 1;
+
+            SqlParameter GuildIdParam = new SqlParameter
+            {
+                ParameterName = "@GuildID",
+                DbType = System.Data.DbType.Int64,
+                Value = 0
+            };
+
+            using (SqlConnection conect = new SqlConnection(ConstVariables.DateBase.ConnectionStringKey))
+            {
+                try
+                {
+                    conect.Open();
+
+                    using (SqlCommand command = new SqlCommand(SqlExpression, conect) { CommandType = System.Data.CommandType.StoredProcedure })
+                    {
+                        command.Parameters.Add(GuildIdParam);
+
+                        SqlDataReader reader = await command.ExecuteReaderAsync();
+
+                        if (reader.HasRows)
+                        {
+                            answer = "";
+                            while (reader.Read())
                             {
                                 int id = reader.GetInt32(0);
                                 string textsec = reader.GetString(1);
@@ -821,7 +881,7 @@ namespace LegionKun.Module
                 Value = id
             };
 
-            using (SqlConnection conect = new SqlConnection(Base.Resource2.ConnectionKeyTestServer))
+            using (SqlConnection conect = new SqlConnection(ConstVariables.DateBase.ConnectionStringKey))
             {
                 try
                 {
@@ -882,7 +942,7 @@ namespace LegionKun.Module
                 Value = reupdate
             };
 
-            using (SqlConnection conect = new SqlConnection(Base.Resource2.ConnectionKeyTestServer))
+            using (SqlConnection conect = new SqlConnection(ConstVariables.DateBase.ConnectionStringKey))
             {
                 try
                 {
@@ -910,6 +970,48 @@ namespace LegionKun.Module
 
                 logger.PrintLog();
             }
+        }
+
+        [Command("ban"), OwnerOnly]
+        public async Task BanAsync(IUser user)
+        {
+            EmbedBuilder builder = new EmbedBuilder();
+
+            Random ran = new Random();
+
+            builder.WithFooter(Context.Guild.Name, Context.Guild.IconUrl)
+                .WithTitle("Бан")
+                .WithColor(ConstVariables.InfoColor);
+
+            switch (ran.Next(0, 5))
+            {
+                case 0:
+                    {
+                        builder.WithImageUrl("https://media.discordapp.net/attachments/462236317926031370/517352024640323584/ban_2.gif");
+                        break;
+                    }
+                case 1:
+                    {
+                        builder.WithImageUrl("https://media.discordapp.net/attachments/462236317926031370/517352068328194059/ban_3.gif?width=405&height=475");
+                        break;
+                    }
+                case 2:
+                    {
+                        builder.WithImageUrl("https://media.discordapp.net/attachments/462236317926031370/517352083226230794/ban_1.gif");
+                        break;
+                    }
+                default:
+                    {
+                        builder.WithImageUrl("https://media.discordapp.net/attachments/462236317926031370/464149984619528193/tumblr_oda2o7m3NR1tydz8to1_500.gif");
+                        break;
+                    }
+            }
+
+
+            builder.WithDescription($"Пользователь: {user.Mention} - забанен")
+                .AddField($"Причина: ", "не указанно", true);
+
+            await Context.Channel.SendMessageAsync("", false, builder.Build());
         }
 
         private string CountInterval(int number)

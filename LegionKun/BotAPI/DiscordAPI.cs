@@ -2,9 +2,6 @@
 using Discord.Commands;
 using Discord.WebSocket;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using LegionKun.Module;
 using Discord.Rest;
@@ -17,9 +14,7 @@ namespace LegionKun.BotAPI
     {
         public static DiscordSocketClient _Client { get; set; }
         public static CommandService _Command { get; set; }
-        //public static CommandService _GameCommand { get; set; }
         public static IServiceProvider _UserService { get; set; }
-        //public static IServiceProvider _GameService { get; set; }
 
         public static ConstVariables.DMessege Messege = null;
 
@@ -240,7 +235,7 @@ namespace LegionKun.BotAPI
 
             IUserMessage Mess1 = await message.GetOrDownloadAsync();
 
-            if ((reaction.Emote.Name == ConstVariables.DEmoji.EDelete.Name) && (reaction.UserId == ConstVariables.CreatorId))
+            if ((reaction.Emote.Name == ConstVariables.DEmoji.EDelete.Name) && (reaction.UserId == ConstVariables.DateBase.OwnerID))
             {
                 await Mess1.DeleteAsync();
 

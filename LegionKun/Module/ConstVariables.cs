@@ -6,10 +6,22 @@ using NLog;
 using System.Data.SqlClient;
 using System.Threading;
 using System.Diagnostics;
+using System.Runtime.Serialization.Json;
+using System.Runtime.Serialization;
 using LegionKun.BotAPI;
+using System.IO;
 
 namespace LegionKun.Module
 {
+    [DataContract]
+    public class DateBaseJSON
+    {
+        [DataMember]
+        public ulong OwnerID = 0;
+        [DataMember]
+        public string ConnectionStringKey = "";
+    }
+
     public static class ConstVariables
     {
         public delegate void DMessege(string str);
@@ -63,7 +75,7 @@ namespace LegionKun.Module
             {
                 string SqlRequest = $"SELECT [RoleId] FROM Role WHERE [GuildId] = {GuildId} AND [RoleId] = {RoleId}";
 
-                using (SqlConnection conect = new SqlConnection(Base.Resource2.ConnectionKeyTestServer))
+                using (SqlConnection conect = new SqlConnection(ConstVariables.DateBase.ConnectionStringKey))
                 {
                     try
                     {
@@ -96,7 +108,7 @@ namespace LegionKun.Module
                 if (IsCommand)
                     SqlRequest += " AND [IsCommand] = 'true'";
 
-                using (SqlConnection conect = new SqlConnection(Base.Resource2.ConnectionKeyTestServer))
+                using (SqlConnection conect = new SqlConnection(ConstVariables.DateBase.ConnectionStringKey))
                 {
                     try
                     {
@@ -177,9 +189,12 @@ namespace LegionKun.Module
             new Commands( "banlistadd" , "banlistadd [User Mention] <Comment>", true),
             new Commands( "addtrigger" , "addtrigger [\"Text Search\"] [\"Text Otvet\"]", true),
             new Commands( "selecttrigger" , "selecttrigger", true),
+            new Commands( "selecttriggerdefault" , "selecttriggerdefault", false),
             new Commands( "deletetrigger" , "deletetrigger [id trigger]", true),
             new Commands( "updatetrigger" , "updatetrigger [id trigger] [\"Re Text Otvet\"]", true)
         };
+
+        public static DateBaseJSON DateBase;
 
         public struct Commands
         {
@@ -210,16 +225,6 @@ namespace LegionKun.Module
 
             public static Emoji ERemuv = new Emoji("💢");
         }
-
-        public static ulong CreatorId { get; private set; } = 329653972728020994;
-
-        public static string WiteListGuild { get; private set; } = @"";
-
-        public static string Filed { get; private set; } = @"";
-
-        public static string Cross { get; private set; } = @"";
-
-        public static string Zero { get; private set; } = @"";
 
         public static string UTHelp { get; private set; } = "";
 
@@ -255,6 +260,27 @@ namespace LegionKun.Module
         ///<summary>NCR = Not a Correct Result</summary>
         public const string NCR = "NCR";
 
+        public static bool ConnectionBase()
+        {
+            
+            try
+            {
+                using (SqlConnection connect = new SqlConnection(ConstVariables.DateBase.ConnectionStringKey))
+                {
+                    connect.Open();
+                    using (SqlCommand command = new SqlCommand("sp_GetCountGuild", connect) { CommandType = System.Data.CommandType.StoredProcedure })
+                    {
+                        int Count = Convert.ToInt32(command.ExecuteScalar());
+                    }
+                }
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
         public static ResultIndexOfText IndexOfText(string text)
         {
             string SqlExpression = "sp_GetIndexOfText";
@@ -265,7 +291,7 @@ namespace LegionKun.Module
 
             try
             {
-                using (SqlConnection connect = new SqlConnection(Base.Resource2.ConnectionKeyTestServer))
+                using (SqlConnection connect = new SqlConnection(ConstVariables.DateBase.ConnectionStringKey))
                 {
                     connect.Open();
                     using (SqlCommand command = new SqlCommand(SqlExpression, connect) { CommandType = System.Data.CommandType.StoredProcedure })
@@ -309,7 +335,7 @@ namespace LegionKun.Module
             if ((id != 1) && (id != 2))
                 return str;
 
-            using (SqlConnection connect = new SqlConnection(Base.Resource2.ConnectionKeyTestServer))
+            using (SqlConnection connect = new SqlConnection(ConstVariables.DateBase.ConnectionStringKey))
             {
                 connect.Open();
 
@@ -342,7 +368,7 @@ namespace LegionKun.Module
         {
             int result = 0;
 
-            using (SqlConnection connect = new SqlConnection(Base.Resource2.ConnectionKeyTestServer))
+            using (SqlConnection connect = new SqlConnection(ConstVariables.DateBase.ConnectionStringKey))
             {
                 connect.Open();
 
@@ -378,7 +404,7 @@ namespace LegionKun.Module
             int count = 0;
             Random ran = new Random();            
 
-            using (SqlConnection connect = new SqlConnection(Base.Resource2.ConnectionKeyTestServer))
+            using (SqlConnection connect = new SqlConnection(ConstVariables.DateBase.ConnectionStringKey))
             {
                 connect.Open();
 
@@ -424,7 +450,7 @@ namespace LegionKun.Module
         public static int CountTextRequst(string text, ulong serverid)
         {
             int count = 0;
-            using(SqlConnection connect = new SqlConnection(Base.Resource2.ConnectionKeyTestServer))
+            using(SqlConnection connect = new SqlConnection(ConstVariables.DateBase.ConnectionStringKey))
             {
                 connect.Open();
 
@@ -445,23 +471,8 @@ namespace LegionKun.Module
             return count;
         }
 
-        public static void InstallationLists()
+        public static bool InstallationLists()
         {
-            if (ThisTest)
-            {
-                WiteListGuild = @"C:\Users\shlia\source\repos\LegionKun\LegionKun\Base\WiteListGuild.txt";
-                Filed = @"C:\Users\shlia\source\repos\LegionKun\LegionKun\Base\filed.jpg";
-                Cross = @"C:\Users\shlia\source\repos\LegionKun\LegionKun\Base\cross.png";
-                Zero = @"C:\Users\shlia\source\repos\LegionKun\LegionKun\Base\zero.png";
-            }
-            else
-            {
-                WiteListGuild = @"Base\WiteListGuild.txt";
-                Filed = @"Base\filed.jpg";
-                Cross = @"Base\cross.png";
-                Zero = @"Base\zero.png";
-            }
-
             int i = 1;
             foreach (var help in UserCommand)
                 if (help.IsOn)
@@ -512,16 +523,16 @@ namespace LegionKun.Module
                 Code.Add('`', 'ё');
                 //+shift
                 //1
-                Code.Add('Q', 'й');
-                Code.Add('W', 'ц');
-                Code.Add('E', 'у');
-                Code.Add('R', 'к');
-                Code.Add('T', 'е');
-                Code.Add('Y', 'н');
-                Code.Add('U', 'г');
-                Code.Add('I', 'ш');
-                Code.Add('O', 'щ');
-                Code.Add('P', 'з');
+                Code.Add('Q', 'Й');
+                Code.Add('W', 'Ц');
+                Code.Add('E', 'У');
+                Code.Add('R', 'К');
+                Code.Add('T', 'Е');
+                Code.Add('Y', 'Н');
+                Code.Add('U', 'Г');
+                Code.Add('I', 'Ш');
+                Code.Add('O', 'Щ');
+                Code.Add('P', 'З');
                 Code.Add('{', 'Х');
                 Code.Add('}', 'Ъ');
                 //2
@@ -553,9 +564,28 @@ namespace LegionKun.Module
                 Code.Add(' ', ' ');
             }
 
+            SurrialJSON();
+
+            if (!ConnectionBase())
+            {
+                Console.WriteLine("Нет потключения к базе!");
+                return false;
+            }
+
             DownloadetThread.Start();
 
             while (!IsDownloadGuild);
+            return true;
+        }
+
+        public static void SurrialJSON()
+        { 
+            DataContractJsonSerializer jsonFormatter = new DataContractJsonSerializer(typeof(DateBaseJSON));
+
+            using (FileStream fs = new FileStream("Base//DateBase.json", FileMode.Open))
+            {
+               DateBase = jsonFormatter.ReadObject(fs) as DateBaseJSON;
+            }
         }
 
         public static void SetDelegate(DMessege fun)
@@ -575,7 +605,7 @@ namespace LegionKun.Module
             do
             {
                 Stopwatch sw = Stopwatch.StartNew();
-                using (SqlConnection connect = new SqlConnection(Base.Resource2.ConnectionKeyTestServer))
+                using (SqlConnection connect = new SqlConnection(ConstVariables.DateBase.ConnectionStringKey))
                 {
                     try
                     {

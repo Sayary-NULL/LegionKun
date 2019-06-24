@@ -17,13 +17,17 @@ namespace LegionKun
         {
             ConstVariables.SetDelegate(new Program().Messege);
 
-            ConstVariables.InstallationLists();
-
-            new Program().MainTime();
-
-            new Program().Youtube();
-            do
+            if (ConstVariables.InstallationLists())
             {
+                ConstVariables.logger.Info("Запуск программы");
+#if DEBUG
+#else
+                new Program().MainTime();
+
+                new Program().Youtube();
+
+                new Program().Twitch();
+#endif
                 try
                 {
                     ConstVariables.LegionDiscordThread.Start();
@@ -31,12 +35,10 @@ namespace LegionKun
                 catch (Exception e)
                 {
                     ConstVariables.logger.Error(e.Message);
-                    break;
                 }
-               
-            } while (true);
+            }
 
             Console.ReadKey();
-        } 
+        }
     }
 }

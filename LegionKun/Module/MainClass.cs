@@ -16,7 +16,9 @@ namespace LegionKun.Module
         public void MainTime() => threadclass.MainTimerStart();        
 
         public void Youtube() => threadclass.YoutubeStart();
-        
+
+        public void Twitch() => threadclass.TwitchStart();
+
         public virtual void Messege(string str)
         {
             TimeSpan time = DateTime.Now.TimeOfDay;

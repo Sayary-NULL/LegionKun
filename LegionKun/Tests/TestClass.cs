@@ -46,7 +46,7 @@ namespace LegionKun.Tests
 
             try
             {
-                using (SqlConnection connect = new SqlConnection(Base.Resource2.ConnectionKeyTestServer))
+                using (SqlConnection connect = new SqlConnection(ConstVariables.DateBase.ConnectionStringKey))
                 {
                     connect.Open();
                     using (SqlCommand command = new SqlCommand(SqlExpression, connect) { CommandType = System.Data.CommandType.StoredProcedure })

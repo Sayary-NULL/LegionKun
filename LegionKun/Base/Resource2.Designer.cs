@@ -70,11 +70,38 @@ namespace LegionKun.Base {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Data Source=KIRILL02\LEGIONKUN;Initial Catalog=TestServer;Integrated Security=True; User Id = LegeonKun; Password = Kun73$Kanti//.
+        ///   Ищет локализованную строку, похожую на 529r052cwq3euy4ib1fqs2s0wmha57.
         /// </summary>
-        internal static string ConnectionKeyTestServer {
+        internal static string Cliend_ID {
             get {
-                return ResourceManager.GetString("ConnectionKeyTestServer", resourceCulture);
+                return ResourceManager.GetString("Cliend_ID", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на OAuth 5blup928ol0nku348udw4qppektcaq.
+        /// </summary>
+        internal static string Oauth2 {
+            get {
+                return ResourceManager.GetString("Oauth2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на WIN-FCZUC9ET6YV\LEGIONKUN.
+        /// </summary>
+        internal static string releaze {
+            get {
+                return ResourceManager.GetString("releaze", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на KIRILL02\LEGIONKUN.
+        /// </summary>
+        internal static string test {
+            get {
+                return ResourceManager.GetString("test", resourceCulture);
             }
         }
         

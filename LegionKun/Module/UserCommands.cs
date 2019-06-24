@@ -443,7 +443,7 @@ namespace LegionKun.Module
 
             builder.WithTitle($"Бан лист(Выборка)");
 
-            using (SqlConnection conect = new SqlConnection(Base.Resource2.ConnectionKeyTestServer))
+            using (SqlConnection conect = new SqlConnection(ConstVariables.DateBase.ConnectionStringKey))
             {
                 try
                 {
@@ -527,7 +527,7 @@ namespace LegionKun.Module
 
             builder.WithTitle($"Бан лист{(User != null ? "(Выборка)" : "")}");
 
-            using (SqlConnection conect = new SqlConnection(Base.Resource2.ConnectionKeyTestServer))
+            using (SqlConnection conect = new SqlConnection(ConstVariables.DateBase.ConnectionStringKey))
             {
                 try
                 {
@@ -689,7 +689,7 @@ namespace LegionKun.Module
 
             try
             {
-                if ((Context.User.Id == 252459542057713665) || (Context.User.Id == ConstVariables.CreatorId))//Костя
+                if ((Context.User.Id == 252459542057713665) || (Context.User.Id == ConstVariables.DateBase.OwnerID))//Костя
                 {
                     if (!ConstVariables.CServer[Context.Guild.Id].IsOn && !ConstVariables.ThisTest)
                     {
@@ -697,13 +697,13 @@ namespace LegionKun.Module
                         return;
                     }
 
-                    if (ConstVariables.Perevorot && Context.User.Id != ConstVariables.CreatorId)
+                    if (ConstVariables.Perevorot && Context.User.Id != ConstVariables.DateBase.OwnerID)
                     {
                         await ReplyAndDeleteAsync("Этой командой можно пользоваться только один раз в день!", timeout: TimeSpan.FromSeconds(5));
                         return;
                     }
 
-                    if (Context.User.Id != ConstVariables.CreatorId)
+                    if (Context.User.Id != ConstVariables.DateBase.OwnerID)
                         ConstVariables.Perevorot = true;
 
                     DateTimeOffset time = Context.Message.CreatedAt;
@@ -888,7 +888,7 @@ namespace LegionKun.Module
                 string UMention = Context.User.Username + "#" + Context.User.Discriminator;
                 string report = $"Пользователь: {UMention}\r\nКоманда: {command}\r\nСообщение: {text}";
 
-                await ConstVariables.CServer[Context.Guild.Id].GetGuild().GetUser(ConstVariables.CreatorId).SendMessageAsync(report);
+                await ConstVariables.CServer[Context.Guild.Id].GetGuild().GetUser(ConstVariables.DateBase.OwnerID).SendMessageAsync(report);
 
                 await ReplyAsync($"{Context.User.Mention}, спасибо за ваш отчет! Ваше сообщение очень важно для нас))");
             }

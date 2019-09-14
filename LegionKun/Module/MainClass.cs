@@ -11,13 +11,13 @@ namespace LegionKun.Module
     {
         private readonly ThreadClass threadclass = new ThreadClass();
 
-        public void OneMin(ulong guildId) => threadclass.OneMinStart(guildId);        
-
-        public void MainTime() => threadclass.MainTimerStart();        
+        public void OneMin(ulong guildId) => threadclass.OneMinStart(guildId);
 
         public void Youtube() => threadclass.YoutubeStart();
 
         public void Twitch() => threadclass.TwitchStart();
+
+        public void RimbowRole() => threadclass.RimbowRoleStart();
 
         public virtual void Messege(string str)
         {

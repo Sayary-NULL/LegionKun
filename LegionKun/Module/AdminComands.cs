@@ -32,14 +32,14 @@ namespace LegionKun.Module
             public void PrintLog()
             {
                 if (_exception == null)
-                    ConstVariables.logger.Info($"is group '{_group}' is command '{_command}' is guild '{Context.Guild.Name}' is channel '{Context.Channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}'{_addcondition}");
-                else ConstVariables.logger.Error($"is group '{_group}' is command '{_command}' is guild '{Context.Guild.Name}' is channel '{Context.Channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}'{_addcondition} is errors {_exception}");
+                    ConstVariables.Logger.Info($"is group '{_group}' is command '{_command}' is guild '{Context.Guild.Name}' is channel '{Context.Channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}'{_addcondition}");
+                else ConstVariables.Logger.Error($"is group '{_group}' is command '{_command}' is guild '{Context.Guild.Name}' is channel '{Context.Channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}'{_addcondition} is errors {_exception}");
             }
         };
 
         private async Task<bool> Access(string name)
         {
-            if ((name == "off" || name == "on" || name == "news") && ConstVariables.ThisTest)
+            if ( name == "news" && ConstVariables.ThisTest)
             {
                 await ReplyAndDeleteAsync($"{Context.User.Mention}, Эти команды недоступны в тестовом режиме!", timeout: TimeSpan.FromSeconds(5));
                 return false;
@@ -49,12 +49,6 @@ namespace LegionKun.Module
             {
                 await ReplyAndDeleteAsync($"{Context.User.Mention}, включен тестовый режим!", timeout: TimeSpan.FromSeconds(5));
                 return true;
-            }
-
-            if (!ConstVariables.CServer[Context.Guild.Id].IsOn && name != "on")
-            {
-                await ReplyAndDeleteAsync($"{Context.User.Mention}, все команды сейчас выключены!", timeout: TimeSpan.FromSeconds(5));
-                return false;
             }
 
             bool isresult = false;
@@ -71,174 +65,13 @@ namespace LegionKun.Module
                 }
             }
 
-            if(name == "on" || name == "off")
-            {
-                return true;
-            }
-            else if (!isresult)
+            if (!isresult)
             {
                 await ReplyAndDeleteAsync($"{Context.User.Mention}, это команда сейчас выключена!", timeout: TimeSpan.FromSeconds(5));
                 return false;
             }
 
             return true;
-        }
-
-        [Command("off", RunMode = RunMode.Async)]
-        [OwnerOnly]
-        public async Task OffBotAsync(byte level = 2)
-        {
-            if (!(await Access("off")))
-                return;
-
-            SLog logger = new SLog("Off", Context);
-
-            await DiscordAPI._Client.SetStatusAsync(UserStatus.DoNotDisturb);
-
-            switch (level)
-            {
-                case 0:
-                    {
-                        EmbedBuilder builder = new EmbedBuilder();
-
-                        builder.WithTitle("!!!Внимание!!!").WithDescription("бот будет выключен на обновление :stuck_out_tongue_winking_eye:").WithColor(Discord.Color.Magenta);
-
-                        foreach (var server in ConstVariables.CServer)
-                        {
-                            ConstVariables.CServer[server.Key].IsOn = false;
-
-                            ConstVariables.CDiscord guild = server.Value;
-
-                            var result = await guild.GetDefaultChannel().SendMessageAsync("", false, builder.Build());
-
-                            IEmote em = new Emoji("😜");
-
-                            await result.AddReactionAsync(em);
-                        }
-
-                        break;
-                    }
-
-                case 1:
-                    {
-                        ConstVariables.CServer[Context.Guild.Id].IsOn = false;
-                        break;
-                    }
-                case 2:
-                    {
-                        foreach (var key in ConstVariables.CServer)
-                        {
-                            ConstVariables.CServer[key.Key].IsOn = false;
-                        }
-
-                        break;
-                    }
-                case 3:
-                    {
-                        EmbedBuilder builder = new EmbedBuilder();
-                        builder.WithTitle("!!!Внимание!!!").WithDescription("бот будет выключен на обновление :stuck_out_tongue_winking_eye:").WithColor(Discord.Color.Magenta);
-                        foreach (var key in Module.ConstVariables.CServer)
-                        {
-                            ConstVariables.CServer[key.Key].IsOn = false;
-                        }
-
-                        var result = await ConstVariables.CServer[Context.Guild.Id].GetDefaultChannel().SendMessageAsync("", false, builder.Build());
-                        IEmote em = new Emoji("😜");
-                        await result.AddReactionAsync(em);
-                        break;
-                    }
-                default: { break; }
-            }
-            
-            try
-            {
-                await Context.Message.DeleteAsync();
-            }
-            catch
-            {
-                Console.WriteLine("Ошибка доступа!");
-            }
-
-            logger.PrintLog();
-        }
-
-        [Command("on", RunMode = RunMode.Async)]
-        [OwnerOnly]
-        public async Task OnBotAsync(byte level = 2)
-        {
-            if (!(await Access("on")))
-                return;
-
-            SLog logger = new SLog("On", Context);
-
-            await DiscordAPI._Client.SetStatusAsync(UserStatus.Online);
-
-            switch (level)
-            {
-                case 0:
-                    {
-
-                        EmbedBuilder builder = new EmbedBuilder();
-                        builder.WithTitle("Ура").WithDescription("Я снова в строю").WithColor(Discord.Color.Magenta);
-
-                        foreach (var server in ConstVariables.CServer)
-                        {
-                            ConstVariables.CServer[server.Key].IsOn = true;
-
-                            ConstVariables.CDiscord guild = server.Value;
-
-                            var result = await guild.GetDefaultChannel().SendMessageAsync("", false, builder.Build());
-
-                            IEmote em = new Emoji("💗");
-
-                            await result.AddReactionAsync(em);
-                        }
-
-                        break;
-                    }
-
-                case 1:
-                    {
-                        ConstVariables.CServer[Context.Guild.Id].IsOn = true;
-                        break;
-                    }
-                case 2:
-                    {
-                        foreach (var key in Module.ConstVariables.CServer)
-                        {
-                            ConstVariables.CServer[key.Key].IsOn = true;
-                        }
-                        break;
-                    }
-                case 3:
-                    {
-                        EmbedBuilder builder = new EmbedBuilder();
-                        builder.WithTitle("Ура").WithDescription("Я снова в строю").WithColor(Discord.Color.Magenta);
-
-                        foreach (var key in Module.ConstVariables.CServer)
-                        {
-                            ConstVariables.CServer[key.Key].IsOn = true;
-                        }
-
-                        var result = await ConstVariables.CServer[Context.Guild.Id].GetDefaultChannel().SendMessageAsync("", false, builder.Build());
-                        IEmote em = new Emoji("💗");
-                        await result.AddReactionAsync(em);
-
-                        break;
-                    }
-                default: { break; }
-            }
-
-            try
-            {
-                await Context.Message.DeleteAsync();
-            }
-            catch
-            {
-                Console.WriteLine("Ошибка доступа!");
-            }
-
-            logger.PrintLog();
         }
 
         [Command("news", RunMode = RunMode.Async)]
@@ -250,36 +83,6 @@ namespace LegionKun.Module
             SLog logger = new SLog("News", Context);
 
             string URL = "Base/news26052017.jpg";
-            bool isfalg = false;
-            string text = "";
-            int index = 0;
-
-            if (mess.IndexOf("image:") > -1)
-            {
-                URL = "";
-                isfalg = true;
-                index = mess.IndexOf("image:") + 6;
-                if (mess[index] == ' ')
-                    index++;
-
-                while (mess[index] != ';' && mess[index] != '\n')
-                {
-                    URL += mess[index];
-                    index++;
-                    if (index >= mess.Length)
-                        break;
-                }
-            }
-
-            if (mess.IndexOf("text:") > -1)
-            {
-                index = mess.IndexOf("text:") + 5;
-                if (mess[index] == ' ')
-                    index++;
-
-                for (; index < mess.Length; index++)
-                    text += mess[index];
-            }
 
             var result = await Context.Channel.SendMessageAsync("Начата рассылка!\n Ждите, если это сообщение не пропадет, то напишите Sayary.");
 
@@ -299,39 +102,26 @@ namespace LegionKun.Module
                         if (server.Value.GuildId != 435485527156981770)
                             continue;
 
-                        if (isfalg)
-                        {
-                            await guild.GetDefaultNewsChannel().SendMessageAsync(URL);
-                        }
-                        else await guild.GetDefaultNewsChannel().SendFileAsync(URL, " ");
+                        await guild.GetDefaultNewsChannel().SendFileAsync(URL, " ");
 
-                        await guild.GetDefaultNewsChannel().SendMessageAsync(text);
+                        await guild.GetDefaultNewsChannel().SendMessageAsync(mess);
                         await guild.GetDefaultNewsChannel().SendMessageAsync("Автор: " + Context.User.Mention);
                         break;
                     }
                     else if (Context.User.Id == ConstVariables.DateBase.OwnerID)
                     {
-                        if (isfalg)
-                        {
-                            await guild.GetDefaultNewsChannel().SendMessageAsync(URL);
-                        }
-                        else await guild.GetDefaultNewsChannel().SendFileAsync(URL, " ");
+                        await guild.GetDefaultNewsChannel().SendFileAsync(URL, " ");
 
-                        await guild.GetDefaultNewsChannel().SendMessageAsync(text);
+                        await guild.GetDefaultNewsChannel().SendMessageAsync(mess);
                         await guild.GetDefaultNewsChannel().SendMessageAsync("Автор: " + Context.User.Mention);
                     }
-                    else
+                    else if(Context.Guild.Id == server.Value.GuildId)
                     {
-                        if (Context.Guild.Id == server.Value.GuildId)
-                        {
-                            if (isfalg)
-                                await guild.GetDefaultNewsChannel().SendMessageAsync(URL);
+                        await guild.GetDefaultNewsChannel().SendFileAsync("Base/LegioNews2.png", " ");
+                        await guild.GetDefaultNewsChannel().SendMessageAsync(mess);
+                        await guild.GetDefaultNewsChannel().SendMessageAsync("Автор: " + Context.User.Mention);
+                        break;
 
-                            await guild.GetDefaultNewsChannel().SendFileAsync("Base/LegioNews2.png", " ");
-                            await guild.GetDefaultNewsChannel().SendMessageAsync(text);
-                            await guild.GetDefaultNewsChannel().SendMessageAsync("Автор: " + Context.User.Mention);
-                            break;
-                        }
                     }
                 }
                 catch (Exception e)
@@ -377,7 +167,6 @@ namespace LegionKun.Module
                 .WithAuthor(Context.User.Username, Context.User.GetAvatarUrl())
                 .AddField("Guild", Context.Guild.Name, true)
                 .AddField("Resurs", guild.CountRes + "/" + guild.Restruction, true)
-                .AddField("Is on?", ConstVariables.CServer[Context.Guild.Id].IsOn, true)
                 .WithColor(ConstVariables.AdminColor);
 
             int i = 1;

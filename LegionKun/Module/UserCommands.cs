@@ -36,8 +36,8 @@ namespace LegionKun.Module
             public void PrintLog()
             {
                 if (_exception == null)
-                    ConstVariables.logger.Info($"is group '{_group}' is command '{_command}' is guild '{Context.Guild.Name}' is channel '{Context.Channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}'{_addcondition}");
-                else ConstVariables.logger.Error($"is group '{_group}' is command '{_command}' is guild '{Context.Guild.Name}' is channel '{Context.Channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}'{_addcondition} is errors {_exception}");
+                    ConstVariables.Logger.Info($"is group '{_group}' is command '{_command}' is guild '{Context.Guild.Name}' is channel '{Context.Channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}'{_addcondition}");
+                else ConstVariables.Logger.Error($"is group '{_group}' is command '{_command}' is guild '{Context.Guild.Name}' is channel '{Context.Channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}'{_addcondition} is errors {_exception}");
             }
         };
 
@@ -47,12 +47,6 @@ namespace LegionKun.Module
             {
                 await ReplyAndDeleteAsync($"{Context.User.Mention}, включен тестовый режим!", timeout: TimeSpan.FromSeconds(5));
                 return true;
-            }
-
-            if (!ConstVariables.CServer[Context.Guild.Id].IsOn)
-            {
-                await ReplyAndDeleteAsync($"{Context.User.Mention}, все команды сейчас выключены!", timeout: TimeSpan.FromSeconds(5));
-                return false;
             }
 
             bool isresult = false;
@@ -251,7 +245,7 @@ namespace LegionKun.Module
                         {
                             if (ConstVariables.CServer[Context.Guild.Id].Debug || ConstVariables.ThisTest)
                                 Console.WriteLine($"{role.Name} {role.Position}({role.Position - 1}): {e.Message}");/*для отладки*/
-                            ConstVariables.logger.Error($"{role.Name} {role.Position}({role.Position - 1}): {e.Message}");
+                            ConstVariables.Logger.Error($"{role.Name} {role.Position}({role.Position - 1}): {e.Message}");
                         }
                     }
 
@@ -271,7 +265,7 @@ namespace LegionKun.Module
                     {
                         if (ConstVariables.CServer[Context.Guild.Id].Debug || ConstVariables.ThisTest)
                             Console.WriteLine($"{CountRole}, {i}:  {e.Message}");/*для отладки*/
-                        ConstVariables.logger.Error($"{CountRole}, {i}:  {e.Message}");
+                        ConstVariables.Logger.Error($"{CountRole}, {i}:  {e.Message}");
                     }
                 }
 
@@ -691,7 +685,7 @@ namespace LegionKun.Module
             {
                 if ((Context.User.Id == 252459542057713665) || (Context.User.Id == ConstVariables.DateBase.OwnerID))//Костя
                 {
-                    if (!ConstVariables.CServer[Context.Guild.Id].IsOn && !ConstVariables.ThisTest)
+                    if (!ConstVariables.ThisTest)
                     {
                         await ReplyAndDeleteAsync($"{Context.User.Mention}, все команды сейчас выключены!", timeout: TimeSpan.FromSeconds(5));
                         return;
@@ -728,7 +722,7 @@ namespace LegionKun.Module
                     }
                     catch (Exception e)
                     {
-                        ConstVariables.logger.Error("Ошибка доступа:" + e.Message);
+                        ConstVariables.Logger.Error("Ошибка доступа:" + e.Message);
                     }
 
                     await ReplyAndDeleteAsync("Тихо! Об этом никто не должен знать!", timeout: TimeSpan.FromSeconds(5));

@@ -70,7 +70,7 @@ namespace LegionKun.Base {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на 529r052cwq3euy4ib1fqs2s0wmha57.
+        ///   Ищет локализованную строку, похожую на gp762nuuoqcoxypju8c569th9wz7q5.
         /// </summary>
         internal static string Cliend_ID {
             get {
@@ -79,7 +79,7 @@ namespace LegionKun.Base {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на OAuth 5blup928ol0nku348udw4qppektcaq.
+        ///   Ищет локализованную строку, похожую на OAuth y8tei6jf3h396fcpc9vil8vvx9negg.
         /// </summary>
         internal static string Oauth2 {
             get {

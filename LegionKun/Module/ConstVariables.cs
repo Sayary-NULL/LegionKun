@@ -47,7 +47,6 @@ namespace LegionKun.Module
             public int CountRes = 0;
             public string Name;
             public bool Debug = false;
-            public bool IsOn = false;
             public bool Trigger = false;
             public int NumberNewUser = 0;
 
@@ -91,7 +90,7 @@ namespace LegionKun.Module
                     }
                     catch (Exception e)
                     {
-                        logger.Error($"is func 'EntryRole' is errors {e}");
+                        Logger.Error($"is func 'EntryRole' is errors {e}");
                         return false;
                     }
                 }
@@ -124,7 +123,7 @@ namespace LegionKun.Module
                     }
                     catch (Exception e)
                     {
-                        logger.Error($"is func 'IsPrefixChannel' is id cannel: '{ChannelId}' is default: '{IsDefault}' is News Channel: '{IsNewsChannel}' is command: '{IsCommand}' is errors {e}");
+                        Logger.Error($"is func 'IsPrefixChannel' is id cannel: '{ChannelId}' is default: '{IsDefault}' is News Channel: '{IsNewsChannel}' is command: '{IsCommand}' is errors {e}");
                         return false;
                     }
                 }
@@ -196,6 +195,8 @@ namespace LegionKun.Module
 
         public static DateBaseJSON DateBase;
 
+        public static SocketRole Role = null;
+
         public struct Commands
         {
             public string Name;
@@ -228,6 +229,8 @@ namespace LegionKun.Module
 
         public static string UTHelp { get; private set; } = "";
 
+        public static string Patch = "";
+
         public static string ATHelp { get; private set; } = "";
 
         public static bool Perevorot { get; set; } = false;
@@ -246,7 +249,7 @@ namespace LegionKun.Module
 
         public static Thread LegionDiscordThread = new Thread(LegionDiscord.RunBotAsync);
 
-        public static Logger logger { get; private set; } = LogManager.GetCurrentClassLogger();
+        public static Logger Logger { get; private set; } = LogManager.GetCurrentClassLogger();
 
         public struct ResultIndexOfText
         {
@@ -582,7 +585,7 @@ namespace LegionKun.Module
         { 
             DataContractJsonSerializer jsonFormatter = new DataContractJsonSerializer(typeof(DateBaseJSON));
 
-            using (FileStream fs = new FileStream("Base//DateBase.json", FileMode.Open))
+            using (FileStream fs = new FileStream(Patch + "Base//DateBase.json", FileMode.Open))
             {
                DateBase = jsonFormatter.ReadObject(fs) as DateBaseJSON;
             }
@@ -691,8 +694,6 @@ namespace LegionKun.Module
 
                                         discord.CountRes = CServer[discord.GuildId].CountRes;
 
-                                        discord.IsOn = CServer[discord.GuildId].IsOn;
-
                                         discord.Trigger = CServer[discord.GuildId].Trigger;
 
                                         discord.NumberNewUser = CServer[discord.GuildId].NumberNewUser;
@@ -705,7 +706,7 @@ namespace LegionKun.Module
                             }
                             catch (Exception e)
                             {
-                                logger.Error($"is func 'DownlodeGuildParams() -> download param' is guild: '{key}' is error {e}");
+                                Logger.Error($"is func 'DownlodeGuildParams() -> download param' is guild: '{key}' is error {e}");
 
                                 if (ThisTest)
                                     Console.WriteLine($"is func 'DownlodeGuildParams() -> download param' is guild: '{key}' is error {e}");
@@ -714,7 +715,7 @@ namespace LegionKun.Module
                     }
                     catch (Exception e)
                     {
-                        logger.Error($"is func 'DownlodeGuildParams()' is error {e}");
+                        Logger.Error($"is func 'DownlodeGuildParams()' is error {e}");
 
                         if (ThisTest)
                             Console.WriteLine($"is func 'DownlodeGuildParams()' is error {e}");

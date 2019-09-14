@@ -53,7 +53,7 @@ namespace LegionKun.BotAPI
 
         private void Help(SocketCommandContext Context)
         {
-            if (!ConstVariables.CServer[Context.Guild.Id].IsOn && !ConstVariables.ThisTest)
+            if (!ConstVariables.ThisTest)
                 return;
 
             SocketGuildUser user = Context.Guild.GetUser(Context.User.Id);
@@ -86,7 +86,7 @@ namespace LegionKun.BotAPI
             builder.WithColor(Color.Orange)
                 .WithFooter(Context.Guild.Name, Context.Guild.IconUrl);
 
-            ConstVariables.logger.Info($"is Guid '{Context.Guild.Name}' is command 'help' is user '{user.Username}' is channel '{Context.Channel.Name}' is IsRole '{IsRole}'");
+            ConstVariables.Logger.Info($"is Guid '{Context.Guild.Name}' is command 'help' is user '{user.Username}' is channel '{Context.Channel.Name}' is IsRole '{IsRole}'");
 
             Context.Channel.SendMessageAsync("", false, builder.Build());
         }
@@ -112,7 +112,7 @@ namespace LegionKun.BotAPI
 
             public void PrintLog()
             {
-                ConstVariables.logger.Error($"is errors '{_error}' is param {_errorrreason} is guild '{Context.Guild.Name}' is channel '{Context.Channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}' is context '{Context.Message.Content}'");
+                ConstVariables.Logger.Error($"is errors '{_error}' is param {_errorrreason} is guild '{Context.Guild.Name}' is channel '{Context.Channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}' is context '{Context.Message.Content}'");
             }
         };
 
@@ -120,7 +120,7 @@ namespace LegionKun.BotAPI
         {
             await _Client.SetGameAsync("sh!help");
 
-            await _Client.SetStatusAsync(UserStatus.Idle);
+            await _Client.SetStatusAsync(UserStatus.Online);
 
             await RegistredCommandsAsync();
 
@@ -203,7 +203,7 @@ namespace LegionKun.BotAPI
         {
             Messege("Bot: Connected!");
 
-            ConstVariables.logger.Info("Bot: Connected!");
+            ConstVariables.Logger.Info("Bot: Connected!");
 
             return Task.CompletedTask;
         }
@@ -212,7 +212,7 @@ namespace LegionKun.BotAPI
         {
             Messege(" Bot: Disconnected!");
 
-            ConstVariables.logger.Error("Bot: Disconnected!");
+            ConstVariables.Logger.Error("Bot: Disconnected!");
 
             return Task.CompletedTask;
         }
@@ -221,7 +221,7 @@ namespace LegionKun.BotAPI
         {
             Messege("Bot: ready!");
 
-            ConstVariables.logger.Info("Bot: ready!");
+            ConstVariables.Logger.Info("Bot: ready!");
 
             return Task.CompletedTask;
         }
@@ -239,7 +239,7 @@ namespace LegionKun.BotAPI
             {
                 await Mess1.DeleteAsync();
 
-                ConstVariables.logger.Info($"is grout 'automatic' is func 'AddReaction' is punkt 'delete message' is guild '{(channel as SocketGuildChannel)?.Guild.Name}' is channel '{channel.Name}' is user '{reaction.User.Value.Username}#{reaction.User.Value.Discriminator}'");
+                ConstVariables.Logger.Info($"is grout 'automatic' is func 'AddReaction' is punkt 'delete message' is guild '{(channel as SocketGuildChannel)?.Guild.Name}' is channel '{channel.Name}' is user '{reaction.User.Value.Username}#{reaction.User.Value.Discriminator}'");
             }
             else if (reaction.Emote.Name == ConstVariables.DEmoji.ERemuv.Name)
             {
@@ -319,11 +319,11 @@ namespace LegionKun.BotAPI
 
                     await channel.SendMessageAsync("", false, builder.Build());
 
-                    ConstVariables.logger.Info($"is grout 'automatic' is func 'AddReaction' is punkt 'remuv' is guild '{(channel as SocketGuildChannel)?.Guild.Name}' is channel '{channel.Name}' is user '{reaction.User.Value.Username}#{reaction.User.Value.Discriminator}'");
+                    ConstVariables.Logger.Info($"is grout 'automatic' is func 'AddReaction' is punkt 'remuv' is guild '{(channel as SocketGuildChannel)?.Guild.Name}' is channel '{channel.Name}' is user '{reaction.User.Value.Username}#{reaction.User.Value.Discriminator}'");
                 }
                 catch (Exception e)
                 {
-                    ConstVariables.logger.Error($"is grout 'automatic' is func 'AddReaction' is punkt 'remuv' is guild '{(channel as SocketGuildChannel)?.Guild.Name}' is channel '{channel.Name}' is user '{reaction.User.Value.Username}#{reaction.User.Value.Discriminator}' is error '{e}'");
+                    ConstVariables.Logger.Error($"is grout 'automatic' is func 'AddReaction' is punkt 'remuv' is guild '{(channel as SocketGuildChannel)?.Guild.Name}' is channel '{channel.Name}' is user '{reaction.User.Value.Username}#{reaction.User.Value.Discriminator}' is error '{e}'");
                 }
             }
         }
@@ -370,7 +370,7 @@ namespace LegionKun.BotAPI
                     }
             }
 
-            ConstVariables.logger.Info($"is func 'UserLeft' is guild '{user.Guild.Name}' is user '{user.Username}#{user.Discriminator}'");
+            ConstVariables.Logger.Info($"is func 'UserLeft' is guild '{user.Guild.Name}' is user '{user.Username}#{user.Discriminator}'");
 
             await guild.GetDefaultChannel().SendMessageAsync("", false, builder.Build());
         }
@@ -390,7 +390,7 @@ namespace LegionKun.BotAPI
             if (guild.EndUser == arg1.Id)
                 guild.EndUser = 0;
 
-            ConstVariables.logger.Info($"is func 'UnBanned' is Guild '{arg2.Name}' is user '{arg1.Username}#{arg1.Discriminator}'");
+            ConstVariables.Logger.Info($"is func 'UnBanned' is Guild '{arg2.Name}' is user '{arg1.Username}#{arg1.Discriminator}'");
 
 
             await guild.GetDefaultChannel().SendMessageAsync("", false, builder.Build());
@@ -444,11 +444,11 @@ namespace LegionKun.BotAPI
 
                 await guild.GetDefaultChannel().SendMessageAsync("", false, builder.Build());
 
-                ConstVariables.logger.Info($"is func 'Ban' is Guild '{arg2.Name}' is user '{arg1.Username}#{arg1.Discriminator}' is Admin '{banned.User}' is Reason '{banned.Reason}'");
+                ConstVariables.Logger.Info($"is func 'Ban' is Guild '{arg2.Name}' is user '{arg1.Username}#{arg1.Discriminator}' is Admin '{banned.User}' is Reason '{banned.Reason}'");
             }
             catch (Exception e)
             {
-                ConstVariables.logger.Error($"is func 'Ban' is Guild '{arg2.Name}' is user '{arg1.Username}#{arg1.Discriminator}' is error '{e}'");
+                ConstVariables.Logger.Error($"is func 'Ban' is Guild '{arg2.Name}' is user '{arg1.Username}#{arg1.Discriminator}' is error '{e}'");
             }
         }
 
@@ -470,7 +470,7 @@ namespace LegionKun.BotAPI
                         var role = user.Guild.GetRole(435486930885672970);
                         if (role == null)
                         {
-                            ConstVariables.logger.Error("Роль не найдена! 435486930885672970");
+                            ConstVariables.Logger.Error("Роль не найдена! 435486930885672970");
                             break;
                         }
                         await user.AddRoleAsync(role);
@@ -483,7 +483,7 @@ namespace LegionKun.BotAPI
                         var role = user.Guild.GetRole(463829025169604630);
                         if (role == null)
                         {
-                            ConstVariables.logger.Error("Роль не найдена! 463829025169604630");
+                            ConstVariables.Logger.Error("Роль не найдена! 463829025169604630");
                             break;
                         }
                         await user.AddRoleAsync(role);
@@ -501,12 +501,12 @@ namespace LegionKun.BotAPI
 
             await guild.GetDefaultChannel().SendMessageAsync("", false, builder.Build());
 
-            ConstVariables.logger.Info($"is func 'UserJoin' is Guild '{user.Guild.Name}' is user '{user.Username}#{user.Discriminator}'" + addrole);
+            ConstVariables.Logger.Info($"is func 'UserJoin' is Guild '{user.Guild.Name}' is user '{user.Username}#{user.Discriminator}'" + addrole);
         }
 
         private Task Log(LogMessage arg)
         {
-            ConstVariables.logger.Error(arg);
+            ConstVariables.Logger.Error(arg);
 
             return Task.CompletedTask;
         }
@@ -529,12 +529,12 @@ namespace LegionKun.BotAPI
                 {
                     await MessageRec(arg2);
                     await HandleCommandAsync(arg2);
-                    ConstVariables.logger.Info($"is func 'MessageUpdate' is guild '{(guild == null ? guild.Name : "Not")}' is chanel '{arg2.Channel.Name}' is user '{arg2.Author.Username}#{arg2.Author.Discriminator}' is message '{arg2.Content}'");
+                    ConstVariables.Logger.Info($"is func 'MessageUpdate' is guild '{(guild == null ? guild.Name : "Not")}' is chanel '{arg2.Channel.Name}' is user '{arg2.Author.Username}#{arg2.Author.Discriminator}' is message '{arg2.Content}'");
                 }
             }
             catch (Exception e)
             {
-                ConstVariables.logger.Error($"is func 'MessageUpdate' is guild '{(guild == null ? guild.Name : "Not")}' is chanel '{arg2.Channel.Name}' is user '{arg2.Author.Username}#{arg2.Author.Discriminator}' is message '{arg2.Content}' is errors '{e.Message}'");
+                ConstVariables.Logger.Error($"is func 'MessageUpdate' is guild '{(guild == null ? guild.Name : "Not")}' is chanel '{arg2.Channel.Name}' is user '{arg2.Author.Username}#{arg2.Author.Discriminator}' is message '{arg2.Content}' is errors '{e.Message}'");
             }
         }
 
@@ -546,7 +546,7 @@ namespace LegionKun.BotAPI
 
             SocketCommandContext Context = new SocketCommandContext(_Client, Messege);
 
-            if (!ConstVariables.CServer[Context.Guild.Id].IsOn && !ConstVariables.ThisTest || Messag.Author.IsBot)
+            if (!ConstVariables.ThisTest || Messag.Author.IsBot)
                 return;
 
             bool IsTrigger = false;
@@ -627,7 +627,7 @@ namespace LegionKun.BotAPI
 
                 if (IsTrigger)
                 {
-                    ConstVariables.logger.Info($" Сработал тригер: '{mess}'! is Guid '{guild.GetGuild().Name}' is channel '{channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}'");
+                    ConstVariables.Logger.Info($" Сработал тригер: '{mess}'! is Guid '{guild.GetGuild().Name}' is channel '{channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}'");
                 }
             }
         }

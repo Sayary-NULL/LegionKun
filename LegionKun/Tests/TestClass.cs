@@ -30,11 +30,11 @@ namespace LegionKun.Tests
         }
 
         [Command]/*Произведено исправление[100]*/
-        public async Task TestAsync(int msec = 1)
+        public async Task TestAsync(SocketRole role)
         {
-            for(int i = 0; i < msec; i++)
-                await Context.Channel.TriggerTypingAsync();
-            await Context.Channel.SendMessageAsync("Ok");
+            ConstVariables.Role = role;
+
+            await ReplyAsync($"{role.Color.ToString()} {role.Color.RawValue}");
         }
 
         [Command("connect")]

@@ -195,8 +195,6 @@ namespace LegionKun.Module
 
         public static DateBaseJSON DateBase;
 
-        public static SocketRole Role = null;
-
         public struct Commands
         {
             public string Name;

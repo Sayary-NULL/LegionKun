@@ -32,8 +32,6 @@ namespace LegionKun.Tests
         [Command]/*Произведено исправление[100]*/
         public async Task TestAsync(SocketRole role)
         {
-            ConstVariables.Role = role;
-
             await ReplyAsync($"{role.Color.ToString()} {role.Color.RawValue}");
         }
 

@@ -25,8 +25,6 @@ namespace LegionKun.Module
 
         private Thread TwitchStream = new Thread(Twitch);
 
-        private Thread RimbowRoleStream = new Thread(RimbowRole);
-
         public void OneMinStart(ulong guildId)
         {
             OneMinTimer.Start(guildId);
@@ -40,11 +38,6 @@ namespace LegionKun.Module
         public void TwitchStart()
         {
             TwitchStream.Start();
-        }
-
-        public void RimbowRoleStart()
-        {
-            RimbowRoleStream.Start();
         }
 
         private static void OneMin(object obj)

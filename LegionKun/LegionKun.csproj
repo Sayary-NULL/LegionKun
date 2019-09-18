@@ -324,6 +324,7 @@
     <Compile Include="Module\ConstVariables.cs" />
     <Compile Include="Module\MainClass.cs" />
     <Compile Include="Module\OverloadFunc.cs" />
+    <Compile Include="Module\OwnerCommands.cs" />
     <Compile Include="Module\ThreadClass.cs" />
     <Compile Include="Module\UserCommands.cs" />
     <Compile Include="Program.cs" />

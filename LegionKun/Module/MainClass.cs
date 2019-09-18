@@ -17,8 +17,6 @@ namespace LegionKun.Module
 
         public void Twitch() => threadclass.TwitchStart();
 
-        public void RimbowRole() => threadclass.RimbowRoleStart();
-
         public virtual void Messege(string str)
         {
             TimeSpan time = DateTime.Now.TimeOfDay;

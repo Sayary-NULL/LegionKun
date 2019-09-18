@@ -35,7 +35,7 @@ namespace LegionKun.Module
                     ConstVariables.Logger.Info($"is group '{_group}' is command '{_command}' is guild '{Context.Guild.Name}' is channel '{Context.Channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}'{_addcondition}");
                 else ConstVariables.Logger.Error($"is group '{_group}' is command '{_command}' is guild '{Context.Guild.Name}' is channel '{Context.Channel.Name}' is user '{Context.User.Username}#{Context.User.Discriminator}'{_addcondition} is errors {_exception}");
             }
-        };
+        }
 
         private async Task<bool> Access(string name)
         {
@@ -83,8 +83,20 @@ namespace LegionKun.Module
             SLog logger = new SLog("News", Context);
 
             string URL = "Base/news26052017.jpg";
+            bool islocalfile = true;
+
+            if(mess.IndexOf("image:") == 0)
+            {
+                mess = mess.Remove(0,6);
+                int tchk = mess.IndexOf(';');
+                URL = mess.Substring(0, tchk);
+                mess = mess.Remove(0, tchk + 2);
+                islocalfile = false;
+            }
 
             var result = await Context.Channel.SendMessageAsync("Начата рассылка!\n Ждите, если это сообщение не пропадет, то напишите Sayary.");
+
+            var serv = ConstVariables.CServer[Context.Guild.Id];
 
             foreach (var server in ConstVariables.CServer)
             {
@@ -102,7 +114,9 @@ namespace LegionKun.Module
                         if (server.Value.GuildId != 435485527156981770)
                             continue;
 
-                        await guild.GetDefaultNewsChannel().SendFileAsync(URL, " ");
+                        if(islocalfile)
+                            await guild.GetDefaultNewsChannel().SendFileAsync(URL, " ");
+                        else await guild.GetDefaultNewsChannel().SendMessageAsync(URL);
 
                         await guild.GetDefaultNewsChannel().SendMessageAsync(mess);
                         await guild.GetDefaultNewsChannel().SendMessageAsync("Автор: " + Context.User.Mention);
@@ -110,14 +124,19 @@ namespace LegionKun.Module
                     }
                     else if (Context.User.Id == ConstVariables.DateBase.OwnerID)
                     {
-                        await guild.GetDefaultNewsChannel().SendFileAsync(URL, " ");
+                        if (islocalfile)
+                            await guild.GetDefaultNewsChannel().SendFileAsync(URL, " ");
+                        else await guild.GetDefaultNewsChannel().SendMessageAsync(URL);
 
                         await guild.GetDefaultNewsChannel().SendMessageAsync(mess);
                         await guild.GetDefaultNewsChannel().SendMessageAsync("Автор: " + Context.User.Mention);
                     }
                     else if(Context.Guild.Id == server.Value.GuildId)
                     {
-                        await guild.GetDefaultNewsChannel().SendFileAsync("Base/LegioNews2.png", " ");
+                        if (islocalfile)
+                            await guild.GetDefaultNewsChannel().SendFileAsync("Base/LegioNews2.png", " ");
+                        else await guild.GetDefaultNewsChannel().SendMessageAsync(URL);
+
                         await guild.GetDefaultNewsChannel().SendMessageAsync(mess);
                         await guild.GetDefaultNewsChannel().SendMessageAsync("Автор: " + Context.User.Mention);
                         break;
@@ -219,29 +238,6 @@ namespace LegionKun.Module
                 await ReplyAsync("Ошибка чтения! Обратитесь к администратору!");
                 logger._exception = e;
             }
-            logger.PrintLog();
-        }
-
-        [Command("debug")]
-        [OwnerOnly]
-        public async Task DebugAsync()
-        {
-            SLog logger = new SLog("Debug", Context);
-
-            try
-            {
-                await Context.Message.DeleteAsync();
-            }
-            catch
-            {
-                Console.WriteLine("Ошибка доступа!");
-            }
-
-            ConstVariables.CServer[Context.Guild.Id].Debug = !ConstVariables.CServer[Context.Guild.Id].Debug;
-
-            await ReplyAndDeleteAsync($"Режим дебага: {ConstVariables.CServer[Context.Guild.Id].Debug}", timeout: TimeSpan.FromSeconds(5));
-
-            logger._addcondition = $" is result '{(ConstVariables.CServer[Context.Guild.Id].Debug ? "on" : "off")}'";
             logger.PrintLog();
         }
 
@@ -396,76 +392,7 @@ namespace LegionKun.Module
                 logger.PrintLog();
             }
         }
-
-        [Command("flowcontrol")]
-        [CategoryChannel(IC: true)]
-        public async Task FlowControlAsync(int name = 0)
-        {
-            if (!(await Access("flowcontrol")))
-                return;
-
-            SLog logger = new SLog("FlowControl", Context);
-
-            switch (name)
-            {
-                case 0:
-                    {
-                        await ReplyAndDeleteAsync($"Статус функции: {ConstVariables.ControlFlow}", timeout: TimeSpan.FromSeconds(5));
-                        break;
-                    }
-
-                case 1:
-                    {
-                        ConstVariables.ControlFlow = true;
-                        await ReplyAndDeleteAsync($"Установлен на true", timeout: TimeSpan.FromSeconds(5));
-                        break;
-                    }
-
-                case 2:
-                    {
-                        ConstVariables.ControlFlow = false;
-                        await ReplyAndDeleteAsync($"Установлен на false", timeout: TimeSpan.FromSeconds(5));
-                        break;
-                    }
-
-                default:
-                    {
-                        await ReplyAndDeleteAsync($"не установленно значение", timeout: TimeSpan.FromSeconds(5));
-                        break;
-                    }
-            }
-
-            try
-            {
-                await Context.Message.DeleteAsync();
-            }
-            catch (Exception e)
-            {
-                logger._exception = e;
-            }
-
-            logger.PrintLog();
-        }
-
-        [Command("botstop")]
-        [OwnerOnly]
-        public async Task StopBotAsync()
-        {
-            SLog logger = new SLog("BotStop", Context);
-
-            try
-            {
-                await Context.Message.DeleteAsync();
-            }
-            catch (Exception e)
-            {
-                logger._exception = e;
-            }
-
-            await DiscordAPI._Client.StopAsync();
-            logger.PrintLog();
-        }
-
+        
         [Command("addtrigger")]
         [CategoryChannel(IC: true)]
         public async Task TriggerAddAsync(string trigger1, string trigger2, bool allserver = false)
@@ -562,66 +489,6 @@ namespace LegionKun.Module
                         {
                             answer = "";
                             while(reader.Read())
-                            {
-                                int id = reader.GetInt32(0);
-                                string textsec = reader.GetString(1);
-                                string textanswer = reader.GetString(2);
-
-                                answer += $"{count++}) **id trigger**: {id}\r\n{CountInterval(count)}**text search**: '{textsec}'\r\n{CountInterval(count)}**text anwser**: '{textanswer}'\r\n";
-                            }
-                            reader.Close();
-                            await ReplyAsync(answer);
-                        }
-                        else await ReplyAsync("триггеров не найдено!");
-                    }
-                }
-                catch (Exception e)
-                {
-                    await ReplyAsync("Ошибка чтения! Обратитесь к администратору!");
-                    logger._exception = e;
-                }
-
-                logger.PrintLog();
-            }
-        }
-
-        [Command("selecttriggerdefault")]
-        [CategoryChannel(IC: true)]
-        public async Task SelectTriggerDefaultAsync()
-        {
-            if (!(await Access("selecttriggerdefault")))
-                return;
-
-            SLog logger = new SLog("SelectTriggerDefault", Context);
-
-            string SqlExpression = "sp_SelectTriggers";
-
-            string answer = ConstVariables.NCR;
-            int count = 1;
-
-            SqlParameter GuildIdParam = new SqlParameter
-            {
-                ParameterName = "@GuildID",
-                DbType = System.Data.DbType.Int64,
-                Value = 0
-            };
-
-            using (SqlConnection conect = new SqlConnection(ConstVariables.DateBase.ConnectionStringKey))
-            {
-                try
-                {
-                    conect.Open();
-
-                    using (SqlCommand command = new SqlCommand(SqlExpression, conect) { CommandType = System.Data.CommandType.StoredProcedure })
-                    {
-                        command.Parameters.Add(GuildIdParam);
-
-                        SqlDataReader reader = await command.ExecuteReaderAsync();
-
-                        if (reader.HasRows)
-                        {
-                            answer = "";
-                            while (reader.Read())
                             {
                                 int id = reader.GetInt32(0);
                                 string textsec = reader.GetString(1);
@@ -761,7 +628,7 @@ namespace LegionKun.Module
             }
         }
 
-        [Command("ban"), OwnerOnly]
+        [Command("ban")]
         public async Task BanAsync(IUser user)
         {
             EmbedBuilder builder = new EmbedBuilder();

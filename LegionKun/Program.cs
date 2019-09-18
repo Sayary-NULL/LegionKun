@@ -33,7 +33,6 @@ namespace LegionKun
 
                 new Program().Twitch();
 #endif
-                new Program().RimbowRole();
 
                 try
                 {

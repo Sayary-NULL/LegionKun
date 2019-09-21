@@ -155,6 +155,8 @@ namespace LegionKun.BotAPI
 
             await _Command.AddModuleAsync<Module.AdminComands>(_UserService);
 
+            await _Command.AddModuleAsync<Module.OwnerCommands>(_UserService);
+
             await _Command.AddModuleAsync<Tests.TestClass>(_UserService);
         }
 

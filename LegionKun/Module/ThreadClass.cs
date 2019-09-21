@@ -232,7 +232,7 @@ namespace LegionKun.Module
             {
                 do
                 {
-                    if(ConstVariables.ControlFlow)
+                    if(!ConstVariables.ControlFlow)
                     {
                         foreach (var chanelid in channels)
                         {

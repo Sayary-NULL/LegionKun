@@ -685,12 +685,6 @@ namespace LegionKun.Module
             {
                 if ((Context.User.Id == 252459542057713665) || (Context.User.Id == ConstVariables.DateBase.OwnerID))//Костя
                 {
-                    if (!ConstVariables.ThisTest)
-                    {
-                        await ReplyAndDeleteAsync($"{Context.User.Mention}, все команды сейчас выключены!", timeout: TimeSpan.FromSeconds(5));
-                        return;
-                    }
-
                     if (ConstVariables.Perevorot && Context.User.Id != ConstVariables.DateBase.OwnerID)
                     {
                         await ReplyAndDeleteAsync("Этой командой можно пользоваться только один раз в день!", timeout: TimeSpan.FromSeconds(5));
@@ -933,6 +927,15 @@ namespace LegionKun.Module
                 if (IsRole)
                 {
                     builder.AddField("Group: Admin", Module.ConstVariables.ATHelp, true);
+                }
+
+                if(Context.User.Id == ConstVariables.DateBase.OwnerID)
+                {
+                    string own = $"1: allnews\r\n";
+                    own += $"2: debug\r\n";
+                    own += $"3: selecttriggerdefault";
+                    own += $"4: flowcontrol";
+                    builder.AddField("Group: Owner", own, true);
                 }
 
                 logger._addcondition = $" is IsRole {IsRole}";

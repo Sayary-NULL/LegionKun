@@ -47,6 +47,17 @@ namespace LegionKun.Module
 
             string URL = "Base/news26052017.jpg";
 
+            bool islocalfile = true;
+
+            if (mess.IndexOf("image:") == 0)
+            {
+                mess = mess.Remove(0, 6);
+                int tchk = mess.IndexOf(';');
+                URL = mess.Substring(0, tchk);
+                mess = mess.Remove(0, tchk + 2);
+                islocalfile = false;
+            }
+
             var result = await Context.Channel.SendMessageAsync("Sayary, жди. Начата рассылка");
 
             foreach (var server in ConstVariables.CServer)
@@ -63,7 +74,9 @@ namespace LegionKun.Module
                         if (server.Value.GuildId != 435485527156981770)
                             continue;
 
-                        await guild.GetDefaultNewsChannel().SendFileAsync(URL, " ");
+                        if (islocalfile)
+                            await guild.GetDefaultNewsChannel().SendFileAsync(URL, " ");
+                        else await guild.GetDefaultNewsChannel().SendMessageAsync(URL);
 
                         await guild.GetDefaultNewsChannel().SendMessageAsync(mess);
                         await guild.GetDefaultNewsChannel().SendMessageAsync("Автор: " + Context.User.Mention);
@@ -71,7 +84,9 @@ namespace LegionKun.Module
                     }
                     else
                     {
-                        await guild.GetDefaultNewsChannel().SendFileAsync(URL, " ");
+                        if(islocalfile)
+                            await guild.GetDefaultNewsChannel().SendFileAsync(URL, " ");
+                        else await guild.GetDefaultNewsChannel().SendMessageAsync(URL);
 
                         await guild.GetDefaultNewsChannel().SendMessageAsync(mess);
                         await guild.GetDefaultNewsChannel().SendMessageAsync("Автор: " + Context.User.Mention);
@@ -96,23 +111,14 @@ namespace LegionKun.Module
             logger.PrintLog();
         }
 
-        [Command("debug"), OwnerOnly]
+        [Command("debug")]
         public async Task DebugAsync()
         {
             SLog logger = new SLog("Debug", Context);
 
-            try
-            {
-                await Context.Message.DeleteAsync();
-            }
-            catch
-            {
-                Console.WriteLine("Ошибка доступа!");
-            }
-
             ConstVariables.CServer[Context.Guild.Id].Debug = !ConstVariables.CServer[Context.Guild.Id].Debug;
 
-            await ReplyAndDeleteAsync($"Режим дебага: {ConstVariables.CServer[Context.Guild.Id].Debug}", timeout: TimeSpan.FromSeconds(5));
+            await ReplyAsync($"Режим дебага: {ConstVariables.CServer[Context.Guild.Id].Debug}");
 
             logger._addcondition = $" is result '{(ConstVariables.CServer[Context.Guild.Id].Debug ? "on" : "off")}'";
             logger.PrintLog();
@@ -156,7 +162,14 @@ namespace LegionKun.Module
                                 string textsec = reader.GetString(1);
                                 string textanswer = reader.GetString(2);
 
-                                answer += $"{count++}) **id trigger**: {id}\r\n{CountInterval(count)}**text search**: '{textsec}'\r\n{CountInterval(count)}**text anwser**: '{textanswer}'\r\n";
+                                string text = $"{count++}) **id trigger**: {id}\r\n{CountInterval(count)}**text search**: '{textsec}'\r\n{CountInterval(count)}**text anwser**: '{textanswer}'\r\n";
+
+                                if (answer.Length + text.Length >= 2000)
+                                {
+                                    await ReplyAsync(answer);
+                                    answer = text;
+                                }
+                                else answer += text;
                             }
                             reader.Close();
                             await ReplyAsync(answer);

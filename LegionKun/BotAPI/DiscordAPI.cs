@@ -384,7 +384,7 @@ namespace LegionKun.BotAPI
 
             ConstVariables.Logger.Info($"is func 'UserLeft' is guild '{user.Guild.Name}' is user '{user.Username}#{user.Discriminator}'");
 
-            await guild.GetDefaultChannel().SendMessageAsync("", false, builder.Build());
+            await guild.GetChannelSendMessageForInfoUsers().SendMessageAsync("", false, builder.Build());
         }
 
         private async Task UserUnbaned(SocketUser arg1, SocketGuild arg2)

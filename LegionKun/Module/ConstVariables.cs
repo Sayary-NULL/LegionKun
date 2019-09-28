@@ -734,14 +734,12 @@ namespace LegionKun.Module
                     catch (Exception e)
                     {
                         Logger.Error($"is func 'DownlodeGuildParams()' is error {e}");
-
-                        if (ThisTest)
-                            Console.WriteLine($"is func 'DownlodeGuildParams()' is error {e}");
                     }
                 }
 
                 sw.Stop();
                 Mess($"DownlodeGuildParams; is time: {sw.Elapsed}");
+                Logger.Error($"DownlodeGuildParams; is time: {sw.Elapsed}");
                 IsDownloadGuild = true;
 
                 Thread.Sleep(900000);

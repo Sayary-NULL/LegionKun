@@ -314,11 +314,6 @@
     <Compile Include="Attribute\CategoryChannel.cs" />
     <Compile Include="Attribute\OwnerOnlyAttribute.cs" />
     <Compile Include="Attribute\TestsAttribute.cs" />
-    <Compile Include="Base\Resource2.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resource2.resx</DependentUpon>
-    </Compile>
     <Compile Include="BotAPI\DiscordAPI.cs" />
     <Compile Include="Module\AdminComands.cs" />
     <Compile Include="Module\ConstVariables.cs" />
@@ -340,12 +335,6 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Base\Resource2.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resource2.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Pandoras+actor+comp_f52e69_6302345.ico" />

@@ -6,8 +6,6 @@
 *.user
 *.userosscache
 *.sln.docstates
-LegionKun/המן פאיכû/
-LegionKun/LegionKunV2/Base/
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
@@ -23,6 +21,8 @@ bld/
 [Bb]in/
 [Oo]bj/
 [Ll]og/
+Base/
+LegionKun/Base/
 
 # Visual Studio 2015 cache/options directory
 .vs/

@@ -127,11 +127,11 @@
     <value>KIRILL02\LEGIONKUN</value>
   </data>
   <data name="TestBotToken" xml:space="preserve">
-    <value>NDU4Mjc2NjM2MDY0ODc0NDk3.DhZByw.dBlIP1itXd7XOjmVe59drPhkB7o</value>
+    <value>NDU4Mjc2NjM2MDY0ODc0NDk3.XYaRDQ.Xwb13y4tuYUF_ij1-1_xPpJHuhU</value>
     <comment>Токен тестового бота</comment>
   </data>
   <data name="TokenBot" xml:space="preserve">
-    <value>NDYwMTUyNTgzNzc2ODk0OTk3.DhAm7g.GSRCqXFiNo_oQQuv2Uhk770Rxbg</value>
+    <value>NDYwMTUyNTgzNzc2ODk0OTk3.XYaQKw.HGIeh94A-emSA-xSGmfcyPlgahY</value>
     <comment>токен рабочего бота</comment>
   </data>
   <data name="VersionBot" xml:space="preserve">

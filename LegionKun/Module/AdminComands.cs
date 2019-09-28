@@ -629,8 +629,14 @@ namespace LegionKun.Module
         }
 
         [Command("ban")]
-        public async Task BanAsync(IUser user)
+        public async Task BanAsync(IUser user, [Remainder]string comment = null)
         {
+            if(user.Id == ConstVariables.DateBase.OwnerID)
+            {
+                await ReplyAsync($"{Context.User.Mention}, я не собираюсь идти против своего создателя!");
+                return;
+            }
+
             EmbedBuilder builder = new EmbedBuilder();
 
             Random ran = new Random();
@@ -665,9 +671,45 @@ namespace LegionKun.Module
 
 
             builder.WithDescription($"Пользователь: {user.Mention} - забанен")
-                .AddField($"Причина: ", "не указанно", true);
+                .AddField($"Причина: ", (comment?? "не указанно"), true);
 
             await Context.Channel.SendMessageAsync("", false, builder.Build());
+        }
+        
+        [Command("flowcontrol")]
+        public async Task FlowControlAsync(int name = 0)
+        {
+            SLog logger = new SLog("FlowControl", Context);
+
+            switch (name)
+            {
+                case 0:
+                    {
+                        await ReplyAsync($"Статус функции: {ConstVariables.ControlFlow}");
+                        break;
+                    }
+
+                case 1:
+                    {
+                        ConstVariables.ControlFlow = true;
+                        await ReplyAsync($"Установлен на true");
+                        break;
+                    }
+
+                case 2:
+                    {
+                        ConstVariables.ControlFlow = false;
+                        await ReplyAsync($"Установлен на false");
+                        break;
+                    }
+                default:
+                    {
+                        await ReplyAsync($"не установленно значение");
+                        break;
+                    }
+            }
+
+            logger.PrintLog();
         }
 
         private string CountInterval(int number)

@@ -106,7 +106,7 @@ namespace LegionKun.Base {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на NDU4Mjc2NjM2MDY0ODc0NDk3.DhZByw.dBlIP1itXd7XOjmVe59drPhkB7o.
+        ///   Ищет локализованную строку, похожую на NDU4Mjc2NjM2MDY0ODc0NDk3.XYaRDQ.Xwb13y4tuYUF_ij1-1_xPpJHuhU.
         /// </summary>
         internal static string TestBotToken {
             get {
@@ -115,7 +115,7 @@ namespace LegionKun.Base {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на NDYwMTUyNTgzNzc2ODk0OTk3.DhAm7g.GSRCqXFiNo_oQQuv2Uhk770Rxbg.
+        ///   Ищет локализованную строку, похожую на NDYwMTUyNTgzNzc2ODk0OTk3.XYaQKw.HGIeh94A-emSA-xSGmfcyPlgahY.
         /// </summary>
         internal static string TokenBot {
             get {

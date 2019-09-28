@@ -186,43 +186,7 @@ namespace LegionKun.Module
                 logger.PrintLog();
             }
         }
-                
-        [Command("flowcontrol")]
-        public async Task FlowControlAsync(int name = 0)
-        {
-            SLog logger = new SLog("FlowControl", Context);
-
-            switch (name)
-            {
-                case 0:
-                    {
-                        await ReplyAsync($"Статус функции: {ConstVariables.ControlFlow}");
-                        break;
-                    }
-
-                case 1:
-                    {
-                        ConstVariables.ControlFlow = true;
-                        await ReplyAsync($"Установлен на true");
-                        break;
-                    }
-
-                case 2:
-                    {
-                        ConstVariables.ControlFlow = false;
-                        await ReplyAsync($"Установлен на false");
-                        break;
-                    }
-                default:
-                    {
-                        await ReplyAsync($"не установленно значение");
-                        break;
-                    }
-            }
-
-            logger.PrintLog();
-        }
-
+            
         private string CountInterval(int number)
         {
             double interv = Math.Log10(number) + 1;

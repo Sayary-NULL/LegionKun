@@ -29,10 +29,10 @@ namespace LegionKun.Tests
             public string Condition;
         }
 
-        [Command]/*Произведено исправление[100]*/
+        [Command]
         public async Task TestAsync(SocketRole role)
         {
-            await ReplyAsync($"{role.Color.ToString()} {role.Color.RawValue}");
+            await ReplyAsync($"{ConstVariables.CServer[Context.Guild.Id].DefaultChannelSendMessageForInfoUsers}");
         }
 
         [Command("connect")]

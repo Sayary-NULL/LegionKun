@@ -334,7 +334,7 @@ namespace LegionKun.BotAPI
         {
             ConstVariables.CDiscord guild = ConstVariables.CServer[user.Guild.Id];
 
-            if (guild.EndUser == user.Id)
+            if (guild.EndUser == user.Id || guild.DefaultChannelSendMessageForInfoUsers == 0)
                 return;
 
             EmbedBuilder builder = new EmbedBuilder();

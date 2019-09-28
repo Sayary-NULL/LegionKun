@@ -40,6 +40,7 @@ namespace LegionKun.Module
             public ulong DefaultChannelId;
             public ulong DefaultChannelNewsId;
             public ulong DefaultCommandChannel;
+            public ulong DefaultChannelSendMessageForInfoUsers;
             public ulong GuildId;
             public ulong EndUser = 0;
             //дополнительные данные
@@ -69,7 +70,14 @@ namespace LegionKun.Module
                     return GetGuild().GetTextChannel(DefaultChannelNewsId);
                 else return null;
             }
-            
+
+            public SocketTextChannel GetChannelSendMessageForInfoUsers()
+            {
+                if (DefaultChannelSendMessageForInfoUsers != 0)
+                    return GetGuild().GetTextChannel(DefaultChannelSendMessageForInfoUsers);
+                else return null;
+            }
+
             public bool EntryRole(ulong RoleId)
             {
                 string SqlRequest = $"SELECT [RoleId] FROM Role WHERE [GuildId] = {GuildId} AND [RoleId] = {RoleId}";
@@ -601,7 +609,8 @@ namespace LegionKun.Module
                 SqlExpressionGuildId = "sp_GetGuildId", 
                 SqlExpressionOwnerId = "sp_GetOwnerId", 
                 SqlExpressionChannelId = "sp_GetChannelId", 
-                SqlExpressionChannelNewsId = "sp_GetChannelNewsId";
+                SqlExpressionChannelNewsId = "sp_GetChannelNewsId",
+                SqlExpressionInfoUser = "sp_GetChannelForInfoUser";
 
             do
             {
@@ -683,6 +692,17 @@ namespace LegionKun.Module
                                         reader.Close();
                                     }
                                     else throw new Exception($"Ошибка скачивания канала для новостей по умолчанию сервера: {key}");
+
+                                    command.CommandText = SqlExpressionInfoUser;
+                                    reader = command.ExecuteReader();
+
+                                    if(reader.HasRows)
+                                    {
+                                        reader.Read();
+                                        discord.DefaultChannelSendMessageForInfoUsers = (ulong)reader.GetInt64(0);
+                                        reader.Close();
+                                    }
+                                    else throw new Exception($"Ошибка скачивания канала для отправки уведомления об уходе с сервера: {key}");
 
                                     if (CServer.ContainsKey(discord.GuildId))
                                     {

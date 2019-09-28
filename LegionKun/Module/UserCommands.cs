@@ -934,7 +934,6 @@ namespace LegionKun.Module
                     string own = $"1: allnews\r\n";
                     own += $"2: debug\r\n";
                     own += $"3: selecttriggerdefault";
-                    own += $"4: flowcontrol";
                     builder.AddField("Group: Owner", own, true);
                 }
 

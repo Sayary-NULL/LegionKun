@@ -68,7 +68,7 @@ namespace LegionKun.Module
 
             var youtubeService = new YouTubeService(new BaseClientService.Initializer()
             {
-                ApiKey = Base.Resource2.ApiKeyToken,
+                ApiKey = Base.Resource.ApiKeyToken,
                 ApplicationName = "Legion-kun"
             });
 
@@ -289,8 +289,8 @@ namespace LegionKun.Module
 
             req.Method = "GET";
             req.Accept = "application/vnd.twitchtv.v5+json";
-            req.Headers.Add("Client-ID", Base.Resource2.Cliend_ID);
-            req.Headers.Add("Authorization", Base.Resource2.Oauth2);
+            req.Headers.Add("Client-ID", Base.Resource.Cliend_ID);
+            req.Headers.Add("Authorization", Base.Resource.Oauth2);
 
             string result = "";
             try

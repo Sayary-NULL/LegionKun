@@ -225,7 +225,7 @@ namespace LegionKun.Module
 
                 builder.AddField("Roles", role, true)
                        .AddField("Channels", channel, true)
-                       .AddField("Версия бота", Base.Resource2.VersionBot, true)
+                       .AddField("Версия бота", Base.Resource.VersionBot, true)
                        .AddField("Defaul channel", Context.Guild.GetTextChannel(guild.DefaultChannelId).Mention, true)
                        .AddField("Default channel for news", Context.Guild.GetTextChannel(guild.DefaultChannelNewsId).Mention, true)
                        .AddField("Guild Id", guild.GuildId, true);

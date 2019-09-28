@@ -7,6 +7,7 @@ using LegionKun.Module;
 using Discord.Rest;
 using Microsoft.Extensions.DependencyInjection;
 using Discord.Addons.Interactive;
+using System.Data.SqlClient;
 
 namespace LegionKun.BotAPI
 {
@@ -128,18 +129,18 @@ namespace LegionKun.BotAPI
             {
                 Console.WriteLine("------------!Рабочий бот!--------------");
 
-                Console.WriteLine($"Версия: {Base.Resource2.VersionBot}");
+                Console.WriteLine($"Версия: {Base.Resource.VersionBot}");
 
-                await _Client.LoginAsync(TokenType.Bot, Base.Resource2.TokenBot);
+                await _Client.LoginAsync(TokenType.Bot, Base.Resource.TokenBot);
             
             }
             else
             {
                 Console.WriteLine("------------!Тестовый бот!--------------");
 
-                Console.WriteLine($"Версия: {Base.Resource2.VersionBot}");
+                Console.WriteLine($"Версия: {Base.Resource.VersionBot}");
 
-                await _Client.LoginAsync(TokenType.Bot, Base.Resource2.TestBotToken);
+                await _Client.LoginAsync(TokenType.Bot, Base.Resource.TestBotToken);
             }
 
             await _Client.StartAsync();
@@ -337,40 +338,49 @@ namespace LegionKun.BotAPI
             if (guild.EndUser == user.Id || guild.DefaultChannelSendMessageForInfoUsers == 0)
                 return;
 
+            string titl = null,
+                body = null;
+
+            using (SqlConnection connect = new SqlConnection(ConstVariables.DateBase.ConnectionStringKey))
+            {
+                try
+                {
+                    connect.Open();
+                    using (SqlCommand command = new SqlCommand("sp_GetGoodbyeText", connect) { CommandType = System.Data.CommandType.StoredProcedure })
+                    {
+                        SqlParameter GuildidParameter = new SqlParameter
+                        {
+                            ParameterName = "@GuildId",
+                            DbType = System.Data.DbType.Int64,
+                            Value = user.Guild.Id
+                        };
+
+                        command.Parameters.Add(GuildidParameter);
+                        SqlDataReader reader = command.ExecuteReader();
+
+                        if(reader.HasRows)
+                        {
+                            reader.Read();
+                            titl = reader.GetString(0).Trim(' ');
+                            body = reader.GetString(1).Trim(' ');
+                            reader.Close();
+                        }
+                    }
+                }
+                catch(Exception e)
+                {
+                    ConstVariables.Logger.Error(e);
+                }
+            }
+
             EmbedBuilder builder = new EmbedBuilder();
 
             builder.WithColor(ConstVariables.InfoColor);
 
-            switch (user.Guild.Id)
-            {
-                //disboard
-                case 435485527156981770:
-                    {
-                        builder.WithDescription($"Пользователь '{user.Username}#{user.Discriminator}' - покинул нас! Он не знает от чего отказывается!");
-                        builder.WithTitle("Прощание");
-                        break;
-                    }
-                //шароновский легион
-                case 461284473799966730:
-                    {
-                        builder.WithDescription($"'{user.Username}#{user.Discriminator}' - ушёл в последний бой");
-                        builder.WithTitle("Мемориал памяти воинского трибунала");
-                        break;
-                    }
-                //[Legion Sharon'a]
-                case 423154703354822668:
-                    {
-                        builder.WithDescription($"'{user.Username}#{user.Discriminator}' - ушёл в последний бой");
-                        builder.WithTitle("Мемориал памяти воинского трибунала");
-                        break;
-                    }
-                default:
-                    {
-                        builder.WithDescription($"Пользователь '{user.Username}#{user.Discriminator}' - покинул нас");
-                        builder.WithTitle("Прощание");
-                        break;
-                    }
-            }
+            body = String.Format(body, user.Username, user.Discriminator);
+
+            builder.WithDescription(body);
+            builder.WithTitle(titl);
 
             ConstVariables.Logger.Info($"is func 'UserLeft' is guild '{user.Guild.Name}' is user '{user.Username}#{user.Discriminator}'");
 

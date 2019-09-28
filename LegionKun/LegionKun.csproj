@@ -314,6 +314,11 @@
     <Compile Include="Attribute\CategoryChannel.cs" />
     <Compile Include="Attribute\OwnerOnlyAttribute.cs" />
     <Compile Include="Attribute\TestsAttribute.cs" />
+    <Compile Include="Base\Resource.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resource.resx</DependentUpon>
+    </Compile>
     <Compile Include="BotAPI\DiscordAPI.cs" />
     <Compile Include="Module\AdminComands.cs" />
     <Compile Include="Module\ConstVariables.cs" />
@@ -350,6 +355,12 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Base\Resource.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resource.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

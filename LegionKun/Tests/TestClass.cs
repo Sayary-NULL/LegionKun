@@ -30,9 +30,37 @@ namespace LegionKun.Tests
         }
 
         [Command]
-        public async Task TestAsync(SocketRole role)
+        public async Task TestAsync()
         {
-            await ReplyAsync($"{ConstVariables.CServer[Context.Guild.Id].DefaultChannelSendMessageForInfoUsers}");
+            string titl = null, body = null;
+            ulong ad = 0;
+
+            using (SqlConnection connect = new SqlConnection(ConstVariables.DateBase.ConnectionStringKey))
+            {
+                connect.Open();
+
+                using (SqlCommand command = new SqlCommand("sp_GetGoodbyeText", connect) { CommandType = System.Data.CommandType.StoredProcedure })
+                {
+                    SqlParameter Vparam = new SqlParameter()
+                    {
+                        ParameterName = "@GuildId",
+                        DbType = System.Data.DbType.Int64,
+                        Value = Context.Guild.Id
+                    };
+
+                    command.Parameters.Add(Vparam);
+                    SqlDataReader reader = command.ExecuteReader();
+
+                    if(reader.HasRows)
+                    {
+                        reader.Read();
+                        titl = reader.GetString(0);
+                        body = reader.GetString(1);
+                        reader.Close();
+                    }
+                }
+            }
+            await ReplyAsync($"{titl} {body}");
         }
 
         [Command("connect")]

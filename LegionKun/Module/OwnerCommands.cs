@@ -45,7 +45,7 @@ namespace LegionKun.Module
         {
             SLog logger = new SLog("AllNews", Context);
 
-            string URL = "Base/news26052017.jpg";
+            string URL = ConstVariables.Patch + "Base/news26052017.jpg";
 
             bool islocalfile = true;
 
